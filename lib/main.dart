@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'features/auth/view/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,30 +8,22 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  // 이 위젯은 애플리케이션의 루트입니다.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
+        // 애플리케이션의 테마입니다.
+        // 시도해보세요: "flutter run"으로 애플리케이션을 실행해보세요. 보라색 툴바가 보일 것입니다. 앱을 종료하지 않고 아래 colorScheme의 seedColor를 Colors.green으로 바꾼 후 "hot reload"(저장 또는 IDE의 hot reload 버튼, 또는 커맨드라인에서 r)를 해보세요
+        // 카운터가 0으로 초기화되지 않은 것을 확인할 수 있습니다. 애플리케이션 상태는 reload 중에도 유지됩니다. 상태를 초기화하려면 hot restart를 사용하세요.
+        // 값뿐만 아니라 코드도 마찬가지입니다. 대부분의 코드 변경은 hot reload로 테스트할 수 있습니다.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      routes: {
+        '/': (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
+        '/auth': (context) => const LoginScreen(),
+      },
     );
   }
 }
@@ -38,14 +31,9 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+  // 이 위젯은 애플리케이션의 홈 화면입니다. 상태를 가지므로 State 객체(아래에 정의됨)가 있으며, 이 객체의 필드는 화면에 영향을 줍니다.
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
+  // 이 클래스는 상태에 대한 설정을 담당합니다. 부모(여기서는 App 위젯)로부터 전달받은 값(여기서는 title)을 보관하며, State의 build 메서드에서 사용됩니다. 위젯의 필드는 항상 "final"로 표시됩니다.
 
   final String title;
 
@@ -58,56 +46,44 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
+      // setState를 호출하면 Flutter 프레임워크에 상태가 변경되었음을 알립니다. 이로 인해 아래 build 메서드가 다시 실행되어 화면이 갱신됩니다. 만약 setState 없이 _counter만 변경하면 build가 다시 호출되지 않아 화면에 변화가 없습니다.
       _counter++;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
+    // setState가 호출될 때마다 이 메서드가 다시 실행됩니다. (예: 위의 _incrementCounter 메서드에서)
     //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // Flutter 프레임워크는 build 메서드의 재실행이 빠르게 동작하도록 최적화되어 있습니다. 따라서 변경이 필요한 부분만 다시 그릴 수 있습니다.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
+        // 시도해보세요: 여기 색상을 특정 색상(예: Colors.amber)으로 바꾼 후 hot reload를 해보세요. AppBar만 색이 바뀌고, 다른 색상은 그대로입니다.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
+        // App.build 메서드에서 생성된 MyHomePage 객체의 값을 사용해 appbar의 제목을 설정합니다.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+        // Center는 레이아웃 위젯입니다. 하나의 child를 받아 부모의 중앙에 배치합니다.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
+          // Column도 레이아웃 위젯입니다. 여러 child를 받아 세로로 배치합니다. 기본적으로 자식의 가로 크기에 맞추고, 부모의 높이에 맞추려 합니다.
           //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
+          // Column에는 크기와 정렬을 제어하는 다양한 속성이 있습니다. 여기서는 mainAxisAlignment로 자식들을 세로축 중앙에 배치합니다. (Column의 주축은 세로, 교차축은 가로)
           //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
+          // 시도해보세요: "debug painting"(IDE에서 Toggle Debug Paint 또는 콘솔에서 p)을 실행해 각 위젯의 와이어프레임을 확인해보세요.
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('You have pushed the button this many times:'),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/auth');
+              },
+              child: const Text('로그인 화면으로 이동'),
             ),
           ],
         ),
@@ -116,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ), // 이 쉼표는 build 메서드의 자동 포매팅을 더 보기 좋게 만듭니다.
     );
   }
 }
