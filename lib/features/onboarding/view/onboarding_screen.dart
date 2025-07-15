@@ -3,6 +3,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:it_contest_fe/features/onboarding/view/widgets/custom_date_picker.dart';
 import 'package:it_contest_fe/features/onboarding/view/widgets/time_range_picker.dart';
+import 'package:it_contest_fe/features/onboarding/view/widgets/invite_bottom_sheet.dart';
+import 'package:it_contest_fe/features/onboarding/view/widgets/date_time_section.dart';
+import 'package:it_contest_fe/features/onboarding/service/onboarding_service.dart';
 
 /// 온보딩 화면: 퀘스트 생성 및 설정 UI
 // Wrap the app with MaterialApp and provide localization
@@ -110,7 +113,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     const SizedBox(height: 16),
                     _buildCategoryInput(),
                     const SizedBox(height: 16),
-                    _buildDateTimeSection(),
+                    const DateTimeSection(),
                     const SizedBox(height: 16),
                     _buildInviteSection(),
                     const SizedBox(height: 16),
@@ -184,418 +187,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return _CategoryInput();
   }
 
-  // 시작/마감 날짜 및 시간 설정
-  // Variables for storing selected time range
-  TimeOfDay? startTime;
-  TimeOfDay? endTime;
-
-  Widget _buildDateTimeSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "시작 일자",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 8),
-        _buildStartDateRow(),
-        const SizedBox(height: 16),
-        const Text(
-          "마감 일자",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 8),
-        _buildDateRow(),
-        const SizedBox(height: 16),
-        const Text(
-          "시작 시간",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () async {
-            final result = await showTimeRangePickerDialog(
-              context: context,
-              initialStartTime: TimeOfDay(hour: 7, minute: 0),
-              initialEndTime: TimeOfDay(hour: 9, minute: 0),
-            );
-            if (result != null) {
-              setState(() {
-                startTime = result.startTime;
-                endTime = result.endTime;
-              });
-            }
-          },
-          child: AbsorbPointer(
-            child: _buildTimeRow(
-              startTime: startTime,
-              label: "시작 시간",
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          "종료 시간",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
-        ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () async {
-            final result = await showTimeRangePickerDialog(
-              context: context,
-              initialStartTime: TimeOfDay(hour: 7, minute: 0),
-              initialEndTime: TimeOfDay(hour: 9, minute: 0),
-            );
-            if (result != null) {
-              setState(() {
-                startTime = result.startTime;
-                endTime = result.endTime;
-              });
-            }
-          },
-          child: AbsorbPointer(
-            child: _buildTimeRow(
-              startTime: endTime,
-              label: "종료 시간",
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStartDateRow() {
-    // Row for 시작 일자: each field is wrapped in GestureDetector and uses AbsorbPointer to disable direct editing.
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: () async {
-            final picked = await showCustomDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (picked != null) {
-              setState(() {
-                _startYearController.text = picked.year.toString();
-                _startMonthController.text = picked.month.toString().padLeft(2, '0');
-                _startDayController.text = picked.day.toString().padLeft(2, '0');
-              });
-            }
-            // Previous showDatePicker(...) call removed
-          },
-          child: AbsorbPointer(
-            child: _dateBox(
-              width: 96,
-              controller: _startYearController,
-              readOnly: true,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        const Text("년"),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () async {
-            final picked = await showCustomDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (picked != null) {
-              setState(() {
-                _startYearController.text = picked.year.toString();
-                _startMonthController.text = picked.month.toString().padLeft(2, '0');
-                _startDayController.text = picked.day.toString().padLeft(2, '0');
-              });
-            }
-            // Previous showDatePicker(...) call removed
-          },
-          child: AbsorbPointer(
-            child: _dateBox(
-              controller: _startMonthController,
-              readOnly: true,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        const Text("월"),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () async {
-            final picked = await showCustomDatePicker(
-              context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (picked != null) {
-              setState(() {
-                _startYearController.text = picked.year.toString();
-                _startMonthController.text = picked.month.toString().padLeft(2, '0');
-                _startDayController.text = picked.day.toString().padLeft(2, '0');
-              });
-            }
-            // Previous showDatePicker(...) call removed
-          },
-          child: AbsorbPointer(
-            child: _dateBox(
-              controller: _startDayController,
-              readOnly: true,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        const Text("일"),
-      ],
-    );
-  }
-
-  // Controllers and variable for 마감 일자 (End Date)
-  DateTime? endDate;
-  final TextEditingController endYearController = TextEditingController();
-  final TextEditingController endMonthController = TextEditingController();
-  final TextEditingController endDayController = TextEditingController();
-
-  Widget _buildDateRow() {
-    // For 마감 일자: each field is wrapped in GestureDetector and uses AbsorbPointer to disable direct editing.
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: () async {
-            DateTime? selected = await showCustomDatePicker(
-              context: context,
-              initialDate: endDate ?? DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (selected != null) {
-              setState(() {
-                endDate = selected;
-                endYearController.text = selected.year.toString();
-                endMonthController.text = selected.month.toString().padLeft(2, '0');
-                endDayController.text = selected.day.toString().padLeft(2, '0');
-              });
-            }
-          },
-          child: AbsorbPointer(
-            child: _dateBox(width: 96, controller: endYearController, readOnly: true),
-          ),
-        ),
-        const SizedBox(width: 8),
-        const Text("년"),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () async {
-            DateTime? selected = await showCustomDatePicker(
-              context: context,
-              initialDate: endDate ?? DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (selected != null) {
-              setState(() {
-                endDate = selected;
-                endYearController.text = selected.year.toString();
-                endMonthController.text = selected.month.toString().padLeft(2, '0');
-                endDayController.text = selected.day.toString().padLeft(2, '0');
-              });
-            }
-          },
-          child: AbsorbPointer(
-            child: _dateBox(controller: endMonthController, readOnly: true),
-          ),
-        ),
-        const SizedBox(width: 8),
-        const Text("월"),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () async {
-            DateTime? selected = await showCustomDatePicker(
-              context: context,
-              initialDate: endDate ?? DateTime.now(),
-              firstDate: DateTime(2000),
-              lastDate: DateTime(2100),
-            );
-            if (selected != null) {
-              setState(() {
-                endDate = selected;
-                endYearController.text = selected.year.toString();
-                endMonthController.text = selected.month.toString().padLeft(2, '0');
-                endDayController.text = selected.day.toString().padLeft(2, '0');
-              });
-            }
-          },
-          child: AbsorbPointer(
-            child: _dateBox(controller: endDayController, readOnly: true),
-          ),
-        ),
-        const SizedBox(width: 8),
-        const Text("일"),
-      ],
-    );
-  }
-
-  Widget _buildTimeRow({TimeOfDay? startTime, String? label}) {
-    String ampm = '';
-    String hour = '';
-    String minute = '';
-    if (startTime != null) {
-      final int h = startTime.hour;
-      ampm = h < 12 ? '오전' : '오후';
-      hour = ((h % 12 == 0) ? 12 : h % 12).toString().padLeft(2, '0');
-      minute = startTime.minute.toString().padLeft(2, '0');
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(
-          width: 120,
-          height: 48,
-          child: TextField(
-            controller: TextEditingController(text: ampm),
-            readOnly: true,
-            decoration: InputDecoration(
-              hintText: "오전 / 오후",
-              hintStyle: const TextStyle(color: Color(0xFFB7B7B7), fontSize: 16),
-              contentPadding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-              ),
-            ),
-            textAlign: TextAlign.start,
-          ),
-        ),
-        const SizedBox(width: 8),
-        SizedBox(
-          width: 64,
-          height: 48,
-          child: TextField(
-            controller: TextEditingController(text: hour),
-            readOnly: true,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-              ),
-            ),
-            textAlign: TextAlign.center,
-            keyboardType: TextInputType.number,
-          ),
-        ),
-        const SizedBox(width: 4),
-        const Text("시"),
-        const SizedBox(width: 8),
-        SizedBox(
-          width: 64,
-          height: 48,
-          child: TextField(
-            controller: TextEditingController(text: minute),
-            readOnly: true,
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-              ),
-            ),
-            textAlign: TextAlign.center,
-            keyboardType: TextInputType.number,
-          ),
-        ),
-        const SizedBox(width: 4),
-        const Text("분"),
-      ],
-    );
-  }
-
-  Widget _dateBox({double width = 64, TextEditingController? controller, bool readOnly = false}) {
-    return SizedBox(
-      width: width,
-      height: 48,
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-          ),
-        ),
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.number,
-      ),
-    );
-  }
-
-
-  Widget _ampmTextBox() {
-    return SizedBox(
-      width: 120,
-      height: 48,
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: "오전 / 오후",
-          hintStyle: const TextStyle(color: Color(0xFFB7B7B7), fontSize: 16),
-          contentPadding: const EdgeInsets.only(left: 12, top: 12, bottom: 12),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-          ),
-        ),
-        textAlign: TextAlign.start,
-      ),
-    );
-  }
 
   // 파티원 초대 영역
   Widget _buildInviteSection() {
@@ -635,27 +226,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         OutlinedButton(
           onPressed: () {
-            // your onPressed logic
+            showInviteBottomSheet(context);
           },
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Color(0xFFBDBDBD)),
+            side: const BorderSide(color: Color(0xFF9F9F9F)),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
-            // No background color, default is transparent.
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 22),
           ),
           child: const Text(
             '파티 초대하기',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Color(0xFFBDBDBD),
+              color: Color(0xFF9F9F9F),
             ),
           ),
         ),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -663,19 +255,42 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   // 보상 정보 박스
   Widget _buildRewardSection() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16), 
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: Color(0xFF9F9F9F)),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Center(child: Text("완료시 0,000exp 지급")),
+      child: Center(
+        child: RichText(
+          text: TextSpan(
+            style: TextStyle(fontSize: 14, color: Colors.black),
+            children: [
+              TextSpan(text: "완료시 "),
+              purple("0,000exp"),
+              TextSpan(text: " 지급"),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  // 파티 생성 버튼
+  // 시작하기 버튼
   Widget _buildCreateButton() {
     return ElevatedButton.icon(
-      onPressed: () {},
+      onPressed: () async {
+        print('퀘스트 플래너 시작하기 버튼 클릭됨');
+        try {
+          print('온보딩 관련 API 호출 시작');
+          // 실제 온보딩 API 호출
+          await OnboardingService().markOnboardingCompleted();
+          print('온보딩 관련 API 호출 성공');
+          // 화면 이동
+          Navigator.pushReplacementNamed(context, '/main');
+        } catch (e) {
+          print('온보딩 관련 API 호출 실패: ${e.toString()}');
+        }
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF7958FF),
         shape: RoundedRectangleBorder(
@@ -685,7 +300,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
       icon: const Icon(Icons.group_add, color: Colors.white),
       label: const Text(
-        "파티 생성",
+        "퀘스트 플래너 시작하기",
         style: TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -727,23 +342,26 @@ class _PrioritySectionState extends State<_PrioritySection> {
           ),
         ),
         const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFF7D4CFF), width: 1.5),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              tipTitle("우선순위 TIP"),
-              const SizedBox(height: 12),
-              tipLine([gray("퀘스트는 "), purple("구체적으로 작성"), gray("해서 실천해보세요!")]),
-              tipLine([gray("ex. 책읽기 "), red("(X)"), gray(" → OO책 100페이지까지 읽기 "), blue("(O)")]),
-              tipLine([gray("우선 순위는 숫자로 1부터 5까지 넣을 수 있어요.")]),
-              tipLine([gray("숫자가 작을수록 우선 순위가 높습니다.")]),
-              tipLine([gray("분류를 지정해서 어떤 종류의 계획인지 정리해보세요!")]),
-            ],
+        SizedBox(
+          width: double.infinity,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xFF7D4CFF), width: 1.5),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                tipTitle("우선순위 TIP"),
+                const SizedBox(height: 12),
+                tipLine([gray("퀘스트는 "), purple("구체적으로 작성"), gray("해서 실천해보세요!")]),
+                tipLine([gray("ex. 책읽기 "), red("(X)"), gray(" → OO책 100페이지까지 읽기 "), blue("(O)")]),
+                tipLine([gray("우선 순위는 숫자로 1부터 5까지 넣을 수 있어요.")]),
+                tipLine([gray("숫자가 작을수록 우선 순위가 높습니다.")]),
+                tipLine([gray("분류를 지정해서 어떤 종류의 계획인지 정리해보세요!")]),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -763,11 +381,11 @@ class _PrioritySectionState extends State<_PrioritySection> {
               borderRadius: BorderRadius.all(Radius.circular(8)),
               borderSide: BorderSide(color: Color(0xFF7D4CFF), width: 2),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           ),
           keyboardType: TextInputType.number,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -822,7 +440,7 @@ class _QuestNameInputState extends State<_QuestNameInput> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 10),
         TextField(
           controller: _controller,
           onChanged: _handleInputChange,
@@ -904,7 +522,7 @@ class _PeriodChip extends StatelessWidget {
             side: BorderSide(color: isSelected ? const Color(0xFF6B3FFF) : const Color(0xFFB7B7B7)),
             padding: const EdgeInsets.symmetric(vertical: 18),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
           onPressed: onTap,
