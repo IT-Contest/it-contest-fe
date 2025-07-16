@@ -25,12 +25,12 @@ Widget purple(String text) => const Text(
       style: TextStyle(color: Color(0xFF7D4CFF), fontSize: 15),
     );
 
-Widget red(String text) => const Text(
+Widget red(String text) => Text(
       text,
       style: TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold),
     );
 
-Widget blue(String text) => const Text(
+Widget blue(String text) => Text(
       text,
       style: TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),
     );

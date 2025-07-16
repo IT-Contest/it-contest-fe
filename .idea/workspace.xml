@@ -4,15 +4,54 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="33f01a97-0148-46ab-ac84-14d8e15eb9f6" name="Changes" comment="">
+    <list default="true" id="33f01a97-0148-46ab-ac84-14d8e15eb9f6" name="Changes" comment="최초 세팅">
+      <change afterPath="$PROJECT_DIR$/assets/icons/add_icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/alarm_btn1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/alarm_btn2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/file_1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/file_2.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/file_3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/file_4.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/gold_icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/icon1.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/icon3.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/list_O.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/list_X.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/party_add.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/party_in.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/icons/widget_icon.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/bart.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/lisa.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/marge.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/images/simpson.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/friends/view/all_friends_page.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/model/quest_item.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/analysis_page_widget.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/benefit_page_widget.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/home_page_widget.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/main_screen.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/profile_page_widget.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/quest_page_widget.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/widgets/daily_quest_list.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/widgets/onboarding_intro_card.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/widgets/party_and_friends_section.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/widgets/quest_alert_section.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/view/widgets/user_profile_card.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/mainpage/viewmodel/mainpage_viewmodel.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/quest/view/daily_quest_fullpage.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/quest/view/party_create_page.dart" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/features/quest/view/party_join_page.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_Packages.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Dart_SDK.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/Flutter_Plugins.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/KotlinJavaRuntime.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/example/it_contest_fe/MainActivity.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/it_contest_fe.iml" beforeDir="false" afterPath="$PROJECT_DIR$/it_contest_fe.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/auth/service/auth_service.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/features/auth/view/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/auth/view/login_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/it_contest_fe_android.iml" beforeDir="false" afterPath="$PROJECT_DIR$/android/it_contest_fe_android.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/onboarding/view/onboarding_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/onboarding/view/onboarding_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/features/onboarding/view/widgets/styled_text.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/features/onboarding/view/widgets/styled_text.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/presentation/main_navigation_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/main_navigation_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -36,17 +75,42 @@
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Dart File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="origin/seongjin" />
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;kcm9561&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/IT-Contest/it-contest-fe.git&quot;,
+    &quot;accountId&quot;: &quot;d9e8ae2f-7379-428b-9c57-6b299226b73f&quot;
+  }
+}</component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 5
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
   <component name="ProjectId" id="2zrGzLcM6XknrRQzTSI8DzskdU2" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1" />
     <panes>
@@ -61,17 +125,45 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Flutter.main.dart.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "feat/mainpage",
     "io.flutter.reload.alreadyRun": "true",
-    "show.migrate.to.gradle.popup": "false"
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/kcm95/Desktop/it-contest-fe-main/assets/icons",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "emulator",
+    "show.migrate.to.gradle.popup": "false",
+    "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\kcm95\Desktop\it-contest-fe-main\assets\icons" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\kcm95\Desktop\it-contest-fe-main\assets\icons" />
+      <recent name="C:\Users\kcm95\Desktop\it-contest-fe-main\assets\images" />
+      <recent name="C:\Users\kcm95\Desktop\it-contest-fe-main\lib\features\mainpage\view" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
+      </set>
+    </attachedChunks>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -80,6 +172,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1752482040273</updated>
+      <workItem from="1752596929429" duration="331000" />
+      <workItem from="1752630764676" duration="15563000" />
     </task>
     <servers />
   </component>
@@ -88,5 +182,16 @@
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
     </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="최초 세팅" />
+    <option name="LAST_COMMIT_MESSAGE" value="최초 세팅" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

@@ -1,6 +1,11 @@
-import 'package:it_contest_fe/features/onboarding/view/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/shared/widgets/bottom_nav_bar.dart';
+
+import '../features/mainpage/view/analysis_page_widget.dart';
+import '../features/mainpage/view/benefit_page_widget.dart';
+import '../features/mainpage/view/home_page_widget.dart';
+import '../features/mainpage/view/profile_page_widget.dart';
+import '../features/mainpage/view/quest_page_widget.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -18,12 +23,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   void initState() {
     super.initState();
     _screens = [
-      const OnboardingScreen(),
-      const Center(child: Text('홈')),
-      const Center(child: Text('퀘스트')),
-      const Center(child: Text('분석')),
-      const Center(child: Text('혜택')),
-      const Center(child: Text('프로필')),
+      const HomePageWidget(),
+      const QuestPageWidget(),
+      const AnalysisPageWidget(),   // 분석
+      const BenefitPageWidget(),    // 혜택
+      const ProfilePageWidget(),    // 프로필
     ];
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/intl.dart';
 import 'package:it_contest_fe/features/onboarding/view/widgets/custom_date_picker.dart';
 import 'package:it_contest_fe/features/onboarding/view/widgets/time_range_picker.dart';
 
