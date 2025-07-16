@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'features/auth/view/login_screen.dart';
+
 import 'features/onboarding/view/onboarding_screen.dart';
 import 'presentation/main_navigation_screen.dart';
 import 'features/mainpage/viewmodel/mainpage_viewmodel.dart';
@@ -21,12 +22,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const LoginScreen(),
-      routes: {
-        '/main': (context) => MainNavigationScreen(),
-        '/onboarding': (context) => OnboardingScreen(),
-      },
+    return ChangeNotifierProvider(
+      create: (_) => LoginViewModel(),
+      child: MaterialApp(
+        home: const LoginScreen(), // 앱 초기 화면을 로그인 화면으로 변경
+        routes: {
+          '/main': (context) => MainNavigationScreen(),
+          '/onboarding': (context) => OnboardingScreen(),
+        }
+      ),
     );
   }
 }
