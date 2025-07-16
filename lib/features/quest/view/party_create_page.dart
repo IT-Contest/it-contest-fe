@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/features/onboarding/view/widgets/date_time_section.dart'; // ✅ DateTimeSection import
 
 class PartyCreatePage extends StatelessWidget {
   const PartyCreatePage({super.key});
@@ -60,23 +61,12 @@ class PartyCreatePage extends StatelessWidget {
               hint: '카테고리를 직접 입력해주세요',
               borderColor: borderColor,
             ),
-            const SizedBox(height: 16),
-            const Text('시작 일자', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            _DateRow(borderColor: borderColor),
-            const SizedBox(height: 16),
-            const Text('마감 일자', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            _DateRow(borderColor: borderColor),
-            const SizedBox(height: 16),
-            const Text('시작 시간', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            _TimeRow(borderColor: borderColor, grayText: grayText),
-            const SizedBox(height: 16),
-            const Text('종료 시간', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            _TimeRow(borderColor: borderColor, grayText: grayText),
+
+            // ✅ 여기에 DateTimeSection 추가
             const SizedBox(height: 24),
+            const DateTimeSection(),
+            const SizedBox(height: 24),
+
             const Text('파티원 초대', style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             OutlinedButton(
@@ -142,6 +132,7 @@ class PartyCreatePage extends StatelessWidget {
   }
 }
 
+// 🧩 InputSection 위젯
 class _InputSection extends StatelessWidget {
   final String title;
   final String hint;
@@ -194,6 +185,7 @@ class _InputSection extends StatelessWidget {
   }
 }
 
+// 🧩 Priority 버튼 위젯
 class _PriorityButtons extends StatelessWidget {
   final Color borderColor;
   const _PriorityButtons({required this.borderColor});
@@ -221,121 +213,6 @@ class _PriorityButtons extends StatelessWidget {
           ),
         );
       }).toList(),
-    );
-  }
-}
-
-class _DateRow extends StatelessWidget {
-  final Color borderColor;
-  const _DateRow({required this.borderColor});
-
-  @override
-  Widget build(BuildContext context) {
-    final labels = ['년', '월', '일'];
-
-    return Row(
-      children: List.generate(3, (i) {
-        return Expanded(
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  style: const TextStyle(color: Color(0xFFAAAAAA)),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.grey.shade100,
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: borderColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide(color: borderColor),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Text(labels[i], style: const TextStyle(color: Colors.black)),
-              const SizedBox(width: 8),
-            ],
-          ),
-        );
-      }),
-    );
-  }
-}
-
-class _TimeRow extends StatelessWidget {
-  final Color borderColor;
-  final Color grayText;
-  const _TimeRow({required this.borderColor, required this.grayText});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Flexible(
-          flex: 3,
-          child: DropdownButtonFormField<String>(
-            value: null,
-            hint: const Text('오전 / 오후', style: TextStyle(color: Color(0xFFAAAAAA))),
-            items: const [
-              DropdownMenuItem(value: '오전', child: Text('오전')),
-              DropdownMenuItem(value: '오후', child: Text('오후')),
-            ],
-            onChanged: (_) {},
-            style: const TextStyle(color: Color(0xFFAAAAAA)),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.grey.shade100,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: Colors.grey.shade300),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Flexible(flex: 2, child: _buildTimeInput('시')),
-        const SizedBox(width: 8),
-        Flexible(flex: 2, child: _buildTimeInput('분')),
-      ],
-    );
-  }
-
-  Widget _buildTimeInput(String label) {
-    return Expanded(
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              style: TextStyle(color: grayText),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey.shade100,
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: borderColor),
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Text(label, style: const TextStyle(color: Colors.black)),
-        ],
-      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/features/mainpage/view/widgets/invite_modal.dart';
 
 import '../../../friends/view/all_friends_page.dart';
 import '../../../quest/view/party_create_page.dart';
@@ -26,7 +27,7 @@ class PartyAndFriendsSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                '파티 & 친구',
+                '친구 목록',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -34,7 +35,9 @@ class PartyAndFriendsSection extends StatelessWidget {
                 ),
               ),
               TextButton.icon(
-                onPressed: null,
+                onPressed: () {
+                  InviteModal.show(context);
+                },
                 icon: const Icon(Icons.add, color: Colors.black54, size: 18),
                 label: const Text(
                   '친구추가',
@@ -128,7 +131,7 @@ class PartyAndFriendsSection extends StatelessWidget {
                   },
                   icon: Image.asset('assets/icons/party_add.png', width: 20, height: 20),
                   label: const Text(
-                    '파티 생성',
+                    '파티 퀘스트 생성',
                     style: TextStyle(color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -154,7 +157,7 @@ class PartyAndFriendsSection extends StatelessWidget {
                   },
                   icon: Image.asset('assets/icons/party_in.png', width: 20, height: 20),
                   label: const Text(
-                    '파티 참가',
+                    '파티 퀘스트 참가',
                     style: TextStyle(color: Color(0xFF5C2EFF)),
                   ),
                   style: OutlinedButton.styleFrom(
