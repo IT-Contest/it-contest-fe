@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'features/auth/view/login_screen.dart';
 
+import 'features/auth/viewmodel/login_viewmodel.dart';
 import 'features/onboarding/view/onboarding_screen.dart';
 import 'presentation/main_navigation_screen.dart';
 import 'features/mainpage/viewmodel/mainpage_viewmodel.dart';
