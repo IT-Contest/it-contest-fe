@@ -1,4 +1,4 @@
-package com.example.it_contest_fe
+package com.ssucheahwa.questplanner
 
 import io.flutter.embedding.android.FlutterActivity
 
