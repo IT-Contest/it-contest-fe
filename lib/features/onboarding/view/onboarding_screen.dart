@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/intl.dart';
 import 'package:it_contest_fe/features/onboarding/view/widgets/custom_date_picker.dart';
 import 'package:it_contest_fe/features/onboarding/view/widgets/time_range_picker.dart';
 import 'package:it_contest_fe/features/onboarding/view/widgets/invite_bottom_sheet.dart';
 import 'package:it_contest_fe/features/onboarding/view/widgets/date_time_section.dart';
 import 'package:it_contest_fe/features/onboarding/service/onboarding_service.dart';
+import 'package:it_contest_fe/features/quest/service/quest_service.dart';
+import 'package:it_contest_fe/features/quest/model/quest_create_request.dart';
+import 'package:provider/provider.dart';
+import 'package:it_contest_fe/features/onboarding/viewmodel/onboarding_viewmodel.dart';
 
 /// 온보딩 화면: 퀘스트 생성 및 설정 UI
 // Wrap the app with MaterialApp and provide localization
@@ -32,45 +35,24 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => OnboardingViewModel(),
+      child: const _OnboardingScreenBody(),
+    );
+  }
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  // Controllers for 시작일자
-  final TextEditingController _startYearController = TextEditingController();
-  final TextEditingController _startMonthController = TextEditingController();
-  final TextEditingController _startDayController = TextEditingController();
-
-  @override
-  void dispose() {
-    _startYearController.dispose();
-    _startMonthController.dispose();
-    _startDayController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _selectStartDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      setState(() {
-        _startYearController.text = picked.year.toString();
-        _startMonthController.text = picked.month.toString().padLeft(2, '0');
-        _startDayController.text = picked.day.toString().padLeft(2, '0');
-      });
-    }
-  }
+class _OnboardingScreenBody extends StatelessWidget {
+  const _OnboardingScreenBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.watch<OnboardingViewModel>();
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -84,9 +66,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(Icons.menu, color: Colors.deepPurple),
-                  Image.asset('assets/images/logo.jpg', height: 40),
-                  Icon(Icons.notifications_none, color: Colors.deepPurple),
+                  IconButton(
+                    icon: Image.asset('assets/icons/arrow_back_ios_new.png', width: 24, height: 24),
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/main');
+                    },
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Image.asset('assets/images/logo.jpg', height: 40),
+                    ),
+                  ),
+                  SizedBox(width: 24),
                 ],
               ),
             ),
@@ -107,19 +98,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     const SizedBox(height: 4),
                     _buildTitleSection(),
                     const SizedBox(height: 16),
-                    _buildQuestNameInput(),
+                    _QuestNameInput(onChanged: vm.setQuestName),
                     const SizedBox(height: 16),
-                    _buildPrioritySection(),
+                    _PrioritySection(onChanged: vm.setPriority),
                     const SizedBox(height: 16),
-                    _buildCategoryInput(),
+                    _CategoryInput(onChanged: vm.setHashtags),
                     const SizedBox(height: 16),
-                    const DateTimeSection(),
+                    DateTimeSection(
+                      onStartDateChanged: vm.setStartDate,
+                      onDueDateChanged: vm.setDueDate,
+                      onStartTimeChanged: vm.setStartTime,
+                      onEndTimeChanged: vm.setEndTime,
+                    ),
                     const SizedBox(height: 16),
-                    _buildInviteSection(),
+                    _buildInviteSection(context),
                     const SizedBox(height: 16),
-                    _buildRewardSection(),
-                    const SizedBox(height: 32),
-                    _buildCreateButton(),
+                    _buildCreateButton(context, vm),
                     const SizedBox(height: 32),
                     _buildAdBanner(),
                   ],
@@ -172,57 +166,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  // 퀘스트명 입력 필드
-  Widget _buildQuestNameInput() {
-    return _QuestNameInput();
-  }
-
-  // 우선순위 입력 영역
-  Widget _buildPrioritySection() {
-    return const _PrioritySection();
-  }
-
-  // 카테고리 입력 필드
-  Widget _buildCategoryInput() {
-    return _CategoryInput();
-  }
-
-
   // 파티원 초대 영역
-  Widget _buildInviteSection() {
+  Widget _buildInviteSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           "파티원 초대",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Container(
+          width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            border: Border.all(color: const Color(0xFF7D4CFF), width: 1.5),
+            border: Border.all(color: Color(0xFF7D4CFF), width: 1.5),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
-              Text(
-                "파티원 초대 TIP",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF7D4CFF),
-                ),
-              ),
-              SizedBox(height: 12),
-              Text(
-                "친구를 초대하고 친구와 같이 파티를 맺어 계획을 진행하면\n더 많은 리워드를 얻을 수 있어요!",
-                style: TextStyle(fontSize: 12, color: Color(0xFF6B6B6B)),
-              ),
+              Text("파티원 초대 TIP", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF7D4CFF))),
+              SizedBox(height: 8),
+              Text("친구를 초대하고 파티를 맺어 계획을 진행하면", style: TextStyle(fontSize: 13, color: Color(0xFF6B6B6B))),
+              SizedBox(height: 2),
+              Text.rich(TextSpan(children: [
+                TextSpan(text: "더 많은 리워드", style: TextStyle(color: Color(0xFF7D4CFF), fontWeight: FontWeight.bold, fontSize: 13)),
+                TextSpan(text: "를 얻을 수 있어요!", style: TextStyle(color: Color(0xFF6B6B6B), fontSize: 13)),
+              ])),
+              SizedBox(height: 2),
+              Text.rich(TextSpan(children: [
+                TextSpan(text: "파티원 초대시 ", style: TextStyle(color: Color(0xFF6B6B6B), fontSize: 13)),
+                TextSpan(text: "000exp", style: TextStyle(color: Color(0xFF7D4CFF), fontWeight: FontWeight.bold, fontSize: 13)),
+                TextSpan(text: " 추가 지급", style: TextStyle(color: Color(0xFF6B6B6B), fontSize: 13)),
+              ])),
             ],
           ),
         ),
@@ -238,59 +215,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 22),
           ),
-          child: const Text(
-            '파티 초대하기',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF9F9F9F),
-            ),
-          ),
+          child: const Text('파티 초대하기', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF9F9F9F))),
         ),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  // 보상 정보 박스
-  Widget _buildRewardSection() {
-    return Container(
-      padding: const EdgeInsets.all(16), 
-      decoration: BoxDecoration(
-        border: Border.all(color: Color(0xFF9F9F9F)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: RichText(
-          text: TextSpan(
-            style: TextStyle(fontSize: 14, color: Colors.black),
-            children: [
-              TextSpan(text: "완료시 "),
-              purple("0,000exp"),
-              TextSpan(text: " 지급"),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   // 시작하기 버튼
-  Widget _buildCreateButton() {
+  Widget _buildCreateButton(BuildContext context, OnboardingViewModel vm) {
     return ElevatedButton.icon(
-      onPressed: () async {
-        print('퀘스트 플래너 시작하기 버튼 클릭됨');
-        try {
-          print('온보딩 관련 API 호출 시작');
-          // 실제 온보딩 API 호출
-          await OnboardingService().markOnboardingCompleted();
-          print('온보딩 관련 API 호출 성공');
-          // 화면 이동
-          Navigator.pushReplacementNamed(context, '/main');
-        } catch (e) {
-          print('온보딩 관련 API 호출 실패: ${e.toString()}');
-        }
-      },
+      onPressed: vm.isLoading
+          ? null
+          : () async {
+              final success = await vm.createQuest();
+              if (success) {
+                Navigator.pushReplacementNamed(context, '/main');
+              } else if (vm.errorMessage != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(vm.errorMessage!)),
+                );
+              }
+            },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF7958FF),
         shape: RoundedRectangleBorder(
@@ -298,15 +244,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ),
         padding: const EdgeInsets.symmetric(vertical: 24),
       ),
-      icon: const Icon(Icons.group_add, color: Colors.white),
-      label: const Text(
-        "퀘스트 플래너 시작하기",
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      label: vm.isLoading
+          ? const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+            )
+          : const Text(
+              "퀘스트 플래너 시작하기",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return " ${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
   // 광고 배너 영역
@@ -319,8 +274,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 }
 
+String periodKorToEng(String period) {
+  switch (period) {
+    case "일일":
+      return "DAILY";
+    case "주간":
+      return "WEEKLY";
+    case "월간":
+      return "MONTHLY";
+    case "연간":
+      return "YEARLY";
+    default:
+      return "DAILY";
+  }
+}
+
 class _PrioritySection extends StatefulWidget {
-  const _PrioritySection({Key? key}) : super(key: key);
+  const _PrioritySection({Key? key, required this.onChanged}) : super(key: key);
+  final ValueChanged<int> onChanged;
 
   @override
   State<_PrioritySection> createState() => _PrioritySectionState();
@@ -328,9 +299,24 @@ class _PrioritySection extends StatefulWidget {
 
 class _PrioritySectionState extends State<_PrioritySection> {
   String? selectedPeriod;
+  final TextEditingController _priorityController = TextEditingController();
+
+  @override
+  void dispose() {
+    _priorityController.dispose();
+    super.dispose();
+  }
+
+  void _handlePriorityChange(String value) {
+    final intVal = int.tryParse(value);
+    if (intVal != null) {
+      widget.onChanged(intVal);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final vm = Provider.of<OnboardingViewModel>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -366,6 +352,7 @@ class _PrioritySectionState extends State<_PrioritySection> {
         ),
         const SizedBox(height: 20),
         TextField(
+          controller: _priorityController,
           decoration: InputDecoration(
             hintText: "숫자를 직접 입력해 주세요",
             hintStyle: const TextStyle(color: Color(0xFFB7B7B7), fontSize: 14),
@@ -384,15 +371,44 @@ class _PrioritySectionState extends State<_PrioritySection> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           ),
           keyboardType: TextInputType.number,
+          onChanged: _handlePriorityChange,
         ),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _PeriodChip(label: "일일", isSelected: selectedPeriod == "일일", onTap: () => setState(() => selectedPeriod = "일일")),
-            _PeriodChip(label: "주간", isSelected: selectedPeriod == "주간", onTap: () => setState(() => selectedPeriod = "주간")),
-            _PeriodChip(label: "월간", isSelected: selectedPeriod == "월간", onTap: () => setState(() => selectedPeriod = "월간")),
-            _PeriodChip(label: "연간", isSelected: selectedPeriod == "연간", onTap: () => setState(() => selectedPeriod = "연간")),
+            _PeriodChip(
+              label: "일일",
+              isSelected: selectedPeriod == "일일",
+              onTap: () {
+                setState(() => selectedPeriod = "일일");
+                vm.setQuestType(periodKorToEng("일일"));
+              },
+            ),
+            _PeriodChip(
+              label: "주간",
+              isSelected: selectedPeriod == "주간",
+              onTap: () {
+                setState(() => selectedPeriod = "주간");
+                vm.setQuestType(periodKorToEng("주간"));
+              },
+            ),
+            _PeriodChip(
+              label: "월간",
+              isSelected: selectedPeriod == "월간",
+              onTap: () {
+                setState(() => selectedPeriod = "월간");
+                vm.setQuestType(periodKorToEng("월간"));
+              },
+            ),
+            _PeriodChip(
+              label: "연간",
+              isSelected: selectedPeriod == "연간",
+              onTap: () {
+                setState(() => selectedPeriod = "연간");
+                vm.setQuestType(periodKorToEng("연간"));
+              },
+            ),
           ],
         ),
       ],
@@ -401,7 +417,8 @@ class _PrioritySectionState extends State<_PrioritySection> {
 }
 
 class _QuestNameInput extends StatefulWidget {
-  const _QuestNameInput({Key? key}) : super(key: key);
+  const _QuestNameInput({Key? key, required this.onChanged}) : super(key: key);
+  final ValueChanged<String> onChanged;
 
   @override
   State<_QuestNameInput> createState() => _QuestNameInputState();
@@ -420,6 +437,7 @@ class _QuestNameInputState extends State<_QuestNameInput> {
     setState(() {
       _isOverLimit = value.length > 100;
     });
+    widget.onChanged(value);
   }
 
   @override
@@ -534,7 +552,8 @@ class _PeriodChip extends StatelessWidget {
 }
 
 class _CategoryInput extends StatefulWidget {
-  const _CategoryInput({Key? key}) : super(key: key);
+  const _CategoryInput({Key? key, required this.onChanged}) : super(key: key);
+  final ValueChanged<List<String>> onChanged;
 
   @override
   State<_CategoryInput> createState() => _CategoryInputState();
@@ -543,6 +562,10 @@ class _CategoryInput extends StatefulWidget {
 class _CategoryInputState extends State<_CategoryInput> {
   final TextEditingController _controller = TextEditingController();
   final List<String> _categories = [];
+
+  void _notifyParent() {
+    widget.onChanged(List<String>.from(_categories));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -566,6 +589,7 @@ class _CategoryInputState extends State<_CategoryInput> {
                 _categories.add(trimmed);
                 _controller.clear();
               });
+              _notifyParent();
             }
           },
           decoration: InputDecoration(
@@ -606,13 +630,17 @@ class _CategoryInputState extends State<_CategoryInput> {
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF643EFF),
                   side: const BorderSide(color: Color(0xFF643EFF)),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
+                  visualDensity: VisualDensity(vertical: -2),
                 ),
-                onPressed: () => setState(() => _categories.removeLast()),
-                child: const Text("삭제하기", style: TextStyle(fontSize: 14)),
+                onPressed: () {
+                  setState(() => _categories.removeLast());
+                  _notifyParent();
+                },
+                child: const Text("삭제하기", style: TextStyle(fontSize: 14, color: Color(0xFF643EFF))),
               ),
           ],
         ),
