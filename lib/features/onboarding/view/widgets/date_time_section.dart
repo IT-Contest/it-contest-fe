@@ -3,34 +3,115 @@ import 'package:it_contest_fe/features/onboarding/view/widgets/custom_date_picke
 import 'package:it_contest_fe/features/onboarding/view/widgets/time_range_picker.dart';
 
 class DateTimeSection extends StatefulWidget {
-  const DateTimeSection({super.key});
+  final ValueChanged<DateTime>? onStartDateChanged;
+  final ValueChanged<DateTime>? onDueDateChanged;
+  final ValueChanged<TimeOfDay>? onStartTimeChanged;
+  final ValueChanged<TimeOfDay>? onEndTimeChanged;
+
+  const DateTimeSection({
+    Key? key,
+    this.onStartDateChanged,
+    this.onDueDateChanged,
+    this.onStartTimeChanged,
+    this.onEndTimeChanged,
+  }) : super(key: key);
 
   @override
   State<DateTimeSection> createState() => _DateTimeSectionState();
 }
 
 class _DateTimeSectionState extends State<DateTimeSection> {
-  final _startYearController = TextEditingController();
-  final _startMonthController = TextEditingController();
-  final _startDayController = TextEditingController();
+  DateTime? _startDate;
+  DateTime? _dueDate;
+  TimeOfDay? _startTime;
+  TimeOfDay? _endTime;
 
-  final _endYearController = TextEditingController();
-  final _endMonthController = TextEditingController();
-  final _endDayController = TextEditingController();
+  // Helper for displaying date parts
+  String _getYear(DateTime? d) => d != null ? d.year.toString() : '';
+  String _getMonth(DateTime? d) => d != null ? d.month.toString().padLeft(2, '0') : '';
+  String _getDay(DateTime? d) => d != null ? d.day.toString().padLeft(2, '0') : '';
 
-  TimeOfDay? startTime;
-  TimeOfDay? endTime;
-  DateTime? endDate;
+  String _getPeriod(TimeOfDay? t) => t == null ? '' : (t.hour < 12 ? '오전' : '오후');
+  String _getHour(TimeOfDay? t) => t == null ? '' : ((t.hour % 12 == 0 ? 12 : t.hour % 12).toString().padLeft(2, '0'));
+  String _getMinute(TimeOfDay? t) => t == null ? '' : t.minute.toString().padLeft(2, '0');
 
-  @override
-  void dispose() {
-    _startYearController.dispose();
-    _startMonthController.dispose();
-    _startDayController.dispose();
-    _endYearController.dispose();
-    _endMonthController.dispose();
-    _endDayController.dispose();
-    super.dispose();
+  Future<void> _pickStartDate() async {
+    final picked = await showCustomDatePicker(
+      context: context,
+      initialDate: _startDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() => _startDate = picked);
+      widget.onStartDateChanged?.call(picked);
+    }
+  }
+
+  Future<void> _pickDueDate() async {
+    final picked = await showCustomDatePicker(
+      context: context,
+      initialDate: _dueDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() => _dueDate = picked);
+      widget.onDueDateChanged?.call(picked);
+    }
+  }
+
+  Future<void> _pickTime({required bool isStart}) async {
+    final result = await showTimeRangePickerDialog(
+      context: context,
+      initialStartTime: _startTime ?? TimeOfDay.now(),
+      initialEndTime: _endTime ?? TimeOfDay.now(),
+    );
+    if (result != null) {
+      setState(() {
+        _startTime = result.startTime;
+        _endTime = result.endTime;
+      });
+      widget.onStartTimeChanged?.call(result.startTime);
+      widget.onEndTimeChanged?.call(result.endTime);
+    }
+  }
+
+  Widget _dateBox(String text, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 48,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFB7B7B7)),
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+        ),
+        child: Text(text, style: const TextStyle(fontSize: 16)),
+      ),
+    );
+  }
+
+  Widget _timeBox(String text, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 48,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          border: Border.all(color: const Color(0xFFB7B7B7)),
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 16),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
+      ),
+    );
   }
 
   @override
@@ -38,201 +119,80 @@ class _DateTimeSectionState extends State<DateTimeSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("시작 일자", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text('시작 일자', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 8),
-        _buildStartDateRow(),
+        SizedBox(
+          width: double.infinity,
+          child: Row(
+            children: [
+              Expanded(flex: 90, child: _dateBox(_getYear(_startDate), _pickStartDate)),
+              const SizedBox(width: 8),
+              const Text('년', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 12),
+              Expanded(flex: 48, child: _dateBox(_getMonth(_startDate), _pickStartDate)),
+              const SizedBox(width: 8),
+              const Text('월', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 12),
+              Expanded(flex: 48, child: _dateBox(_getDay(_startDate), _pickStartDate)),
+              const SizedBox(width: 8),
+              const Text('일', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
         const SizedBox(height: 16),
-        const Text("마감 일자", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text('마감 일자', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 8),
-        _buildDateRow(),
+        SizedBox(
+          width: double.infinity,
+          child: Row(
+            children: [
+              Expanded(flex: 90, child: _dateBox(_getYear(_dueDate), _pickDueDate)),
+              const SizedBox(width: 8),
+              const Text('년', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 12),
+              Expanded(flex: 48, child: _dateBox(_getMonth(_dueDate), _pickDueDate)),
+              const SizedBox(width: 8),
+              const Text('월', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 12),
+              Expanded(flex: 48, child: _dateBox(_getDay(_dueDate), _pickDueDate)),
+              const SizedBox(width: 8),
+              const Text('일', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
         const SizedBox(height: 16),
-        const Text("시작 시간", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text('시작 시간', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: _pickTime,
-          child: AbsorbPointer(child: _buildTimeRow(startTime, "시작 시간")),
+        Row(
+          children: [
+            Expanded(flex: 130, child: _timeBox(_getPeriod(_startTime).isEmpty ? '오전 / 오후' : _getPeriod(_startTime), () => _pickTime(isStart: true))),
+            const SizedBox(width: 8),
+            Expanded(flex: 48, child: _timeBox(_getHour(_startTime), () => _pickTime(isStart: true))),
+            const SizedBox(width: 4),
+            const Text('시', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(width: 8),
+            Expanded(flex: 48, child: _timeBox(_getMinute(_startTime), () => _pickTime(isStart: true))),
+            const SizedBox(width: 4),
+            const Text('분', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
         ),
         const SizedBox(height: 16),
-        const Text("종료 시간", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        const Text('종료 시간', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
         const SizedBox(height: 8),
-        GestureDetector(
-          onTap: _pickTime,
-          child: AbsorbPointer(child: _buildTimeRow(endTime, "종료 시간")),
+        Row(
+          children: [
+            Expanded(flex: 130, child: _timeBox(_getPeriod(_endTime).isEmpty ? '오전 / 오후' : _getPeriod(_endTime), () => _pickTime(isStart: false))),
+            const SizedBox(width: 8),
+            Expanded(flex: 48, child: _timeBox(_getHour(_endTime), () => _pickTime(isStart: false))),
+            const SizedBox(width: 4),
+            const Text('시', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(width: 8),
+            Expanded(flex: 48, child: _timeBox(_getMinute(_endTime), () => _pickTime(isStart: false))),
+            const SizedBox(width: 4),
+            const Text('분', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          ],
         ),
       ],
-    );
-  }
-
-  Future<void> _pickTime() async {
-    final result = await showTimeRangePickerDialog(
-      context: context,
-      initialStartTime: TimeOfDay(hour: 7, minute: 0),
-      initialEndTime: TimeOfDay(hour: 9, minute: 0),
-    );
-    if (result != null) {
-      setState(() {
-        startTime = result.startTime;
-        endTime = result.endTime;
-      });
-    }
-  }
-
-  Widget _buildStartDateRow() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: _dateTapBox(_startYearController, "년"),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          flex: 1,
-          child: _dateTapBox(_startMonthController, "월"),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          flex: 1,
-          child: _dateTapBox(_startDayController, "일"),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateRow() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: _dateTapBox(_endYearController, "년", isEndDate: true),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          flex: 1,
-          child: _dateTapBox(_endMonthController, "월", isEndDate: true),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          flex: 1,
-          child: _dateTapBox(_endDayController, "일", isEndDate: true),
-        ),
-      ],
-    );
-  }
-
-  Widget _dateTapBox(TextEditingController controller, String label, {bool isEndDate = false}) {
-    return Row(
-      children: [
-        Expanded(
-          child: GestureDetector(
-            onTap: () async {
-              final picked = await showCustomDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
-              );
-              if (picked != null) {
-                setState(() {
-                  controller.text = label == "년" ? picked.year.toString() : label == "월"
-                      ? picked.month.toString().padLeft(2, '0') : picked.day.toString().padLeft(2, '0');
-
-                  if (isEndDate) {
-                    endDate = picked;
-                    _endYearController.text = picked.year.toString();
-                    _endMonthController.text = picked.month.toString().padLeft(2, '0');
-                    _endDayController.text = picked.day.toString().padLeft(2, '0');
-                  } else {
-                    _startYearController.text = picked.year.toString();
-                    _startMonthController.text = picked.month.toString().padLeft(2, '0');
-                    _startDayController.text = picked.day.toString().padLeft(2, '0');
-                  }
-                });
-              }
-            },
-            child: AbsorbPointer(child: _dateBox(controller: controller)),
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(label),
-      ],
-    );
-  }
-
-  Widget _buildTimeRow(TimeOfDay? time, String label) {
-    final int h = time?.hour ?? 0;
-    final ampm = time == null ? "오전 / 오후" : (h < 12 ? "오전" : "오후");
-    final hour = time == null ? "" : ((h % 12 == 0) ? 12 : h % 12).toString().padLeft(2, '0');
-    final minute = time == null ? "" : (time.minute.toString().padLeft(2, '0'));
-
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: _textField(ampm),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          flex: 1,
-          child: _textField(hour),
-        ),
-        const SizedBox(width: 4),
-        const Text("시"),
-        const SizedBox(width: 8),
-        Expanded(
-          flex: 1,
-          child: _textField(minute),
-        ),
-        const SizedBox(width: 4),
-        const Text("분"),
-      ],
-    );
-  }
-
-  Widget _textField(String text) {
-    final isPlaceholder = text == "오전 / 오후";
-    return SizedBox(
-      height: 48,
-      child: TextField(
-        controller: TextEditingController(text: text),
-        readOnly: true,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: isPlaceholder ? Colors.grey : Colors.black,
-        ),
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _dateBox({required TextEditingController controller}) {
-    return SizedBox(
-      height: 48,
-      child: TextField(
-        controller: controller,
-        readOnly: true,
-        textAlign: TextAlign.center,
-        decoration: InputDecoration(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
-          ),
-        ),
-      ),
     );
   }
 }

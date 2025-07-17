@@ -26,8 +26,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LoginViewModel(),
       child: MaterialApp(
-        // home: const LoginScreen(), // 앱 초기 화면을 로그인 화면으로 변경
-        home: const MainNavigationScreen(),
+        home: const LoginScreen(),
         routes: {
           '/main': (context) => MainNavigationScreen(),
           '/onboarding': (context) => OnboardingScreen(),
