@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/features/mainpage/model/mainpage_user_response.dart';
 
 class UserProfileCard extends StatelessWidget {
-  const UserProfileCard({super.key});
+  final MainpageUserResponse user;
+
+  const UserProfileCard({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +15,7 @@ class UserProfileCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Colors.black.withOpacity(0.1), // ✅ 살짝 투명한 회색 테두리
+          color: Colors.black.withOpacity(0.1),
           width: 1,
         ),
         boxShadow: [
@@ -25,14 +28,13 @@ class UserProfileCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // 프로필 + 닉네임 + 레벨
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: Image.asset(
-                  'assets/images/simpson.jpg',
+                child: Image.network(
+                  user.profileImageUrl,
                   width: 60,
                   height: 60,
                   fit: BoxFit.cover,
@@ -45,9 +47,9 @@ class UserProfileCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Text(
-                          '호머 심슨',
-                          style: TextStyle(
+                        Text(
+                          user.nickname,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -59,9 +61,9 @@ class UserProfileCard extends StatelessWidget {
                             color: Color(0xFF6737F4),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
-                            'LV.7',
-                            style: TextStyle(
+                          child: Text(
+                            'LV.${user.level}',
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                             ),
@@ -69,10 +71,7 @@ class UserProfileCard extends StatelessWidget {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 12),
-
-                    // ✅ 경험치 바 + EXP %
                     Row(
                       children: [
                         Expanded(
@@ -87,10 +86,10 @@ class UserProfileCard extends StatelessWidget {
                             child: Stack(
                               children: [
                                 FractionallySizedBox(
-                                  widthFactor: 0.67,
+                                  widthFactor: user.expPercent / 100,
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      color: Color(0x996737F4), // 투명 보라
+                                      color: Color(0x996737F4),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                   ),
@@ -100,9 +99,9 @@ class UserProfileCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          'EXP 67%',
-                          style: TextStyle(
+                        Text(
+                          'EXP ${user.expPercent}%',
+                          style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF6737F4),
                             fontWeight: FontWeight.bold,
@@ -110,52 +109,43 @@ class UserProfileCard extends StatelessWidget {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 8),
-
-                    // ✅ 누적 경험치 + 골드
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            Image.asset(
-                              'assets/icons/widget_icon.png',
-                              width: 18,
-                              height: 18,
-                            ),
+                            Image.asset('assets/icons/widget_icon.png', width: 18, height: 18),
                             const SizedBox(width: 4),
                             const Text(
                               '누적 경험치 ',
                               style: TextStyle(color: Color(0xFF6737F4), fontSize: 13),
                             ),
-                            const Text(
-                              '100,000',
-                              style: TextStyle(
-                                  color: Color(0xFF6737F4),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold),
+                            Text(
+                              '${user.exp}',
+                              style: const TextStyle(
+                                color: Color(0xFF6737F4),
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
                         Row(
                           children: [
-                            Image.asset(
-                              'assets/icons/gold_icon.png',
-                              width: 18,
-                              height: 18,
-                            ),
+                            Image.asset('assets/icons/gold_icon.png', width: 18, height: 18),
                             const SizedBox(width: 4),
                             const Text(
                               '골드 ',
                               style: TextStyle(color: Color(0xFF6737F4), fontSize: 13),
                             ),
-                            const Text(
-                              '2,450',
-                              style: TextStyle(
-                                  color: Color(0xFF6737F4),
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.bold),
+                            Text(
+                              '${user.gold}',
+                              style: const TextStyle(
+                                color: Color(0xFF6737F4),
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
