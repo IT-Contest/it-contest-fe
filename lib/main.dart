@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'features/auth/view/login_screen.dart';
-
 import 'features/auth/viewmodel/login_viewmodel.dart';
 import 'features/onboarding/view/onboarding_screen.dart';
 import 'presentation/main_navigation_screen.dart';
 import 'features/mainpage/viewmodel/mainpage_viewmodel.dart';
+import 'features/quest/viewmodel/quest_tab_viewmodel.dart';
+import 'features/quest/viewmodel/quest_pomodoro_viewmodel.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 void main() {
   KakaoSdk.init(nativeAppKey: '95a6f5cbf0b31573e750535a5c9d7aab');
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => MainPageViewModel(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MainPageViewModel()),
+        ChangeNotifierProvider(create: (_) => LoginViewModel()),
+        ChangeNotifierProvider(create: (_) => QuestTabViewModel()),
+        ChangeNotifierProvider(create: (_) => QuestPomodoroViewModel()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -23,15 +29,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => LoginViewModel(),
-      child: MaterialApp(
-        home: const LoginScreen(),
-        routes: {
-          '/main': (context) => MainNavigationScreen(),
-          '/onboarding': (context) => OnboardingScreen(),
-        }
-      ),
+    return MaterialApp(
+      home: const LoginScreen(),
+      routes: {
+        '/main': (context) => MainNavigationScreen(),
+        '/onboarding': (context) => OnboardingScreen(),
+      }
     );
   }
 }

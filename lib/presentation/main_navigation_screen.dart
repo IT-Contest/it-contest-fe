@@ -5,7 +5,7 @@ import '../features/mainpage/view/analysis_page_widget.dart';
 import '../features/mainpage/view/benefit_page_widget.dart';
 import '../features/mainpage/view/home_page_widget.dart';
 import '../features/mainpage/view/profile_page_widget.dart';
-import '../features/mainpage/view/quest_page_widget.dart';
+import '../features/quest/view/quest_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -24,7 +24,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     super.initState();
     _screens = [
       const HomePageWidget(),
-      const QuestPageWidget(),
+      const QuestScreen(),
       const AnalysisPageWidget(),   // 분석
       const BenefitPageWidget(),    // 혜택
       const ProfilePageWidget(),    // 프로필

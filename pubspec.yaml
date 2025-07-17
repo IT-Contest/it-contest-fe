@@ -40,3 +40,10 @@ flutter:
   assets:
     - assets/images/ # 이미지 에셋 경로
     - assets/icons/  # 아이콘 에셋 경로
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter.ttf
+    - family: Jalnan
+      fonts:
+        - asset: assets/fonts/Jalnan font OTF.otf

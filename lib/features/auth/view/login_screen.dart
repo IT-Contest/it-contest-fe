@@ -18,8 +18,22 @@ class LoginScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'assets/images/logo.jpg',
+                'assets/images/logo.png',
                 width: 200,
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                '퀘스트플래너',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Jalnan',
+                  fontWeight: FontWeight.w700,
+                  fontStyle: FontStyle.normal,
+                  fontSize: 30,
+                  height: 1, // line-height: 30px / font-size: 30px = 1
+                  letterSpacing: -0.6, // -2% of 30px = -0.6
+                  color: Color(0xFF7D4CFF), // 원하는 색상 지정
+                ),
               ),
               const SizedBox(height: 74),
               viewModel.isLoading
@@ -46,36 +60,48 @@ class LoginScreen extends StatelessWidget {
                         }
                       },
                       child: Image.asset(
-                        'assets/images/kakao_login_button.jpg',
-                        width: 258,
+                        'assets/icons/login_btn.png',
+                        width: 280,
                       ),
                     ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () async {
-                  final token = await viewModel.loginAsGuest();
-                  if (token != null) {
-                    if (token.isNewUser) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const OnboardingScreen(),
-                        ),
-                      );
+              const SizedBox(height: 24),
+              SizedBox(
+                width: 280,
+                height: 56,
+                child: OutlinedButton(
+                  onPressed: () async {
+                    final token = await viewModel.loginAsGuest();
+                    if (token != null) {
+                      if (token.isNewUser) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const OnboardingScreen(),
+                          ),
+                        );
+                      } else {
+                        Navigator.pushReplacementNamed(context, '/main');
+                      }
                     } else {
-                      Navigator.pushReplacementNamed(context, '/main');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('로그인 실패')),
+                      );
                     }
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('로그인 실패')),
-                    );
-                  }
-                },
-                child: const Text(
-                  '건너뛰기',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF7958FF), width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    backgroundColor: Colors.white,
+                  ),
+                  child: const Text(
+                    '건너뛰기',
+                    style: TextStyle(
+                      color: Color(0xFF7958FF),
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
