@@ -1,162 +1,130 @@
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/mainpage/model/mainpage_user_response.dart';
+import 'package:provider/provider.dart';
+import 'package:it_contest_fe/features/mainpage/view/widgets/daily_quest_list.dart';
+import 'package:it_contest_fe/features/mainpage/view/widgets/onboarding_intro_card.dart';
+import 'package:it_contest_fe/features/mainpage/view/widgets/party_and_friends_section.dart';
+import 'package:it_contest_fe/features/mainpage/view/widgets/quest_alert_section.dart';
+import 'package:it_contest_fe/features/mainpage/view/widgets/user_profile_card.dart';
+import 'package:it_contest_fe/features/mainpage/viewmodel/mainpage_viewmodel.dart';
 
-class UserProfileCard extends StatelessWidget {
-  final MainpageUserResponse user;
+class HomePageWidget extends StatefulWidget {
+  const HomePageWidget({super.key});
 
-  const UserProfileCard({super.key, required this.user});
+  @override
+  State<HomePageWidget> createState() => _HomePageWidgetState();
+}
+
+class _HomePageWidgetState extends State<HomePageWidget> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final vm = context.read<MainPageViewModel>();
+      await vm.loadMainQuests();
+      await vm.loadUserInfo(); // ✅ 프로필 + 퀘스트 카운트 정보 로드
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.black.withOpacity(0.1),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+    final vm = context.watch<MainPageViewModel>();
+
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFF3FAFF),
+              Color(0xFFEEEBFF),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
+        ),
+        child: SingleChildScrollView(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(50),
-                child: Image.network(
-                  user.profileImageUrl,
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
+              // ✅ 상단바
+              Container(
+                color: Colors.white,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          user.nickname,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Color(0xFF6737F4),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            'LV.${user.level}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
+                    const SizedBox(height: 28),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 28),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(Icons.menu, color: Colors.deepPurple),
+                          Image.asset('assets/images/logo.jpg', height: 40),
+                          GestureDetector(
+                            onTap: () => vm.toggleAlarm(),
+                            child: Image.asset(
+                              vm.hasAlarm
+                                  ? 'assets/icons/alarm_btn2.png'
+                                  : 'assets/icons/alarm_btn1.png',
+                              width: 28,
+                              height: 28,
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 7,
-                          child: Container(
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Color(0xFF6737F4), width: 2),
-                            ),
-                            child: Stack(
-                              children: [
-                                FractionallySizedBox(
-                                  widthFactor: user.expPercent / 100,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Color(0x996737F4),
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'EXP ${user.expPercent}%',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF6737F4),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Image.asset('assets/icons/widget_icon.png', width: 18, height: 18),
-                            const SizedBox(width: 4),
-                            const Text(
-                              '누적 경험치 ',
-                              style: TextStyle(color: Color(0xFF6737F4), fontSize: 13),
-                            ),
-                            Text(
-                              '${user.exp}',
-                              style: const TextStyle(
-                                color: Color(0xFF6737F4),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Image.asset('assets/icons/gold_icon.png', width: 18, height: 18),
-                            const SizedBox(width: 4),
-                            const Text(
-                              '골드 ',
-                              style: TextStyle(color: Color(0xFF6737F4), fontSize: 13),
-                            ),
-                            Text(
-                              '${user.gold}',
-                              style: const TextStyle(
-                                color: Color(0xFF6737F4),
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    const SizedBox(height: 16),
+                    Container(height: 1, color: Colors.grey),
                   ],
                 ),
               ),
+
+              const SizedBox(height: 16),
+
+              // ✅ 온보딩 카드 조건부 렌더링
+              if (vm.shouldShowOnboardingCard)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: OnboardingIntroCard(
+                    onStart: () {
+                      Navigator.pushNamed(context, '/onboarding');
+                    },
+                    onClose: () {
+                      vm.closeOnboardingCard();
+                    },
+                  ),
+                ),
+
+              const SizedBox(height: 16),
+
+              // ✅ 유저 정보 및 퀘스트 알림
+              Consumer<MainPageViewModel>(
+                builder: (context, viewModel, _) {
+                  if (viewModel.user == null) return const SizedBox.shrink();
+
+                  return Column(
+                    children: [
+                      UserProfileCard(user: viewModel.user!),
+                      const SizedBox(height: 16),
+                      QuestAlertSection(
+                        dailyCount: viewModel.user!.dailyCount,
+                        weeklyCount: viewModel.user!.weeklyCount,
+                        monthlyCount: viewModel.user!.monthlyCount,
+                        yearlyCount: viewModel.user!.yearlyCount,
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              const SizedBox(height: 16),
+              const DailyQuestList(),
+              const SizedBox(height: 16),
+              const PartyAndFriendsSection(),
+              const SizedBox(height: 40),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
