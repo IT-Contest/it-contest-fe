@@ -24,7 +24,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Icon(Icons.menu, color: iconColor),
-              Image.asset('assets/images/logo.jpg', height: 40),
+              Image.asset('assets/images/logo.png', height: 40),
               Icon(Icons.notifications_none, color: iconColor),
             ],
           ),
@@ -35,4 +35,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize => Size.fromHeight(height);
-} 
+}

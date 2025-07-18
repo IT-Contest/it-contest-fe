@@ -18,17 +18,12 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => MainPageViewModel()),
-<<<<<<< HEAD
-        ChangeNotifierProvider(create: (_) => DailyQuestViewModel()), // ✅ 이거 꼭 있음
-        ChangeNotifierProvider(create: (_) => MainPageViewModel()),
+        ChangeNotifierProvider(create: (_) => DailyQuestViewModel()),
+        ChangeNotifierProvider(create: (_) => FriendViewModel()),
         ChangeNotifierProvider(create: (_) => QuestTabViewModel()),
         ChangeNotifierProvider(create: (_) => QuestPomodoroViewModel()),
-=======
-        ChangeNotifierProvider(create: (_) => DailyQuestViewModel()),
-        ChangeNotifierProvider(create: (_) => FriendViewModel()), // ✅ 추가
->>>>>>> origin/feat/mainpage
       ],
-      child: const MyApp(), // ✅ 여기 위에 있어야 함
+      child: const MyApp(),
     ),
   );
 }
@@ -40,18 +35,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: const LoginScreen(),
-<<<<<<< HEAD
-      // home: const MainNavigationScreen(),
-      routes: {
-        '/main': (context) => MainNavigationScreen(),
-        '/onboarding': (context) => OnboardingScreen(),
-      }
-=======
       routes: {
         '/main': (context) => MainNavigationScreen(),
         '/onboarding': (context) => OnboardingScreen(),
       },
->>>>>>> origin/feat/mainpage
     );
   }
 }
