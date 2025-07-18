@@ -5,7 +5,8 @@ import '../features/mainpage/view/analysis_page_widget.dart';
 import '../features/mainpage/view/benefit_page_widget.dart';
 import '../features/mainpage/view/home_page_widget.dart';
 import '../features/mainpage/view/profile_page_widget.dart';
-import '../features/mainpage/view/quest_page_widget.dart';
+import '../features/quest/view/quest_screen.dart';
+import '../features/mainpage/view/main_screen.dart'; // Added import for MainScreen
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -23,8 +24,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   void initState() {
     super.initState();
     _screens = [
-      const HomePageWidget(),
-      const QuestPageWidget(),
+      // HomePageWidget이 정의되어 있지 않아 오류 발생 중
+      // const HomePageWidget(),
+      const MainScreen(), // 실제 홈 역할을 하는 MainScreen으로 변경
+      const QuestScreen(),
       const AnalysisPageWidget(),   // 분석
       const BenefitPageWidget(),    // 혜택
       const ProfilePageWidget(),    // 프로필

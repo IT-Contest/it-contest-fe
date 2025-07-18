@@ -9,6 +9,7 @@ import 'package:it_contest_fe/features/quest/service/quest_service.dart';
 import 'package:it_contest_fe/features/quest/model/quest_create_request.dart';
 import 'package:provider/provider.dart';
 import 'package:it_contest_fe/features/onboarding/viewmodel/onboarding_viewmodel.dart';
+import '../../../shared/widgets/custom_app_bar.dart';
 
 /// 온보딩 화면: 퀘스트 생성 및 설정 UI
 // Wrap the app with MaterialApp and provide localization
@@ -55,73 +56,44 @@ class _OnboardingScreenBody extends StatelessWidget {
     final vm = context.watch<OnboardingViewModel>();
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 상단 여백 및 상단 바 (메뉴, 로고, 알림 아이콘)
-            const SizedBox(height: 28),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      appBar: const CustomAppBar(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 메인화면과 동일하게 헤더바 아래 구분선은 CustomAppBar에서 처리
+          // 본문 영역 (스크롤 가능)
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(28),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  IconButton(
-                    icon: Image.asset('assets/icons/arrow_back_ios_new.png', width: 24, height: 24),
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, '/main');
-                    },
+                  const SizedBox(height: 4),
+                  _buildTitleSection(),
+                  const SizedBox(height: 16),
+                  _QuestNameInput(onChanged: vm.setQuestName),
+                  const SizedBox(height: 16),
+                  _PrioritySection(onChanged: vm.setPriority),
+                  const SizedBox(height: 16),
+                  _CategoryInput(onChanged: vm.setHashtags),
+                  const SizedBox(height: 16),
+                  DateTimeSection(
+                    onStartDateChanged: vm.setStartDate,
+                    onDueDateChanged: vm.setDueDate,
+                    onStartTimeChanged: vm.setStartTime,
+                    onEndTimeChanged: vm.setEndTime,
                   ),
-                  Expanded(
-                    child: Center(
-                      child: Image.asset('assets/images/logo.jpg', height: 40),
-                    ),
-                  ),
-                  SizedBox(width: 24),
+                  const SizedBox(height: 16),
+                  _buildInviteSection(context),
+                  const SizedBox(height: 16),
+                  _buildCreateButton(context, vm),
+                  const SizedBox(height: 32),
+                  _buildAdBanner(),
                 ],
               ),
             ),
-            // 상단 구분선
-            const SizedBox(height: 16),
-            Container(
-              height: 1,
-              width: double.infinity,
-              color: Colors.grey,
-            ),
-            // 본문 영역 (스크롤 가능)
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(28),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: 4),
-                    _buildTitleSection(),
-                    const SizedBox(height: 16),
-                    _QuestNameInput(onChanged: vm.setQuestName),
-                    const SizedBox(height: 16),
-                    _PrioritySection(onChanged: vm.setPriority),
-                    const SizedBox(height: 16),
-                    _CategoryInput(onChanged: vm.setHashtags),
-                    const SizedBox(height: 16),
-                    DateTimeSection(
-                      onStartDateChanged: vm.setStartDate,
-                      onDueDateChanged: vm.setDueDate,
-                      onStartTimeChanged: vm.setStartTime,
-                      onEndTimeChanged: vm.setEndTime,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildInviteSection(context),
-                    const SizedBox(height: 16),
-                    _buildCreateButton(context, vm),
-                    const SizedBox(height: 32),
-                    _buildAdBanner(),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
