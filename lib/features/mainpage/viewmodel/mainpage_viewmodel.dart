@@ -33,18 +33,21 @@ class MainPageViewModel extends ChangeNotifier {
   Future<void> loadMainQuests() async {
     try {
       final result = await MainpageService().fetchMainQuests();
+
+      // 예시: result에 user와 quests 둘 다 있다고 가정
       _quests = result;
-      _questCount = result.length;
+      _questCount = _quests.length;
 
       if (_questCount > 0 && !_isOnboardingClosed) {
         _isOnboardingClosed = true;
       }
 
-      notifyListeners();
+      notifyListeners(); // 꼭 호출!
     } catch (e) {
       print('[퀘스트 불러오기 실패] $e');
     }
   }
+
 
   // ✅ 사용자 정보 저장 필드 추가
   MainpageUserResponse? _user;
