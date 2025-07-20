@@ -7,8 +7,22 @@ import 'widgets/quest_add_section.dart';
 import 'widgets/quest_pomodoro_section.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 
-class QuestScreen extends StatelessWidget {
+class QuestScreen extends StatefulWidget {
   const QuestScreen({super.key});
+
+  @override
+  State<QuestScreen> createState() => _QuestScreenState();
+}
+
+class _QuestScreenState extends State<QuestScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final questTabViewModel = context.read<QuestTabViewModel>();
+      questTabViewModel.loadQuests();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +31,6 @@ class QuestScreen extends StatelessWidget {
       appBar: const CustomAppBar(),
       body: Column(
         children: [
-          // 메인화면과 동일하게 헤더바 아래 구분선은 CustomAppBar에서 처리
           Expanded(
             child: Container(
               decoration: const BoxDecoration(

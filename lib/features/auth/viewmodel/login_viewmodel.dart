@@ -30,16 +30,27 @@ class LoginViewModel extends ChangeNotifier {
     }
   }
 
-  Future<String?> loginWithKakao() async {
+  Future<UserTokenResponse?> loginWithKakao() async {
     try {
       print('카카오 로그인 API 호출');
-      final accessToken = await _kakaoLoginService.loginWithKakao();
-      print('카카오 로그인 성공: $accessToken');
-      // TODO: 서버에 accessToken 전달 및 토큰 저장 로직 추가
-      return accessToken;
+      _isLoading = true;
+      notifyListeners();
+
+      final response = await _kakaoLoginService.loginWithKakaoAndServer();
+      if (response != null) {
+        print('카카오 로그인 성공: ${response.accessToken}');
+        await TokenStorage().saveTokens(
+          response.accessToken,
+          response.refreshToken,
+        );
+      }
+      return response;
     } catch (e) {
       print('카카오 로그인 실패: ${e.toString()}');
       return null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }

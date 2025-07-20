@@ -47,6 +47,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 16), // 원하는 만큼 조절
+
               // ✅ 온보딩 카드 조건부 렌더링
               if (vm.shouldShowOnboardingCard)
                 Padding(

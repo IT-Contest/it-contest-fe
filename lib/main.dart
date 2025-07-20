@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/features/mainpage/view/main_screen.dart';
 import 'package:provider/provider.dart';
 import 'features/auth/view/login_screen.dart';
 import 'features/auth/viewmodel/login_viewmodel.dart';
@@ -42,4 +43,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

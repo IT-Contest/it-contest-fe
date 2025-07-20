@@ -7,7 +7,8 @@ class QuestItemResponse {
   final int goldReward;
   final int priority;
   final String? partyName;
-  CompletionStatus completionStatus; // ✅ 추가
+  CompletionStatus completionStatus;
+  final String questType; 
 
   QuestItemResponse({
     required this.questId,
@@ -17,6 +18,7 @@ class QuestItemResponse {
     required this.priority,
     this.partyName,
     required this.completionStatus,
+    required this.questType, 
   });
 
   factory QuestItemResponse.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class QuestItemResponse {
       completionStatus: json['completionStatus'] == 'COMPLETED'
           ? CompletionStatus.COMPLETED
           : CompletionStatus.INCOMPLETE,
+      questType: json['questType'], 
     );
   }
 
@@ -41,5 +44,6 @@ class QuestItemResponse {
     'priority': priority,
     'partyName': partyName,
     'completionStatus': completionStatus.name,
+    'questType': questType, 
   };
 }

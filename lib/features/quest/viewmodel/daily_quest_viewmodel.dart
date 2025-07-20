@@ -58,13 +58,16 @@ class DailyQuestViewModel extends ChangeNotifier {
   // 퀘스트 완료 / 취소
   Future<void> toggleQuestCompletionById(int questId) async {
     try {
-      final updatedList = await _service.changeQuestStatus([questId]);
+      final old = quests.firstWhere((q) => q.questId == questId);
+      final newStatus = old.completionStatus == CompletionStatus.COMPLETED
+          ? 'INCOMPLETE'
+          : 'COMPLETED';
+
+      final updatedList = await _service.changeQuestStatus([questId], newStatus);
       final updated = updatedList.first;
 
       final index = quests.indexWhere((q) => q.questId == questId);
       if (index == -1) return;
-
-      final old = quests[index];
 
       quests[index] = QuestItemResponse(
         questId: updated.questId,
@@ -74,6 +77,7 @@ class DailyQuestViewModel extends ChangeNotifier {
         priority: old.priority,
         partyName: old.partyName,
         completionStatus: updated.completionStatus,
+        questType: old.questType,
       );
 
       // 정렬 반영
