@@ -1,9 +1,7 @@
 import 'package:it_contest_fe/core/network/dio_client.dart';
 import 'package:it_contest_fe/features/quest/model/quest_create_request.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:it_contest_fe/core/storage/token_storage.dart';
-
 import '../model/completion_status.dart';
 import '../model/quest_item_response.dart';
 import '../model/quest_status_change_response.dart';
@@ -52,17 +50,21 @@ class QuestService {
   }
 
   // 퀘스트 완료 상태 관리
-  Future<List<QuestStatusChangeResponse>> changeQuestStatus(List<int> questIds) async {
+  Future<List<QuestStatusChangeResponse>> changeQuestStatus(List<int> questIds, String completionStatus) async {
     try {
+      print('[changeQuestStatus] 요청: questIds=$questIds, completionStatus=$completionStatus');
       final token = await TokenStorage().getAccessToken();
       final response = await DioClient().dio.patch(
         '/quests/change',
-        data: {'questIds': questIds},
+        data: {
+          'questIds': questIds,
+          'completionStatus': completionStatus, // "COMPLETED" or "INCOMPLETE"
+        },
         options: token != null
             ? Options(headers: {'Authorization': 'Bearer $token'})
             : null,
       );
-
+      print('[changeQuestStatus] 응답: ${response.data}');
       final List<dynamic> result = response.data['result'];
       return result.map((e) => QuestStatusChangeResponse.fromJson(e)).toList();
     } catch (e, stack) {
@@ -74,7 +76,10 @@ class QuestService {
 
   Future<QuestStatusChangeResponse> updateQuestStatus(int questId, CompletionStatus newStatus) async {
     try {
-      final updatedList = await changeQuestStatus([questId]);
+      final updatedList = await changeQuestStatus(
+        [questId],
+        newStatus == CompletionStatus.COMPLETED ? 'COMPLETED' : 'INCOMPLETE',
+      );
       return updatedList.first;
     } catch (e) {
       rethrow;

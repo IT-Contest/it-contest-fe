@@ -1,25 +1,94 @@
 import 'package:flutter/material.dart';
-import '../../mainpage/model/quest_item.dart';
+import '../model/quest_item_response.dart';
+import '../service/quest_service.dart';
+import '../model/completion_status.dart';
 
 class QuestTabViewModel extends ChangeNotifier {
+  final QuestService _service = QuestService();
+  List<QuestItemResponse> allQuests = [];
+  List<QuestItemResponse> filteredQuests = [];
+  String selectedPeriod = 'DAILY'; // 기본값
+  bool isLoading = false;
+  String? errorMessage;
+
+  // 탭 인덱스 관리 (0: 일일, 1: 주간, ...)
   int _selectedTab = 0;
   int get selectedTab => _selectedTab;
-
-  List<QuestItem> quests = [
-    QuestItem(title: '출근 준비', exp: 10, gold: 5),
-    QuestItem(title: 'AI 추천 집중 세션', exp: 10, gold: 5),
-    QuestItem(title: '아침 스트레칭', exp: 10, gold: 5),
-  ];
 
   void changeTab(int i) {
     if (_selectedTab != i) {
       _selectedTab = i;
+      switch (i) {
+        case 0:
+          changePeriod('DAILY');
+          break;
+        case 1:
+          changePeriod('WEEKLY');
+          break;
+        case 2:
+          changePeriod('MONTHLY');
+          break;
+        case 3:
+          changePeriod('YEARLY');
+          break;
+      }
       notifyListeners();
     }
   }
 
-  void toggleQuest(int index) {
-    quests[index].isCompleted = !quests[index].isCompleted;
+  Future<void> loadQuests() async {
+    isLoading = true;
     notifyListeners();
+    try {
+      allQuests = await _service.fetchQuestList();
+      print('[퀘스트 API 응답]');
+      for (final q in allQuests) {
+        print(q.toJson());
+      }
+      filterQuests();
+    } catch (e) {
+      errorMessage = e.toString();
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void filterQuests() {
+    filteredQuests = allQuests.where((q) => q.questType == selectedPeriod).toList();
+    notifyListeners();
+  }
+
+  void changePeriod(String period) {
+    selectedPeriod = period;
+    filterQuests(); // ✅ 이걸로 충분
+  }
+
+  // 퀘스트 완료 토글 (예시)
+  void toggleQuest(int questId) {
+    final idx = filteredQuests.indexWhere((q) => q.questId == questId);
+    if (idx != -1) {
+      final quest = filteredQuests[idx];
+      final newStatus = quest.completionStatus == CompletionStatus.COMPLETED
+          ? CompletionStatus.INCOMPLETE
+          : CompletionStatus.COMPLETED;
+
+      // filteredQuests와 allQuests 모두 업데이트
+      filteredQuests[idx] = QuestItemResponse(
+        questId: quest.questId,
+        title: quest.title,
+        expReward: quest.expReward,
+        goldReward: quest.goldReward,
+        priority: quest.priority,
+        partyName: quest.partyName,
+        completionStatus: newStatus,
+        questType: quest.questType,
+      );
+      final allIdx = allQuests.indexWhere((q) => q.questId == questId);
+      if (allIdx != -1) {
+        allQuests[allIdx] = filteredQuests[idx];
+      }
+      notifyListeners();
+    }
   }
 } 

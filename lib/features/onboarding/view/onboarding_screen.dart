@@ -10,6 +10,7 @@ import 'package:it_contest_fe/features/quest/model/quest_create_request.dart';
 import 'package:provider/provider.dart';
 import 'package:it_contest_fe/features/onboarding/viewmodel/onboarding_viewmodel.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
+import '../../../shared/widgets/onboarding_app_bar.dart';
 
 /// 온보딩 화면: 퀘스트 생성 및 설정 UI
 // Wrap the app with MaterialApp and provide localization
@@ -56,7 +57,9 @@ class _OnboardingScreenBody extends StatelessWidget {
     final vm = context.watch<OnboardingViewModel>();
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: const CustomAppBar(),
+      appBar: OnboardingAppBar(
+        onBack: () => Navigator.pushReplacementNamed(context, '/main'),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

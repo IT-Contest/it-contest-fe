@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/login_viewmodel.dart';
 import 'package:it_contest_fe/features/onboarding/view/onboarding_screen.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -40,22 +41,13 @@ class LoginScreen extends StatelessWidget {
                   ? const CircularProgressIndicator()
                   : InkWell(
                       onTap: () async {
-                        final token = await viewModel.loginAsGuest();
+                        // 카카오 로그인
+                        final token = await viewModel.loginWithKakao();
                         if (token != null) {
-                          // 게스트 로그인: isNewUser 확인 -> 메인 or 온보딩화면
-                          if (token.isNewUser) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const OnboardingScreen(),
-                              ),
-                            );
-                          } else {
-                            Navigator.pushReplacementNamed(context, '/main');
-                          }
+                          Navigator.pushReplacementNamed(context, '/main');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('로그인 실패')),
+                            const SnackBar(content: Text('카카오 로그인 실패')),
                           );
                         }
                       },
@@ -104,6 +96,23 @@ class LoginScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+              ),
+              // 회원 탈퇴(카카오 연결 끊기) 버튼 추가 - 임시
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    await UserApi.instance.unlink();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('카카오 연결 끊기 성공!')),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('카카오 연결 끊기 실패: $e')),
+                    );
+                  }
+                },
+                child: const Text('회원 탈퇴(카카오 연결 끊기)'),
               ),
             ],
           ),

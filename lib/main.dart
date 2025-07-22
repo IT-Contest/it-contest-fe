@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/features/mainpage/view/main_screen.dart';
 import 'package:provider/provider.dart';
 import 'features/auth/view/login_screen.dart';
 import 'features/auth/viewmodel/login_viewmodel.dart';
+import 'features/friends/viewmodel/friend_viewmodel.dart';
 import 'features/onboarding/view/onboarding_screen.dart';
 import 'features/quest/viewmodel/daily_quest_viewmodel.dart';
 import 'presentation/main_navigation_screen.dart';
@@ -17,12 +19,12 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => MainPageViewModel()),
-        ChangeNotifierProvider(create: (_) => DailyQuestViewModel()), // ✅ 이거 꼭 있음
-        ChangeNotifierProvider(create: (_) => MainPageViewModel()),
+        ChangeNotifierProvider(create: (_) => DailyQuestViewModel()),
+        ChangeNotifierProvider(create: (_) => FriendViewModel()),
         ChangeNotifierProvider(create: (_) => QuestTabViewModel()),
         ChangeNotifierProvider(create: (_) => QuestPomodoroViewModel()),
       ],
-      child: const MyApp(), // ✅ 여기 위에 있어야 함
+      child: const MyApp(),
     ),
   );
 }
@@ -34,11 +36,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: const LoginScreen(),
-      // home: const MainNavigationScreen(),
       routes: {
         '/main': (context) => MainNavigationScreen(),
         '/onboarding': (context) => OnboardingScreen(),
-      }
+      },
     );
   }
 }

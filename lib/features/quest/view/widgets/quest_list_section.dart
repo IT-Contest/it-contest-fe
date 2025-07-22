@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodel/quest_tab_viewmodel.dart';
+import '../../model/completion_status.dart';
 
 class QuestListSection extends StatelessWidget {
   final int selectedTab;
@@ -85,15 +86,15 @@ class QuestListSection extends StatelessWidget {
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: questTabViewModel.quests.length,
+          itemCount: questTabViewModel.filteredQuests.length,
           itemBuilder: (context, index) {
-            final quest = questTabViewModel.quests[index];
+            final quest = questTabViewModel.filteredQuests[index];
             return _QuestCard(
               title: quest.title,
-              exp: quest.exp,
-              gold: quest.gold,
-              done: quest.isCompleted,
-              onCheck: () => questTabViewModel.toggleQuest(index),
+              exp: quest.expReward,
+              gold: quest.goldReward,
+              done: quest.completionStatus == CompletionStatus.COMPLETED,
+              onCheck: () => questTabViewModel.toggleQuest(quest.questId),
             );
           },
         ),

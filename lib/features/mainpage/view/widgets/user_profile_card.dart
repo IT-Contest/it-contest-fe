@@ -33,19 +33,28 @@ class UserProfileCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(50),
-                child: Image.network(
+                child: user.profileImageUrl.isNotEmpty
+                    ? Image.network(
                   user.profileImageUrl,
-                  width: 60,
-                  height: 60,
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
+                )
+                    : Image.asset(
+                  'assets/images/simpson.jpg', // 기본 이미지 경로
+                  width: 70,
+                  height: 70,
                   fit: BoxFit.cover,
                 ),
               ),
+
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           user.nickname,
@@ -71,6 +80,7 @@ class UserProfileCard extends StatelessWidget {
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 12),
                     Row(
                       children: [
