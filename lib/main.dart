@@ -5,6 +5,7 @@ import 'features/auth/view/login_screen.dart';
 import 'features/auth/viewmodel/login_viewmodel.dart';
 import 'features/friends/viewmodel/friend_viewmodel.dart';
 import 'features/onboarding/view/onboarding_screen.dart';
+import 'features/onboarding/viewmodel/onboarding_viewmodel.dart';
 import 'features/quest/viewmodel/daily_quest_viewmodel.dart';
 import 'presentation/main_navigation_screen.dart';
 import 'features/mainpage/viewmodel/mainpage_viewmodel.dart';
@@ -23,6 +24,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => FriendViewModel()),
         ChangeNotifierProvider(create: (_) => QuestTabViewModel()),
         ChangeNotifierProvider(create: (_) => QuestPomodoroViewModel()),
+        ChangeNotifierProvider(create: (_) => OnboardingViewModel())
       ],
       child: const MyApp(),
     ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/onboarding/view/widgets/custom_date_picker.dart';
-import 'package:it_contest_fe/features/onboarding/view/widgets/time_range_picker.dart';
+import 'package:it_contest_fe/shared/quest_create_form/sub_screen/custom_date_picker.dart';
+import 'package:it_contest_fe/shared/quest_create_form/sub_screen/time_range_picker.dart';
 
 class DateTimeSection extends StatefulWidget {
   final ValueChanged<DateTime>? onStartDateChanged;
