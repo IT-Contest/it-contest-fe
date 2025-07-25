@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/quest/view/widget/empty_quest_widget.dart';
 import 'package:provider/provider.dart';
 import '../../quest/viewmodel/daily_quest_viewmodel.dart';
-import '../../quest/model/quest_item_response.dart';
 import '../model/completion_status.dart';
 
 class DailyQuestFullPage extends StatefulWidget {
