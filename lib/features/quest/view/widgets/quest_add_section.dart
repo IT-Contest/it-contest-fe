@@ -1,8 +1,11 @@
+// quest_add_section.dart
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/features/quest/view/widgets/quest_type_bottom_sheet.dart'; 
 
 class QuestAddSection extends StatelessWidget {
-  final VoidCallback? onAdd;
-  const QuestAddSection({Key? key, this.onAdd}) : super(key: key);
+  final VoidCallback onTap;
+
+  const QuestAddSection({Key? key, required this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -10,12 +13,17 @@ class QuestAddSection extends StatelessWidget {
       height: 60,
       width: double.infinity,
       child: OutlinedButton(
-        onPressed: onAdd,
+        onPressed: () {
+          QuestTypeBottomSheet.show(
+            context,
+            onPersonalQuestTap: onTap,
+          );
+        },
         style: OutlinedButton.styleFrom(
           side: const BorderSide(color: Color(0xFF7958FF), width: 1),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           backgroundColor: Colors.white,
-          padding: const EdgeInsets.fromLTRB(88, 19, 88, 19),
+          padding: const EdgeInsets.fromLTRB(88, 14, 88, 19),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -35,4 +43,4 @@ class QuestAddSection extends StatelessWidget {
       ),
     );
   }
-} 
+}

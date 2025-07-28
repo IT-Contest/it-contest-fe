@@ -54,7 +54,7 @@ class _DailyQuestListState extends State<DailyQuestList> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const DailyQuestFullPage(),
+                          builder: (_) => const DailyQuestFullPage(showEditDeleteButtons: false),
                         ),
                       );
                     },
@@ -153,7 +153,7 @@ class _DailyQuestListState extends State<DailyQuestList> {
                             color: isDone ? const Color(0xFF6737F4) : Colors.white,
                             border: Border.all(
                               color: const Color(0xFF6737F4),
-                              width: 2,
+                              width: 1, // changed from 2 to 1
                             ),
                             shape: BoxShape.circle,
                           ),

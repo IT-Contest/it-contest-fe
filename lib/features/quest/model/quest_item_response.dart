@@ -8,7 +8,8 @@ class QuestItemResponse {
   final int priority;
   final String? partyName;
   CompletionStatus completionStatus;
-  final String questType; 
+  final String questType;
+  final List<String> hashtags;
 
   QuestItemResponse({
     required this.questId,
@@ -18,7 +19,8 @@ class QuestItemResponse {
     required this.priority,
     this.partyName,
     required this.completionStatus,
-    required this.questType, 
+    required this.questType,
+    required this.hashtags,
   });
 
   factory QuestItemResponse.fromJson(Map<String, dynamic> json) {
@@ -32,7 +34,8 @@ class QuestItemResponse {
       completionStatus: json['completionStatus'] == 'COMPLETED'
           ? CompletionStatus.COMPLETED
           : CompletionStatus.INCOMPLETE,
-      questType: json['questType'], 
+      questType: json['questType'],
+      hashtags: (json['hashtags'] as List<dynamic>?)?.cast<String>() ?? [],
     );
   }
 
@@ -44,6 +47,7 @@ class QuestItemResponse {
     'priority': priority,
     'partyName': partyName,
     'completionStatus': completionStatus.name,
-    'questType': questType, 
+    'questType': questType,
+    'hashtags': hashtags,
   };
 }

@@ -7,10 +7,12 @@ class QuestPrioritySection extends StatefulWidget {
     super.key,
     required this.onPriorityChanged,
     required this.onPeriodChanged,
+    this.showTipBox = true,
   });
 
   final ValueChanged<int> onPriorityChanged;
   final ValueChanged<String> onPeriodChanged;
+  final bool showTipBox;
 
   @override
   State<QuestPrioritySection> createState() => _QuestPrioritySectionState();
@@ -48,8 +50,9 @@ class _QuestPrioritySectionState extends State<QuestPrioritySection> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-        const PriorityTipBox(),
-        const SizedBox(height: 20),
+        if (widget.showTipBox) const PriorityTipBox(),
+        if (widget.showTipBox) const SizedBox(height: 20),
+        if (!widget.showTipBox) const SizedBox(height: 0),
         PriorityInputSection(
           controller: _priorityController,
           onChanged: _handlePriorityChange,

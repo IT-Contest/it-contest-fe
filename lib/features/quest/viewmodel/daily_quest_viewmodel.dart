@@ -78,6 +78,7 @@ class DailyQuestViewModel extends ChangeNotifier {
         partyName: old.partyName,
         completionStatus: updated.completionStatus,
         questType: old.questType,
+        hashtags: old.hashtags,
       );
 
       // 정렬 반영
