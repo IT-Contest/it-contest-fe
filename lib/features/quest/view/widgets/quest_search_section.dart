@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/features/quest/viewmodel/daily_quest_viewmodel.dart';
+import 'package:provider/provider.dart';
+import '../quest_search_screen.dart';
 
 class QuestSearchSection extends StatelessWidget {
   final ValueChanged<String>? onChanged;
@@ -6,17 +9,18 @@ class QuestSearchSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = TextEditingController();
+    final viewModel = Provider.of<DailyQuestViewModel>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           '퀘스트 검색하기',
           style: const TextStyle(
-            //fontFamily: 'SUITE',
             fontWeight: FontWeight.w700,
             fontSize: 20,
-            height: 1.5, // 30px line height / 20px font size
-            letterSpacing: -0.4, // -2% of 20px = -0.4
+            height: 1.5,
+            letterSpacing: -0.4,
             color: Color(0xFF4C1FFF),
           ),
         ),
@@ -27,12 +31,13 @@ class QuestSearchSection extends StatelessWidget {
               child: SizedBox(
                 height: 48,
                 child: TextField(
+                  controller: controller,
                   onChanged: onChanged,
                   style: const TextStyle(
                     fontFamily: 'SUITE',
                     fontWeight: FontWeight.w400,
                     fontSize: 16,
-                    letterSpacing: -0.32, // -2% of 16px
+                    letterSpacing: -0.32,
                     color: Colors.black,
                   ),
                   decoration: InputDecoration(
@@ -41,10 +46,21 @@ class QuestSearchSection extends StatelessWidget {
                       fontFamily: 'SUITE',
                       fontWeight: FontWeight.w400,
                       fontSize: 16,
-                      letterSpacing: -0.32, // -2% of 16px
-                      color: Color(0xFFBDBDBD), // Gray/50
+                      letterSpacing: -0.32,
+                      color: Color(0xFFBDBDBD),
                     ),
-                    suffixIcon: const Icon(Icons.search, color: Color(0xFF643EFF)),
+                    suffixIcon: GestureDetector(
+                      onTap: () async {
+                        await viewModel.fetchQuests();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => QuestSearchScreen(initialQuery: controller.text),
+                          ),
+                        );
+                      },
+                      child: const Icon(Icons.search, color: Color(0xFF643EFF)),
+                    ),
                     filled: true,
                     fillColor: Colors.white,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12),

@@ -83,6 +83,7 @@ class QuestTabViewModel extends ChangeNotifier {
         partyName: quest.partyName,
         completionStatus: newStatus,
         questType: quest.questType,
+        hashtags: quest.hashtags,
       );
       final allIdx = allQuests.indexWhere((q) => q.questId == questId);
       if (allIdx != -1) {

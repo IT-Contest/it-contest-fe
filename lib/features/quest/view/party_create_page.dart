@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/onboarding/view/widgets/date_time_section.dart'; // ✅ DateTimeSection import
+import 'package:it_contest_fe/shared/quest_create_form/date_time_section.dart';
 
 class PartyCreatePage extends StatelessWidget {
   const PartyCreatePage({super.key});

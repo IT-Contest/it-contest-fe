@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../view/daily_quest_fullpage.dart';
 import '../../viewmodel/quest_tab_viewmodel.dart';
 import '../../model/completion_status.dart';
 
@@ -29,10 +30,17 @@ class QuestListSection extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const DailyQuestFullPage(showEditDeleteButtons: true),
+                  ),
+                );
+              },
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
-                minimumSize: Size(0, 0),
+                minimumSize: const Size(0, 0),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               child: const Row(
@@ -52,7 +60,7 @@ class QuestListSection extends StatelessWidget {
               final idx = i ~/ 2;
               return Expanded(
                 child: SizedBox(
-                  height: 56,
+                  height: 46,
                   child: OutlinedButton(
                     onPressed: () => onTabChanged?.call(idx),
                     style: OutlinedButton.styleFrom(
