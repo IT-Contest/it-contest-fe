@@ -33,6 +33,15 @@ class QuestSearchSection extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   onChanged: onChanged,
+                  onSubmitted: (value) async {
+                    await viewModel.fetchQuests();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => QuestSearchScreen(initialQuery: value),
+                      ),
+                    );
+                  },
                   style: const TextStyle(
                     fontFamily: 'SUITE',
                     fontWeight: FontWeight.w400,

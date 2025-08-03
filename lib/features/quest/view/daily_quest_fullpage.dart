@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/quest/view/widget/empty_quest_widget.dart';
+import 'package:it_contest_fe/features/quest/view/widgets/empty_quest_widget.dart';
 import 'package:provider/provider.dart';
-import '../../quest/viewmodel/daily_quest_viewmodel.dart';
+import '../../quest/viewmodel/quest_tab_viewmodel.dart'; // ViewModel 변경
 import '../model/completion_status.dart';
 import '../model/quest_item_response.dart';
 import 'widgets/quest_card.dart';
@@ -21,9 +21,8 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        Provider.of<DailyQuestViewModel>(context, listen: false)
-            .fetchQuests());
+    // initState에서 fetchQuests를 호출할 필요가 없음.
+    // QuestTabViewModel은 이미 QuestScreen에서 데이터를 로드했기 때문.
   }
 
   @override
@@ -103,9 +102,9 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
             ),
           if (!widget.showEditDeleteButtons) const SizedBox(height: 8),
           Expanded(
-            child: Consumer<DailyQuestViewModel>(
+            child: Consumer<QuestTabViewModel>( // ViewModel 변경
               builder: (context, viewModel, _) {
-                if (viewModel.isLoading) {
+                if (viewModel.isLoading && viewModel.allQuests.isEmpty) { // 로딩 조건 수정
                   return const Center(child: CircularProgressIndicator());
                 }
 
@@ -113,13 +112,14 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                   return Center(child: Text('에러: ${viewModel.errorMessage!}'));
                 }
 
+                // QuestTabViewModel의 allQuests를 사용하도록 변경
                 final List<QuestItemResponse> quests;
                 if (_filter == 'PERSONAL') {
-                  quests = viewModel.quests.where((q) => q.partyName == null).toList();
+                  quests = viewModel.allQuests.where((q) => q.partyName == null).toList();
                 } else if (_filter == 'PARTY') {
-                  quests = viewModel.quests.where((q) => q.partyName != null).toList();
+                  quests = viewModel.allQuests.where((q) => q.partyName != null).toList();
                 } else {
-                  quests = viewModel.quests;
+                  quests = viewModel.allQuests;
                 }
 
                 if (quests.isEmpty) {
@@ -140,7 +140,7 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                       exp: quest.expReward,
                       gold: quest.goldReward,
                       done: isDone,
-                      onCheck: () => viewModel.toggleQuestCompletionById(quest.questId),
+                      onCheck: () => viewModel.toggleQuest(quest.questId), // 호출 함수 변경
                       highlightTitle: false,
                       showBackground: true,
                       useFilledIconBg: true,

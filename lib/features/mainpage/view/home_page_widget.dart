@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:it_contest_fe/features/mainpage/view/widgets/daily_quest_list.dart';
 import 'package:it_contest_fe/features/mainpage/view/widgets/onboarding_intro_card.dart';
 import 'package:it_contest_fe/features/mainpage/view/widgets/party_and_friends_section.dart';
 import 'package:it_contest_fe/features/mainpage/view/widgets/quest_alert_section.dart';
@@ -21,7 +20,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final vm = context.read<MainPageViewModel>();
       await vm.loadMainQuests();
-      await vm.loadUserInfo(); // ✅ 프로필 + 퀘스트 카운트 정보 로드
+      await vm.loadUserInfo(); // 프로필 + 퀘스트 카운트 정보 로드
     });
   }
 
@@ -49,7 +48,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
             children: [
               const SizedBox(height: 16), // 원하는 만큼 조절
 
-              // ✅ 온보딩 카드 조건부 렌더링
+              // 온보딩 카드 조건부 렌더링
               if (vm.shouldShowOnboardingCard)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -65,7 +64,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
               const SizedBox(height: 16),
 
-              // ✅ 유저 정보 및 퀘스트 알림
+              // 유저 정보 및 퀘스트 알림
               Consumer<MainPageViewModel>(
                 builder: (context, viewModel, _) {
                   if (viewModel.user == null) return const SizedBox.shrink();
@@ -85,8 +84,6 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 },
               ),
 
-              const SizedBox(height: 16),
-              const DailyQuestList(),
               const SizedBox(height: 16),
               const PartyAndFriendsSection(),
               const SizedBox(height: 40),
