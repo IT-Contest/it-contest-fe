@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:it_contest_fe/features/quest/viewmodel/quest_party_create_viewmodel.dart';
 import 'package:it_contest_fe/features/quest/view/quest_party_create_screen.dart';
-import 'package:it_contest_fe/features/quest/view/quest_personal_create_screen.dart';
+import 'package:it_contest_fe/features/quest/view/quest_personal_form_screen.dart';
 import 'package:it_contest_fe/features/quest/viewmodel/quest_personal_create_viewmodel.dart';
 
 class QuestTypeBottomSheet extends StatelessWidget {
@@ -72,7 +72,7 @@ static void show(
                         MaterialPageRoute(
                           builder: (context) => ChangeNotifierProvider(
                             create: (_) => QuestPersonalCreateViewModel(),
-                            child: const QuestPersonalCreateScreen(),
+                            child: const QuestPersonalFormScreen(),
                           ),
                         ),
                       );

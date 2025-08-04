@@ -2,15 +2,22 @@ import 'package:flutter/material.dart';
 
 class QuestTitleInput extends StatefulWidget {
   final ValueChanged<String> onChanged;
-  const QuestTitleInput({super.key, required this.onChanged});
+  final String? initialValue;
+  const QuestTitleInput({super.key, required this.onChanged, this.initialValue});
 
   @override
   State<QuestTitleInput> createState() => _QuestTitleInputState();
 }
 
 class _QuestTitleInputState extends State<QuestTitleInput> {
-  final TextEditingController _controller = TextEditingController();
+  late final TextEditingController _controller;
   bool _isOverLimit = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+  }
 
   @override
   void dispose() {

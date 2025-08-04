@@ -10,6 +10,10 @@ class QuestItemResponse {
   CompletionStatus completionStatus;
   final String questType;
   final List<String> hashtags;
+  final String? startDate;
+  final String? dueDate;
+  final String? startTime;
+  final String? endTime;
 
   QuestItemResponse({
     required this.questId,
@@ -21,6 +25,10 @@ class QuestItemResponse {
     required this.completionStatus,
     required this.questType,
     required this.hashtags,
+    this.startDate,
+    this.dueDate,
+    this.startTime,
+    this.endTime,
   });
 
   // copyWith 메서드 추가
@@ -34,6 +42,10 @@ class QuestItemResponse {
     CompletionStatus? completionStatus,
     String? questType,
     List<String>? hashtags,
+    String? startDate,
+    String? dueDate,
+    String? startTime,
+    String? endTime,
   }) {
     return QuestItemResponse(
       questId: questId ?? this.questId,
@@ -45,6 +57,10 @@ class QuestItemResponse {
       completionStatus: completionStatus ?? this.completionStatus,
       questType: questType ?? this.questType,
       hashtags: hashtags ?? this.hashtags,
+      startDate: startDate ?? this.startDate,
+      dueDate: dueDate ?? this.dueDate,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
     );
   }
 
@@ -61,6 +77,10 @@ class QuestItemResponse {
           : CompletionStatus.INCOMPLETE,
       questType: json['questType'],
       hashtags: (json['hashtags'] as List<dynamic>?)?.cast<String>() ?? [],
+      startDate: json['startDate'],
+      dueDate: json['dueDate'],
+      startTime: json['startTime'],
+      endTime: json['endTime'],
     );
   }
 
@@ -74,5 +94,9 @@ class QuestItemResponse {
     'completionStatus': completionStatus.name,
     'questType': questType,
     'hashtags': hashtags,
+    'startDate': startDate,
+    'dueDate': dueDate,
+    'startTime': startTime,
+    'endTime': endTime,
   };
 }

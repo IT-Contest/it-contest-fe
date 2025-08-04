@@ -3,11 +3,15 @@ import 'input.dart';
 import 'tip_box.dart';
 
 class QuestPrioritySection extends StatefulWidget {
+  final int? initialPriority;
+  final String? initialPeriod;
   const QuestPrioritySection({
     super.key,
     required this.onPriorityChanged,
     required this.onPeriodChanged,
     this.showTipBox = true,
+    this.initialPriority,
+    this.initialPeriod,
   });
 
   final ValueChanged<int> onPriorityChanged;
@@ -20,7 +24,14 @@ class QuestPrioritySection extends StatefulWidget {
 
 class _QuestPrioritySectionState extends State<QuestPrioritySection> {
   String? selectedPeriod;
-  final TextEditingController _priorityController = TextEditingController();
+  late final TextEditingController _priorityController;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedPeriod = widget.initialPeriod;
+    _priorityController = TextEditingController(text: widget.initialPriority?.toString() ?? '');
+  }
 
   @override
   void dispose() {

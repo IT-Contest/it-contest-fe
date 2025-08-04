@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class CategoryInput extends StatefulWidget {
-  const CategoryInput({Key? key, required this.onChanged}) : super(key: key);
+  final List<String>? initialValue;
+  const CategoryInput({Key? key, required this.onChanged, this.initialValue}) : super(key: key);
   final ValueChanged<List<String>> onChanged;
 
   @override
@@ -10,7 +11,13 @@ class CategoryInput extends StatefulWidget {
 
 class _CategoryInputState extends State<CategoryInput> {
   final TextEditingController _controller = TextEditingController();
-  final List<String> _categories = [];
+  late List<String> _categories;
+
+  @override
+  void initState() {
+    super.initState();
+    _categories = List<String>.from(widget.initialValue ?? []);
+  }
 
   void _notifyParent() {
     widget.onChanged(List<String>.from(_categories));
