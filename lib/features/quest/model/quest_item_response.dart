@@ -23,6 +23,31 @@ class QuestItemResponse {
     required this.hashtags,
   });
 
+  // copyWith 메서드 추가
+  QuestItemResponse copyWith({
+    int? questId,
+    String? title,
+    int? expReward,
+    int? goldReward,
+    int? priority,
+    String? partyName,
+    CompletionStatus? completionStatus,
+    String? questType,
+    List<String>? hashtags,
+  }) {
+    return QuestItemResponse(
+      questId: questId ?? this.questId,
+      title: title ?? this.title,
+      expReward: expReward ?? this.expReward,
+      goldReward: goldReward ?? this.goldReward,
+      priority: priority ?? this.priority,
+      partyName: partyName ?? this.partyName,
+      completionStatus: completionStatus ?? this.completionStatus,
+      questType: questType ?? this.questType,
+      hashtags: hashtags ?? this.hashtags,
+    );
+  }
+
   factory QuestItemResponse.fromJson(Map<String, dynamic> json) {
     return QuestItemResponse(
       questId: json['questId'],

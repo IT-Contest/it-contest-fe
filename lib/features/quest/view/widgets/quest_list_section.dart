@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
 import '../../view/daily_quest_fullpage.dart';
 import '../../viewmodel/quest_tab_viewmodel.dart';
 import '../../model/completion_status.dart';
@@ -94,7 +95,7 @@ class QuestListSection extends StatelessWidget {
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: questTabViewModel.filteredQuests.length,
+          itemCount: min(questTabViewModel.filteredQuests.length, 3),
           itemBuilder: (context, index) {
             final quest = questTabViewModel.filteredQuests[index];
             return _QuestCard(
