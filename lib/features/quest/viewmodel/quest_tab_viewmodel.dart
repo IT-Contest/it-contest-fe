@@ -123,4 +123,26 @@ class QuestTabViewModel extends ChangeNotifier {
       }
     }
   }
+
+  // 퀘스트 삭제 메서드 추가
+  Future<bool> deleteQuest(int questId) async {
+    try {
+      final success = await _service.deleteQuest(questId);
+      
+      if (success) {
+        // 로컬 리스트에서 삭제
+        allQuests.removeWhere((q) => q.questId == questId);
+        filteredQuests.removeWhere((q) => q.questId == questId); 
+        notifyListeners();
+        print('[퀘스트 삭제 성공] questId: $questId');
+        return true;
+      } else {
+        print('[퀘스트 삭제 실패] questId: $questId');
+        return false;
+      }
+    } catch (e) {
+      print('[퀘스트 삭제 오류] $e');
+      return false;
+    }
+  }
 } 

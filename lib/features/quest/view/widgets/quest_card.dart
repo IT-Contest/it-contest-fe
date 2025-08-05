@@ -10,6 +10,7 @@ class QuestCard extends StatelessWidget {
   final bool showBackground;
   final bool useFilledIconBg;
   final double padding;
+  final bool isSelected; // 선택 상태 파라미터 추가
 
   const QuestCard({
     required this.title,
@@ -21,6 +22,7 @@ class QuestCard extends StatelessWidget {
     this.showBackground = true,
     this.useFilledIconBg = true,
     this.padding = 14,
+    this.isSelected = false, // 기본값은 false
     Key? key,
   }) : super(key: key);
 
@@ -33,8 +35,8 @@ class QuestCard extends StatelessWidget {
         color: showBackground ? Colors.white : Colors.transparent,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: const Color(0xFFE0E0E0),
-          width: 1,
+          color: isSelected ? const Color(0xFF643EFF) : const Color(0xFFE0E0E0), // isSelected 값에 따라 색상 변경
+          width: isSelected ? 2 : 1, // 선택 시 테두리 두께 강조
         ),
       ),
       child: Row(

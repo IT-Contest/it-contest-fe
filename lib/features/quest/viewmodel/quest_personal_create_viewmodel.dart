@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/quest/model/quest_create_request.dart';
 import 'package:it_contest_fe/features/quest/service/quest_service.dart';
+import 'package:it_contest_fe/features/quest/model/quest_item_response.dart';
 
 // TimeData class removed; use the imported one from quest_create_request.dart
 
@@ -17,6 +18,50 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
 
   bool isLoading = false;
   String? errorMessage;
+
+  void initializeFromQuest(QuestItemResponse quest) {
+    questName = quest.title;
+    priority = quest.priority;
+    questType = quest.questType;
+    hashtags = List<String>.from(quest.hashtags);
+    
+    // 날짜/시간 파싱 및 초기화
+    if (quest.startDate != null) {
+      try {
+        startDate = DateTime.parse(quest.startDate!);
+      } catch (e) {
+        startDate = null;
+      }
+    }
+    
+    if (quest.dueDate != null) {
+      try {
+        dueDate = DateTime.parse(quest.dueDate!);
+      } catch (e) {
+        dueDate = null;
+      }
+    }
+    
+    if (quest.startTime != null) {
+      try {
+        final parts = quest.startTime!.split(':');
+        startTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+      } catch (e) {
+        startTime = null;
+      }
+    }
+    
+    if (quest.endTime != null) {
+      try {
+        final parts = quest.endTime!.split(':');
+        endTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+      } catch (e) {
+        endTime = null;
+      }
+    }
+    
+    notifyListeners();
+  }
 
   void setQuestName(String value) {
     questName = value;
@@ -72,32 +117,73 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
+
     try {
       final request = QuestCreateRequest(
         content: questName,
         priority: priority,
         questType: questType,
         completionStatus: completionStatus,
-        startTime: startTime != null
-            ? "${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}:00"
-            : "00:00:00",
-        endTime: endTime != null
-            ? "${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}:00"
-            : "00:00:00",
-        startDate: startDate != null ? _formatDate(startDate!) : '',
-        dueDate: dueDate != null ? _formatDate(dueDate!) : '',
+        startTime: startTime != null ? '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}:00' : '00:00:00',
+        endTime: endTime != null ? '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}:00' : '23:59:59',
+        startDate: startDate?.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0],
+        dueDate: dueDate?.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0],
         hashtags: hashtags,
       );
-      print('[개인 퀘스트 생성 요청] ${request.toJson().toString()}');
+
       final success = await QuestService().createQuest(request);
-      isLoading = false;
-      notifyListeners();
+      
+      if (success) {
+        print('[퀘스트 생성 성공]');
+      } else {
+        errorMessage = '퀘스트 생성에 실패했습니다.';
+      }
+      
       return success;
     } catch (e) {
-      isLoading = false;
-      errorMessage = '개인 퀘스트 생성 실패: ${e.toString()}';
-      notifyListeners();
+      errorMessage = '퀘스트 생성 중 오류가 발생했습니다: $e';
+      print('[퀘스트 생성 오류] $e');
       return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // 퀘스트 수정 메서드 추가
+  Future<bool> updateQuest(int questId) async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updateData = {
+        'content': questName,
+        'priority': priority,
+        'questType': questType,
+        'startTime': startTime != null ? '${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}:00' : '00:00:00',
+        'endTime': endTime != null ? '${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}:00' : '23:59:59',
+        'startDate': startDate?.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0],
+        'dueDate': dueDate?.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0],
+        'hashtags': hashtags,
+      };
+
+      final success = await QuestService().updateQuest(questId, updateData);
+      
+      if (success) {
+        print('[퀘스트 수정 성공]');
+      } else {
+        errorMessage = '퀘스트 수정에 실패했습니다.';
+      }
+      
+      return success;
+    } catch (e) {
+      errorMessage = '퀘스트 수정 중 오류가 발생했습니다: $e';
+      print('[퀘스트 수정 오류] $e');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 }

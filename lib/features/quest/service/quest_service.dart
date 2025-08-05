@@ -85,4 +85,43 @@ class QuestService {
       rethrow;
     }
   }
+
+  // 퀘스트 수정 API
+  Future<bool> updateQuest(int questId, Map<String, dynamic> updateData) async {
+    try {
+      final token = await TokenStorage().getAccessToken();
+      final response = await DioClient().dio.put(
+        '/quests/$questId',
+        data: updateData,
+        options: token != null
+            ? Options(headers: {'Authorization': 'Bearer $token'})
+            : null,
+      );
+      print('[퀘스트 수정 응답] ${response.statusCode}: ${response.data}');
+      return response.statusCode == 200;
+    } catch (e, stack) {
+      print('[퀘스트 수정 실패] ${e.toString()}');
+      print(stack);
+      return false;
+    }
+  }
+
+  // 퀘스트 삭제 API
+  Future<bool> deleteQuest(int questId) async {
+    try {
+      final token = await TokenStorage().getAccessToken();
+      final response = await DioClient().dio.delete(
+        '/quests/$questId',
+        options: token != null
+            ? Options(headers: {'Authorization': 'Bearer $token'})
+            : null,
+      );
+      print('[퀘스트 삭제 응답] ${response.statusCode}: ${response.data}');
+      return response.statusCode == 200;
+    } catch (e, stack) {
+      print('[퀘스트 삭제 실패] ${e.toString()}');
+      print(stack);
+      return false;
+    }
+  }
 }
