@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/quest/service/admob_service.dart';
+import 'package:it_contest_fe/shared/ad_banner.dart';
 
 import '../../../shared/quest_create_form/date_time_section.dart';
 
@@ -121,12 +122,7 @@ class PartyCreatePage extends StatelessWidget {
                 minimumSize: const Size(double.infinity, 48),
               ),
             ),
-            Center(
-              child: BottomBannerAd(
-                kind: BannerKind.mrec300x250,      // ✅ 300x250
-                margin: EdgeInsets.symmetric(vertical: 12),
-              ),
-            ),
+            const AdBanner(),
           ],
         ),
       ),
