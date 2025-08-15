@@ -1,3 +1,4 @@
+// quest_list_section.dart, daily_quest_fullpage.dart, quest_search_screen.dart, quest_screen.dart (탭별 퀘스트 리스트 등)
 import 'package:flutter/material.dart';
 import '../model/quest_item_response.dart';
 import '../service/quest_service.dart';
@@ -10,10 +11,29 @@ class QuestTabViewModel extends ChangeNotifier {
   String selectedPeriod = 'DAILY'; // 기본값
   bool isLoading = false;
   String? errorMessage;
+  bool _isLoaded = false; // 데이터 로드 여부 플래그
 
   // 탭 인덱스 관리 (0: 일일, 1: 주간, ...)
   int _selectedTab = 0;
   int get selectedTab => _selectedTab;
+
+  // 메인 화면에 표시될 퀘스트 목록을 위한 getter
+  List<QuestItemResponse> get mainPageQuests {
+    final incompleteQuests = allQuests
+        .where((q) => q.completionStatus == CompletionStatus.INCOMPLETE)
+        .toList();
+
+    // 우선순위(오름차순), ثم ID(오름차순, 생성순)로 정렬
+    incompleteQuests.sort((a, b) {
+      int priorityCompare = a.priority.compareTo(b.priority);
+      if (priorityCompare != 0) {
+        return priorityCompare;
+      }
+      return a.questId.compareTo(b.questId);
+    });
+
+    return incompleteQuests.take(2).toList();
+  }
 
   void changeTab(int i) {
     if (_selectedTab != i) {
@@ -36,11 +56,15 @@ class QuestTabViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> loadQuests() async {
+  Future<void> loadQuests({bool force = false}) async {
+    // 이미 로드되었고, 강제 새로고침이 아니라면 실행하지 않음
+    if (_isLoaded && !force) return;
+
     isLoading = true;
     notifyListeners();
     try {
       allQuests = await _service.fetchQuestList();
+      _isLoaded = true; // 로드 성공 시 플래그 설정
       print('[퀘스트 API 응답]');
       for (final q in allQuests) {
         print(q.toJson());
@@ -61,34 +85,64 @@ class QuestTabViewModel extends ChangeNotifier {
 
   void changePeriod(String period) {
     selectedPeriod = period;
-    filterQuests(); // ✅ 이걸로 충분
+    filterQuests(); 
   }
 
-  // 퀘스트 완료 토글 (예시)
-  void toggleQuest(int questId) {
-    final idx = filteredQuests.indexWhere((q) => q.questId == questId);
+  // 퀘스트 완료 토글
+  Future<void> toggleQuest(int questId) async {
+    final idx = allQuests.indexWhere((q) => q.questId == questId);
     if (idx != -1) {
-      final quest = filteredQuests[idx];
+      final quest = allQuests[idx];
       final newStatus = quest.completionStatus == CompletionStatus.COMPLETED
           ? CompletionStatus.INCOMPLETE
           : CompletionStatus.COMPLETED;
 
-      // filteredQuests와 allQuests 모두 업데이트
-      filteredQuests[idx] = QuestItemResponse(
-        questId: quest.questId,
-        title: quest.title,
-        expReward: quest.expReward,
-        goldReward: quest.goldReward,
-        priority: quest.priority,
-        partyName: quest.partyName,
-        completionStatus: newStatus,
-        questType: quest.questType,
-      );
-      final allIdx = allQuests.indexWhere((q) => q.questId == questId);
-      if (allIdx != -1) {
-        allQuests[allIdx] = filteredQuests[idx];
+      try {
+        // 1. 서버 API를 호출하고, 성공 응답을 받습니다.
+        final response = await _service.updateQuestStatus(questId, newStatus);
+        
+        // 2. 응답으로 받은 최신 상태를 사용하여 로컬 데이터를 직접 업데이트합니다.
+        // QuestStatusChangeResponse에는 completionStatus가 없으므로,
+        // 요청했던 newStatus를 사용합니다. API 호출이 성공했기 때문에 상태는 일치합니다.
+        final updatedQuest = quest.copyWith(completionStatus: newStatus);
+
+        allQuests[idx] = updatedQuest;
+        
+        // filteredQuests도 업데이트합니다.
+        final filteredIdx = filteredQuests.indexWhere((q) => q.questId == questId);
+        if (filteredIdx != -1) {
+          filteredQuests[filteredIdx] = updatedQuest;
+        }
+        
+        notifyListeners();
+        
+      } catch (e) {
+        // 에러 처리 (예: 사용자에게 알림 표시)
+        print('Error toggling quest: $e');
+        // 필요하다면 원래 상태로 롤백하는 로직을 추가할 수 있습니다.
       }
-      notifyListeners();
+    }
+  }
+
+  // 퀘스트 삭제 메서드 추가
+  Future<bool> deleteQuest(int questId) async {
+    try {
+      final success = await _service.deleteQuest(questId);
+      
+      if (success) {
+        // 로컬 리스트에서 삭제
+        allQuests.removeWhere((q) => q.questId == questId);
+        filteredQuests.removeWhere((q) => q.questId == questId); 
+        notifyListeners();
+        print('[퀘스트 삭제 성공] questId: $questId');
+        return true;
+      } else {
+        print('[퀘스트 삭제 실패] questId: $questId');
+        return false;
+      }
+    } catch (e) {
+      print('[퀘스트 삭제 오류] $e');
+      return false;
     }
   }
 } 

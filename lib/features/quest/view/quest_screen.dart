@@ -6,6 +6,7 @@ import 'widgets/quest_list_section.dart';
 import 'widgets/quest_add_section.dart';
 import 'widgets/quest_pomodoro_section.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
+import 'package:it_contest_fe/features/quest/view/quest_personal_form_screen.dart';
 
 class QuestScreen extends StatefulWidget {
   const QuestScreen({super.key});
@@ -54,7 +55,14 @@ class _QuestScreenState extends State<QuestScreen> {
                     onTabChanged: questTabViewModel.changeTab,
                   ),
                   const SizedBox(height: 16),
-                  const QuestAddSection(),
+                  QuestAddSection(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const QuestPersonalFormScreen()),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 24),
                   const QuestPomodoroSection(),
                 ],

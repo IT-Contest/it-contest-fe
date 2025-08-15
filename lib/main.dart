@@ -13,6 +13,7 @@ import 'presentation/main_navigation_screen.dart';
 import 'features/mainpage/viewmodel/mainpage_viewmodel.dart';
 import 'features/quest/viewmodel/quest_tab_viewmodel.dart';
 import 'features/quest/viewmodel/quest_pomodoro_viewmodel.dart';
+import 'features/quest/viewmodel/quest_personal_create_viewmodel.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 void main() async {
@@ -32,6 +33,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => QuestPomodoroViewModel()),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
         ChangeNotifierProvider(create: (_) => InviteViewModel(inviteCode: 'temp')), // ✅ 추가
+        ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
+        ChangeNotifierProvider(create: (_) => QuestPersonalCreateViewModel())
       ],
       child: const MyApp(),
     ),
