@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/onboarding/view/widgets/date_time_section.dart'; // ✅ DateTimeSection import
+import 'package:it_contest_fe/features/quest/service/admob_service.dart';
+
+import '../../../shared/quest_create_form/date_time_section.dart';
+
 
 class PartyCreatePage extends StatelessWidget {
   const PartyCreatePage({super.key});
@@ -117,13 +120,11 @@ class PartyCreatePage extends StatelessWidget {
                 minimumSize: const Size(double.infinity, 48),
               ),
             ),
-            const SizedBox(height: 24),
-            Container(
-              width: double.infinity,
-              height: 200,
-              color: Colors.grey,
-              alignment: Alignment.center,
-              child: const Text('광고 영역', style: TextStyle(color: Colors.white, fontSize: 18)),
+            Center(
+              child: BottomBannerAd(
+                kind: BannerKind.mrec300x250,      // ✅ 300x250
+                margin: EdgeInsets.symmetric(vertical: 12),
+              ),
             ),
           ],
         ),
