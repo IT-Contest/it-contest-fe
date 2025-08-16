@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../quest/model/quest_item_response.dart';
 import '../model/mainpage_user_response.dart';
 import '../service/mainpage_service.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class MainPageViewModel extends ChangeNotifier {
   bool _hasAlarm = false;
@@ -29,6 +30,7 @@ class MainPageViewModel extends ChangeNotifier {
 
   bool get shouldShowOnboardingCard =>
       !_isOnboardingClosed && _questCount == 0;
+  //bool get shouldShowOnboardingCard => true;
 
   Future<void> loadMainQuests() async {
     try {
@@ -62,5 +64,39 @@ class MainPageViewModel extends ChangeNotifier {
     } catch (e) {
       print('[유저 정보 불러오기 실패] $e');
     }
+  }
+}
+
+class ProfilePageWidget extends StatelessWidget {
+  const ProfilePageWidget({super.key});
+
+  Future<void> _kakaoUnlink(BuildContext context) async {
+    try {
+      await UserApi.instance.unlink();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('카카오 연결 끊기 성공!')),
+      );
+      // 필요하다면 로그아웃/초기화면 이동 등 추가
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('카카오 연결 끊기 실패: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // ... 기존 코드 ...
+      body: Column(
+        children: [
+          // ... 기존 프로필 UI ...
+          ElevatedButton(
+            onPressed: () => _kakaoUnlink(context),
+            child: const Text('회원 탈퇴(카카오 연결 끊기)'),
+          ),
+        ],
+      ),
+    );
   }
 }

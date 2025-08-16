@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/onboarding/view/widgets/custom_date_picker.dart';
-import 'package:it_contest_fe/features/onboarding/view/widgets/time_range_picker.dart';
+import 'package:it_contest_fe/shared/quest_create_form/sub_screen/custom_date_picker.dart';
+import 'package:it_contest_fe/shared/quest_create_form/sub_screen/time_range_picker.dart';
 
 class DateTimeSection extends StatefulWidget {
   final ValueChanged<DateTime>? onStartDateChanged;
   final ValueChanged<DateTime>? onDueDateChanged;
   final ValueChanged<TimeOfDay>? onStartTimeChanged;
   final ValueChanged<TimeOfDay>? onEndTimeChanged;
+  final DateTime? initialStartDate;
+  final DateTime? initialDueDate;
+  final TimeOfDay? initialStartTime;
+  final TimeOfDay? initialEndTime;
 
   const DateTimeSection({
     Key? key,
@@ -14,6 +18,10 @@ class DateTimeSection extends StatefulWidget {
     this.onDueDateChanged,
     this.onStartTimeChanged,
     this.onEndTimeChanged,
+    this.initialStartDate,
+    this.initialDueDate,
+    this.initialStartTime,
+    this.initialEndTime,
   }) : super(key: key);
 
   @override
@@ -25,6 +33,15 @@ class _DateTimeSectionState extends State<DateTimeSection> {
   DateTime? _dueDate;
   TimeOfDay? _startTime;
   TimeOfDay? _endTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _startDate = widget.initialStartDate;
+    _dueDate = widget.initialDueDate;
+    _startTime = widget.initialStartTime;
+    _endTime = widget.initialEndTime;
+  }
 
   // Helper for displaying date parts
   String _getYear(DateTime? d) => d != null ? d.year.toString() : '';

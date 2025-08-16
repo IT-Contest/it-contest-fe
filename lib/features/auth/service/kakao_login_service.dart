@@ -1,8 +1,12 @@
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:kakao_flutter_sdk_common/kakao_flutter_sdk_common.dart';
+import 'package:dio/dio.dart';
+import 'package:it_contest_fe/core/network/dio_client.dart';
+import '../model/user_token_response.dart';
 
 class KakaoLoginService {
-  Future<String> loginWithKakao() async {
+  final Dio _dio = DioClient().dio;
+
+  Future<UserTokenResponse?> loginWithKakaoAndServer() async {
     try {
       OAuthToken token;
 
@@ -16,15 +20,22 @@ class KakaoLoginService {
 
       print('✅ 로그인 성공: accessToken = ${token.accessToken}');
 
-      // ✅ 사용자 정보 요청 추가!
+      // 서버에 카카오 accessToken 전달
+      final response = await _dio.post(
+        '/auth/login/kakao',
+        data: {'accessToken': token.accessToken},
+      );
+      final tokenResponse = UserTokenResponse.fromJson(response.data);
+
+      // ✅ 사용자 정보 요청 추가 (선택)
       final user = await UserApi.instance.me();
       print('🙋 사용자 정보: ${user.kakaoAccount?.profile?.nickname}');
 
-      return token.accessToken;
+      return tokenResponse;
     } catch (e, stack) {
       print('❌ 로그인 실패: $e');
       print('🔍 StackTrace:\n$stack');
-      rethrow;
+      return null;
     }
   }
 }

@@ -1,0 +1,49 @@
+import 'package:flutter/material.dart';
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final Color iconColor;
+  final double height;
+  final EdgeInsetsGeometry padding;
+
+  const CustomAppBar({
+    Key? key,
+    this.iconColor = const Color(0xFF7958FF),
+    this.height = 80,
+    this.padding = const EdgeInsets.symmetric(horizontal: 28),
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height + 1, // Divider 포함
+      color: Colors.white,
+      child: Stack(
+        children: [
+          SafeArea(
+            child: Container(
+              height: height,
+              padding: padding,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(Icons.menu, color: iconColor),
+                  Image.asset('assets/images/logo.png', height: 40),
+                  Icon(Icons.notifications_none, color: iconColor),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Divider(height: 1, thickness: 1, color: Color(0xFFE0E0E0)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(height + 1);
+}

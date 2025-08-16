@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/shared/widgets/custom_app_bar.dart';
 
 class BenefitPageWidget extends StatelessWidget {
   const BenefitPageWidget({super.key});
@@ -6,25 +7,8 @@ class BenefitPageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          // 상단바 직접 작성
-          const SizedBox(height: 28),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Icon(Icons.menu, color: Colors.deepPurple),
-                Image.asset('assets/images/logo.jpg', height: 40),
-                const Icon(Icons.notifications_none, color: Colors.deepPurple),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(height: 1, color: Colors.grey)
-        ],
-      ),
+      appBar: const CustomAppBar(),
+      body: Container(), // TODO: 기존 body 내용 필요시 추가
     );
   }
 }

@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
 import 'package:it_contest_fe/core/storage/token_storage.dart';
 import '../model/user_token_response.dart';
-import 'package:it_contest_fe/features/onboarding/view/onboarding_screen.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
 
