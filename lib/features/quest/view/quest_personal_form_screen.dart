@@ -37,6 +37,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
       _priority = widget.quest!.priority;
       _period = _mapQuestTypeToKorean(widget.quest!.questType); // 한글로 변환
       _categories = List<String>.from(widget.quest!.hashtags);
+      _date = _parseDate(widget.quest?.startDate); // 시작일자 설정
       
       // ViewModel 초기화는 build 후에 실행
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -81,11 +82,50 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
     }
   }
 
+  // 폼 유효성 검사 메서드
+  bool _isFormValid() {
+    // 1. 퀘스트 제목이 비어있지 않아야 함
+    if (_title.trim().isEmpty) {
+      //print('제목이 비어있음: "$_title"');
+      return false;
+    }
+    
+    // 2. 우선순위가 선택되어야 함 (0은 기본값이므로 유효함)
+    
+    // 3. 주기(일일/주간/월간/연간)가 선택되어야 함
+    if (_period == null || _period!.isEmpty) {
+      //print('주기가 선택되지 않음: $_period');
+      return false;
+    }
+    
+    // 4. 카테고리가 최소 1개 이상 선택되어야 함
+    if (_categories.isEmpty) {
+      //print('카테고리가 선택되지 않음: $_categories');
+      return false;
+    }
+    
+    // 5. 시작일자가 선택되어야 함
+    if (_date == null) {
+      //print('시작일자가 선택되지 않음: $_date');
+      return false;
+    }
+    
+    // 6. 시작시간과 종료시간이 모두 선택되어야 함 (ViewModel에서 확인)
+    final vm = context.read<QuestPersonalCreateViewModel>();
+    if (vm.startTime == null || vm.endTime == null) {
+      //print('시간이 선택되지 않음: startTime=${vm.startTime}, endTime=${vm.endTime}');
+      return false;
+    }
+    
+    //print('모든 필수값이 입력됨 - 폼 유효함');
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<QuestPersonalCreateViewModel>();
-
-    return AnnotatedRegion<SystemUiOverlayStyle>(
+    return Consumer<QuestPersonalCreateViewModel>(
+      builder: (context, vm, child) {
+        return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
         statusBarColor: Colors.white,
         statusBarIconBrightness: Brightness.dark,
@@ -136,12 +176,12 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                 initialPeriod: _period,
                 onPriorityChanged: (value) {
                   setState(() => _priority = value);
-                  vm.setPriority(value); // 🔧 ViewModel에도 반영
+                  vm.setPriority(value); 
                 },
                 onPeriodChanged: (value) {
                   setState(() => _period = value);
                   if (value != null) {
-                    vm.setQuestType(value); // 🔧 ViewModel에도 반영
+                    vm.setQuestType(value); 
                   }
                 },
                 showTipBox: true,
@@ -153,7 +193,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                 initialValue: _categories,
                 onChanged: (value) {
                   setState(() => _categories = value);
-                  vm.setHashtags(value); // 🔧 ViewModel에도 반영
+                  vm.setHashtags(value); 
                 },
               ),
               const SizedBox(height: 16),
@@ -164,7 +204,10 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                 initialDueDate: _parseDate(widget.quest?.dueDate),
                 initialStartTime: _parseTime(widget.quest?.startTime),
                 initialEndTime: _parseTime(widget.quest?.endTime),
-                onStartDateChanged: vm.setStartDate,
+                onStartDateChanged: (date) {
+                  setState(() => _date = date);
+                  vm.setStartDate(date);
+                },
                 onDueDateChanged: vm.setDueDate,
                 onStartTimeChanged: vm.setStartTime,
                 onEndTimeChanged: vm.setEndTime,
@@ -202,7 +245,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: vm.isLoading
+                  onPressed: (vm.isLoading || !_isFormValid())
                       ? null
                       : () async {
                           if (widget.quest != null) {
@@ -264,7 +307,9 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7958FF),
+                    backgroundColor: _isFormValid() 
+                        ? const Color(0xFF7958FF) 
+                        : const Color(0xFFB7B7B7),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -292,6 +337,8 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
           ),
         ),
       ),
+      );
+    },
     );
   }
 }
