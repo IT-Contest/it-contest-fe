@@ -39,12 +39,10 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
-
   uses-material-design: true
-
   assets:
-    - assets/images/ # 이미지 에셋 경로
-    - assets/icons/  # 아이콘 에셋 경로
+    - assets/images/
+    - assets/icons/
   fonts:
     - family: Inter
       fonts:
