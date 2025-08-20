@@ -13,9 +13,10 @@ enum BannerKind {
 
 /// 테스트/운영용 배너 단위 ID
 class AdIds {
-  /// 배포 시 실제 Ad Unit ID로 교체하세요.
+  /// 배포 시 실제 Ad Unit ID로 교체하세요.x
   static String get banner {
-    if (Platform.isAndroid) return 'ca-app-pub-9177834780185912/8770459691'; // Android 테스트 배너
+    // if (Platform.isAndroid) return 'ca-app-pub-9177834780185912/8770459691'; // Android 테스트 배너
+    if (Platform.isAndroid) return 'ca-app-pub-3940256099942544/6300978111';
     if (Platform.isIOS)     return 'ca-app-pub-3940256099942544/2934735716'; // iOS 테스트 배너
     throw UnsupportedError('Unsupported platform');
   }

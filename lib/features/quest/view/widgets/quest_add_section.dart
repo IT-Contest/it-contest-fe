@@ -28,7 +28,10 @@ class QuestAddSection extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: const [
-            Icon(Icons.add, color: Color(0xFF7958FF), size: 24),
+            Padding(
+              padding: EdgeInsets.only(top: 2),
+              child: Icon(Icons.add, color: Color(0xFF7958FF), size: 24),
+            ),
             SizedBox(width: 10),
             Text(
               '새 퀘스트 추가',
