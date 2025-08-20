@@ -226,40 +226,106 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                                       // 삭제 확인 다이얼로그
                                       final confirm = await showDialog<bool>(
                                         context: context,
-                                        builder: (context) => AlertDialog(
-                                          title: const Text('퀘스트 삭제'),
-                                          content: const Text('정말로 이 퀘스트를 삭제하시겠습니까?'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () => Navigator.of(context).pop(false),
-                                              child: const Text('취소'),
+                                        barrierDismissible: false,
+                                        builder: (context) => Dialog(
+                                          backgroundColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(16),
+                                          ),
+                                          child: Container(
+                                            padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                // 제목
+                                                const Text(
+                                                  '주의',
+                                                  style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Color(0xFFD33248),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 16),
+                                                // 메시지
+                                                const Text(
+                                                  '완료된 퀘스트의 경우 지급되었던 경험치와\n골드가 차감됩니다.\n그래도 삭제하시겠습니까?',
+                                                  textAlign: TextAlign.left,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: Colors.black87,
+                                                    height: 1.4,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 24),
+                                                // 버튼들
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      child: SizedBox(
+                                                        height: 48,
+                                                        child: ElevatedButton(
+                                                          onPressed: () => Navigator.of(context).pop(true),
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor: const Color(0xFF7958FF),
+                                                            foregroundColor: Colors.white,
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(12),
+                                                            ),
+                                                            elevation: 0,
+                                                          ),
+                                                          child: const Text(
+                                                            '삭제',
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                    Expanded(
+                                                      child: SizedBox(
+                                                        height: 48,
+                                                        child: OutlinedButton(
+                                                          onPressed: () => Navigator.of(context).pop(false),
+                                                          style: OutlinedButton.styleFrom(
+                                                            side: const BorderSide(color: Color(0xFF7958FF), width: 1),
+                                                            foregroundColor: const Color(0xFF7958FF),
+                                                            shape: RoundedRectangleBorder(
+                                                              borderRadius: BorderRadius.circular(12),
+                                                            ),
+                                                          ),
+                                                          child: const Text(
+                                                            '취소',
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
-                                            TextButton(
-                                              onPressed: () => Navigator.of(context).pop(true),
-                                              child: const Text('삭제'),
-                                            ),
-                                          ],
+                                          ),
                                         ),
                                       );
-
+                                      
+                                      // 삭제 확인 다이얼로그 결과 처리
                                       if (confirm == true) {
                                         final success = await context
                                             .read<QuestTabViewModel>()
                                             .deleteQuest(_selectedQuestId!);
                                         
                                         if (success) {
-                                          setState(() => _selectedQuestId = null);
-                                          if (mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('퀘스트가 성공적으로 삭제되었습니다.')),
-                                            );
-                                          }
-                                        } else {
-                                          if (mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('퀘스트 삭제에 실패했습니다.')),
-                                            );
-                                          }
+                                          setState(() {
+                                            _selectedQuestId = null;
+                                            _selectedNav = -1; // 삭제 완료 후 하단 버튼을 수정/삭제 선택 버튼으로 되돌리기
+                                          });
                                         }
                                       }
                                     }

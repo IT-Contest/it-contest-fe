@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ssucheahwa.questplanner">
+          xmlns:tools="http://schemas.android.com/tools" package="com.ssucheahwa.questplanner">
     <application
         android:label="it_contest_fe"
         android:name="${applicationName}"
@@ -27,8 +27,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
-            android:exported="true">
+                android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
+                android:exported="true" tools:ignore="MissingClass">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -41,6 +41,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9177834780185912~1097382607" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

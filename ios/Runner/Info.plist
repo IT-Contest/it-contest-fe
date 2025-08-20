@@ -61,5 +61,7 @@
 			</array>
 		</dict>
 	</array>
+	<key>GADApplicationIdentifier</key>
+	<string>$(GAD_APP_ID)</string>
 </dict>
 </plist>

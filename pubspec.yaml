@@ -26,6 +26,10 @@ dependencies:
   intl: ^0.20.2
   flutter_secure_storage: ^9.0.0
   device_info_plus: ^9.0.2
+  share_plus: ^7.0.0
+  url_launcher: ^6.2.5
+
+  google_mobile_ads: ^5.1.0
   table_calendar: ^3.0.9
 
 dev_dependencies:
@@ -35,12 +39,10 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
-
   uses-material-design: true
-
   assets:
-    - assets/images/ # 이미지 에셋 경로
-    - assets/icons/  # 아이콘 에셋 경로
+    - assets/images/
+    - assets/icons/
   fonts:
     - family: Inter
       fonts:

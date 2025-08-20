@@ -44,7 +44,7 @@ class _QuestTitleInputState extends State<QuestTitleInput> {
           onChanged: _handleInputChange,
           decoration: InputDecoration(
             hintText: "퀘스트명을 입력해 주세요 (최대 100자 이내)",
-            hintStyle: const TextStyle(color: Color(0xFFB7B7B7), fontSize: 16, fontWeight: FontWeight.bold),
+            hintStyle: const TextStyle(color: Color(0xFFB7B7B7), fontSize: 16),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),

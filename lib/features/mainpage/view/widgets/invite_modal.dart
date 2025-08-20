@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../viewmodel/invite_viewmodel.dart';
+
 
 class InviteModal {
   static void show(BuildContext context) {
+    final inviteViewModel = Provider.of<InviteViewModel>(context, listen: false);
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -35,14 +41,16 @@ class InviteModal {
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: const [
+                children: [
                   InviteOption(
                     iconPath: 'assets/icons/kakao_logo.png',
                     label: '카카오톡',
+                    onTap: () => inviteViewModel.shareToKakao(context),
                   ),
                   InviteOption(
                     iconPath: 'assets/icons/link_icon.png',
                     label: '링크복사',
+                    onTap: () => inviteViewModel.copyLink(context),
                   ),
                 ],
               ),
@@ -58,31 +66,30 @@ class InviteModal {
 class InviteOption extends StatelessWidget {
   final String iconPath;
   final String label;
+  final VoidCallback onTap;
 
   const InviteOption({
     required this.iconPath,
     required this.label,
+    required this.onTap,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.pop(context);
-        // TODO: 동작 정의
-      },
+      onTap: onTap,
       child: Column(
         children: [
           Container(
-            width: 64, // 크기 증가
+            width: 64,
             height: 64,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.transparent, // 회색 테두리 제거
+              color: Colors.transparent,
             ),
             child: Center(
-              child: Image.asset(iconPath, width: 64, height: 64), // 아이콘 크기 증가
+              child: Image.asset(iconPath, width: 64, height: 64),
             ),
           ),
           const SizedBox(height: 8),

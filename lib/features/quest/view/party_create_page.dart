@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/features/quest/service/admob_service.dart';
+import 'package:it_contest_fe/shared/ad_banner.dart';
+
+import '../../../shared/quest_create_form/date_time_section.dart';
+
 import 'package:it_contest_fe/shared/quest_create_form/date_time_section.dart';
 
 class PartyCreatePage extends StatelessWidget {
@@ -117,14 +122,7 @@ class PartyCreatePage extends StatelessWidget {
                 minimumSize: const Size(double.infinity, 48),
               ),
             ),
-            const SizedBox(height: 24),
-            Container(
-              width: double.infinity,
-              height: 200,
-              color: Colors.grey,
-              alignment: Alignment.center,
-              child: const Text('광고 영역', style: TextStyle(color: Colors.white, fontSize: 18)),
-            ),
+            const AdBanner(),
           ],
         ),
       ),
