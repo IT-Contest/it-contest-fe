@@ -34,7 +34,7 @@ class CustomBottomNavBar extends StatelessWidget {
           label: '분석',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.emoji_events_outlined),
+          icon: Icon(Icons.workspace_premium),
           label: '혜택',
         ),
         BottomNavigationBarItem(
