@@ -8,7 +8,7 @@ import '../../model/completion_status.dart';
 class QuestListSection extends StatelessWidget {
   final int selectedTab;
   final ValueChanged<int>? onTabChanged;
-  const QuestListSection({Key? key, this.selectedTab = 0, this.onTabChanged}) : super(key: key);
+  const QuestListSection({super.key, this.selectedTab = 0, this.onTabChanged});
 
   @override
   Widget build(BuildContext context) {

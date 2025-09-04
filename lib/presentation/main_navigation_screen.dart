@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/shared/widgets/bottom_nav_bar.dart';
-import '../features/mainpage/view/analysis_page_widget.dart';
+import '../features/analysis/view/analysis_screen.dart';
 import '../features/mainpage/view/benefit_page_widget.dart';
 import '../features/mainpage/view/profile_page_widget.dart';
 import '../features/quest/view/quest_screen.dart';
@@ -26,7 +26,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     _screens = [
       const MainScreen(),
       const QuestScreen(),
-      const AnalysisPageWidget(),   // 분석
+      const AnalysisView(),         // 분석
       const BenefitPageWidget(),    // 혜택
       const ProfilePageWidget(),    // 프로필
     ];

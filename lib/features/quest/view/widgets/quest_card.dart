@@ -23,8 +23,8 @@ class QuestCard extends StatelessWidget {
     this.useFilledIconBg = true,
     this.padding = 14,
     this.isSelected = false, // 기본값은 false
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

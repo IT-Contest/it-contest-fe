@@ -1,5 +1,4 @@
 // features/auth/service/guest_login_service.dart
-import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class TokenStorage {

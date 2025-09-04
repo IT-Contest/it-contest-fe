@@ -5,7 +5,7 @@ import '../quest_search_screen.dart';
 
 class QuestSearchSection extends StatelessWidget {
   final ValueChanged<String>? onChanged;
-  const QuestSearchSection({Key? key, this.onChanged}) : super(key: key);
+  const QuestSearchSection({super.key, this.onChanged});
 
   @override
   Widget build(BuildContext context) {

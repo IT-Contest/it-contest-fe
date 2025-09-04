@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:it_contest_fe/features/mainpage/view/main_screen.dart';
 import 'package:provider/provider.dart';
 import 'features/auth/view/login_screen.dart';
 import 'features/auth/viewmodel/login_viewmodel.dart';
@@ -14,6 +13,7 @@ import 'features/mainpage/viewmodel/mainpage_viewmodel.dart';
 import 'features/quest/viewmodel/quest_tab_viewmodel.dart';
 import 'features/quest/viewmodel/quest_pomodoro_viewmodel.dart';
 import 'features/quest/viewmodel/quest_personal_create_viewmodel.dart';
+import 'features/analysis/viewmodel/analysis_viewmodel.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 void main() async {
@@ -32,9 +32,10 @@ void main() async {
         ChangeNotifierProvider(create: (_) => QuestTabViewModel()),
         ChangeNotifierProvider(create: (_) => QuestPomodoroViewModel()),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
-        ChangeNotifierProvider(create: (_) => InviteViewModel(inviteCode: 'temp')), // ✅ 추가
+        ChangeNotifierProvider(create: (_) => InviteViewModel(inviteCode: 'temp')),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
-        ChangeNotifierProvider(create: (_) => QuestPersonalCreateViewModel())
+        ChangeNotifierProvider(create: (_) => QuestPersonalCreateViewModel()),
+        ChangeNotifierProvider(create: (_) => AnalysisViewModel()),
       ],
       child: const MyApp(),
     ),

@@ -119,7 +119,6 @@ class _QuestTypeButton extends StatelessWidget {
     required this.label,
     required this.isFilled,
     required this.onTap,
-    super.key,
   });
 
   @override

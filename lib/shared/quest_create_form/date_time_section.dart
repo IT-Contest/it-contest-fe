@@ -13,7 +13,7 @@ class DateTimeSection extends StatefulWidget {
   final TimeOfDay? initialEndTime;
 
   const DateTimeSection({
-    Key? key,
+    super.key,
     this.onStartDateChanged,
     this.onDueDateChanged,
     this.onStartTimeChanged,
@@ -22,7 +22,7 @@ class DateTimeSection extends StatefulWidget {
     this.initialDueDate,
     this.initialStartTime,
     this.initialEndTime,
-  }) : super(key: key);
+  });
 
   @override
   State<DateTimeSection> createState() => _DateTimeSectionState();
