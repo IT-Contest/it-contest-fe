@@ -7,7 +7,7 @@ import '../viewmodel/quest_tab_viewmodel.dart'; // ViewModel 변경
 
 class QuestSearchScreen extends StatefulWidget {
   final String initialQuery;
-  const QuestSearchScreen({Key? key, this.initialQuery = ''}) : super(key: key);
+  const QuestSearchScreen({super.key, this.initialQuery = ''});
 
   @override
   State<QuestSearchScreen> createState() => _QuestSearchScreenState();

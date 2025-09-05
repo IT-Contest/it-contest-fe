@@ -180,10 +180,8 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                 },
                 onPeriodChanged: (value) {
                   setState(() => _period = value);
-                  if (value != null) {
-                    vm.setQuestType(value); 
-                  }
-                },
+                  vm.setQuestType(value); 
+                                },
                 showTipBox: true,
               ),
               const SizedBox(height: 16),

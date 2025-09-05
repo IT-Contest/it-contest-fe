@@ -1,15 +1,22 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../service/pomodoro_service.dart';
 
 enum PomodoroMode { focus, rest }
 
 class QuestPomodoroViewModel extends ChangeNotifier {
+  final PomodoroService _pomodoroService = PomodoroService();
+  
   PomodoroMode mode = PomodoroMode.focus;
   Timer? _timer;
   bool isRunning = false;
   bool restButtonEnabled = false;
   bool showFocusCompleteDialog = false;
   bool showCycleCompleteDialog = false;
+  
+  // 세션 추적
+  int completedSessions = 0;
+  int totalSessionsToday = 0;
   
   final Duration focusTotal = const Duration(minutes: 25);  // 25분
   final Duration restTotal = const Duration(minutes: 5);    // 5분
@@ -60,8 +67,9 @@ class QuestPomodoroViewModel extends ChangeNotifier {
         remaining -= const Duration(seconds: 1);
         notifyListeners();
       } else {
-        // 5분 휴식 타이머 완료 시 사이클 완료 알림 표시
+        // 5분 휴식 타이머 완료 시 사이클 완료 처리
         stop();
+        _completePomodoroSession();
         mode = PomodoroMode.focus;
         remaining = focusTotal;
         showCycleCompleteDialog = true;
@@ -70,6 +78,24 @@ class QuestPomodoroViewModel extends ChangeNotifier {
       }
     });
     notifyListeners();
+  }
+
+  // 뽀모도로 세션 완료 처리
+  void _completePomodoroSession() async {
+    completedSessions++;
+    totalSessionsToday++;
+    
+    // 서버에 완료 데이터 전송
+    final success = await _pomodoroService.completePomodoro(
+      sessionCount: 1,
+      totalMinutes: focusTotal.inMinutes + restTotal.inMinutes,
+    );
+    
+    if (success) {
+      print('✅ [PomodoroViewModel] Session completed and saved to server');
+    } else {
+      print('❌ [PomodoroViewModel] Failed to save session to server');
+    }
   }
 
   void stop() {
@@ -86,6 +112,7 @@ class QuestPomodoroViewModel extends ChangeNotifier {
     restButtonEnabled = false;
     showFocusCompleteDialog = false;
     showCycleCompleteDialog = false;
+    // 세션 카운터는 리셋하지 않음 (일일 누적 유지)
     notifyListeners();
   }
 

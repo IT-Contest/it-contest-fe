@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import '../../viewmodel/quest_pomodoro_viewmodel.dart';
 
 class QuestPomodoroSection extends StatelessWidget {
-  const QuestPomodoroSection({Key? key}) : super(key: key);
+  const QuestPomodoroSection({super.key});
 
   String _formatDuration(Duration d) {
     final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');

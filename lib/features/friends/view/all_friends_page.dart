@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodel/friend_viewmodel.dart';
-import '../model/friend_info.dart';
 
 class AllFriendsPage extends StatefulWidget {
   const AllFriendsPage({super.key});

@@ -5,7 +5,7 @@ import 'package:it_contest_fe/features/quest/view/widgets/quest_type_bottom_shee
 class QuestAddSection extends StatelessWidget {
   final VoidCallback onTap;
 
-  const QuestAddSection({Key? key, required this.onTap}) : super(key: key);
+  const QuestAddSection({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

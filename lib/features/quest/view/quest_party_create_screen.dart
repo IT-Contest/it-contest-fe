@@ -6,7 +6,6 @@ import 'package:it_contest_fe/shared/quest_create_form/title_input.dart';
 import 'package:it_contest_fe/shared/quest_create_form/priority_section/priority.dart';
 import 'package:it_contest_fe/shared/quest_create_form/category_input.dart';
 import 'package:it_contest_fe/shared/quest_create_form/date_time_section.dart';
-import 'package:it_contest_fe/shared/quest_create_form/sub_screen/invite_bottom_sheet.dart';
 import 'package:it_contest_fe/shared/ad_banner.dart';
 import 'package:it_contest_fe/shared/quest_create_form/party_title_input.dart';
 

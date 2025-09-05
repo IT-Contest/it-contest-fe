@@ -6,11 +6,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final EdgeInsetsGeometry padding;
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     this.iconColor = const Color(0xFF7958FF),
     this.height = 80,
     this.padding = const EdgeInsets.symmetric(horizontal: 28),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

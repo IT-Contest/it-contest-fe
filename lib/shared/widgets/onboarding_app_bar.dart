@@ -7,12 +7,12 @@ class OnboardingAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onBack;
 
   const OnboardingAppBar({
-    Key? key,
+    super.key,
     this.iconColor = const Color(0xFF7958FF),
     this.height = 80,
     this.padding = const EdgeInsets.symmetric(horizontal: 28),
     this.onBack,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

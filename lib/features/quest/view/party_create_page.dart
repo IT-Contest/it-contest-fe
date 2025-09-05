@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/quest/service/admob_service.dart';
 import 'package:it_contest_fe/shared/ad_banner.dart';
 
 import '../../../shared/quest_create_form/date_time_section.dart';
 
-import 'package:it_contest_fe/shared/quest_create_form/date_time_section.dart';
 
 class PartyCreatePage extends StatelessWidget {
   const PartyCreatePage({super.key});

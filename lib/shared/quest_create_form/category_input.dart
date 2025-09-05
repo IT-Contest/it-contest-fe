@@ -4,7 +4,7 @@ import 'package:it_contest_fe/features/quest/viewmodel/quest_tab_viewmodel.dart'
 
 class CategoryInput extends StatefulWidget {
   final List<String>? initialValue;
-  const CategoryInput({Key? key, required this.onChanged, this.initialValue}) : super(key: key);
+  const CategoryInput({super.key, required this.onChanged, this.initialValue});
   final ValueChanged<List<String>> onChanged;
 
   @override
@@ -179,7 +179,7 @@ class _CategoryInputState extends State<CategoryInput> {
                     ),
                     child: Text("#$category", style: const TextStyle(color: Color(0xFF643EFF))),
                   );
-                }).toList(),
+                }),
                 if (_categories.isNotEmpty)
                   OutlinedButton(
                     style: OutlinedButton.styleFrom(
