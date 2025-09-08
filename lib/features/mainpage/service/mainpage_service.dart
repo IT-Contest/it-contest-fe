@@ -6,11 +6,11 @@ import '../model/mainpage_user_response.dart';
 
 class MainpageService {
   Future<List<QuestItemResponse>> fetchMainQuests() async {
-    final token = await TokenStorage().getAccessToken(); // 토큰 불러오기
+    final token = await TokenStorage().getAccessToken();
     final response = await DioClient().dio.get(
-      '/quests/quest-list',
+      '/quests/quest-list',  // 원래 엔드포인트로 복원
       options: token != null
-          ? Options(headers: {'Authorization': 'Bearer $token'}) // 헤더 설정
+          ? Options(headers: {'Authorization': 'Bearer $token'})
           : null,
     );
 
