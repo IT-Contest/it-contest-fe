@@ -24,11 +24,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: height,
               padding: padding,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(Icons.menu, color: iconColor),
-                  Image.asset('assets/images/logo.png', height: 40),
-                  Icon(Icons.notifications_none, color: iconColor),
+                  const SizedBox(width: 40), // 왼쪽 공간(혹은 아이콘)
+                  Expanded(
+                    child: Center(
+                      child: Image.asset('assets/images/logo.png', height: 40),
+                    ),
+                  ),
+                  Icon(Icons.notifications_none, color: iconColor), // 오른쪽 아이콘
                 ],
               ),
             ),
