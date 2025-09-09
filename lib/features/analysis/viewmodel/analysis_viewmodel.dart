@@ -86,19 +86,16 @@ class AnalysisViewModel extends ChangeNotifier {
     }
   }
 
-  // 리더보드 데이터 로드
+  // 리더보드 데이터 로드 (API 미구현으로 비활성화)
   Future<void> loadLeaderboard() async {
     _isLoadingLeaderboard = true;
     notifyListeners();
 
-    try {
-      _leaderboard = await _analysisService.fetchLeaderboard();
-    } catch (e) {
-      debugPrint('Failed to load leaderboard: $e');
-    } finally {
-      _isLoadingLeaderboard = false;
-      notifyListeners();
-    }
+    // 리더보드 API가 구현되지 않았으므로 빈 리스트로 설정
+    _leaderboard = [];
+    
+    _isLoadingLeaderboard = false;
+    notifyListeners();
   }
 
   // 코칭 히스토리 로드

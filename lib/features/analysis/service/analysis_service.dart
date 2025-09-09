@@ -117,7 +117,8 @@ class AnalysisService {
 
     switch (timeframe) {
       case AnalysisTimeframe.daily:
-        fromDate = now.subtract(const Duration(days: 6)); // 7일간
+        fromDate = now.subtract(const Duration(days: 6)); // 7일간 (오늘 포함)
+        toDate = now; // 오늘까지 확실히 포함
         break;
       case AnalysisTimeframe.weekly:
         fromDate = now.subtract(Duration(days: 28)); // 4주 전부터 현재 주까지 5주
@@ -151,7 +152,7 @@ class AnalysisService {
       final List<dynamic> result = response.data['result'];
       return result.map((e) => LeaderboardUser.fromJson(e)).toList();
     } catch (e) {
-      print('❌ [AnalysisService] Leaderboard API Error: $e');
+      // 403 오류 등 권한 문제 시 빈 리스트 반환 (조용히 처리)
       return [];
     }
   }
