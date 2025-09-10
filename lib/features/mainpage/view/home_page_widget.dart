@@ -6,6 +6,8 @@ import 'package:it_contest_fe/features/mainpage/view/widgets/quest_alert_section
 import 'package:it_contest_fe/features/mainpage/view/widgets/user_profile_card.dart';
 import 'package:it_contest_fe/features/mainpage/viewmodel/mainpage_viewmodel.dart';
 
+import '../../quest/view/quest_party_create_screen.dart';
+
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
 

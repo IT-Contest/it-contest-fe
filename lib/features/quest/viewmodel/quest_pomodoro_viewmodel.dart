@@ -18,8 +18,8 @@ class QuestPomodoroViewModel extends ChangeNotifier {
   int completedSessions = 0;
   int totalSessionsToday = 0;
   
-  final Duration focusTotal = const Duration(minutes: 25);  // 25분
-  final Duration restTotal = const Duration(minutes: 5);    // 5분
+  Duration focusTotal = const Duration(minutes: 25);  // 25분
+  Duration restTotal = const Duration(minutes: 5);    // 5분
   //final Duration focusTotal = const Duration(seconds: 10);  // 테스트용 10초
   //final Duration restTotal = const Duration(seconds: 5);    // 테스트용 5초
   
@@ -31,6 +31,23 @@ class QuestPomodoroViewModel extends ChangeNotifier {
   Duration _remaining;
   
   QuestPomodoroViewModel() : _remaining = const Duration(minutes: 25);
+
+  // 새로운 메서드: 집중/휴식 시간 변경
+  void updateFocusTime(int minutes) {
+    focusTotal = Duration(minutes: minutes);
+    if (mode == PomodoroMode.focus && !isRunning) {
+      remaining = focusTotal;
+    }
+    notifyListeners();
+  }
+
+  void updateRestTime(int minutes) {
+    restTotal = Duration(minutes: minutes);
+    if (mode == PomodoroMode.rest && !isRunning) {
+      remaining = restTotal;
+    }
+    notifyListeners();
+  }
 
   void startFocus() {
     mode = PomodoroMode.focus;

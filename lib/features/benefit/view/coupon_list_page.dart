@@ -48,7 +48,7 @@ class CouponListPage extends StatelessWidget {
                 style: TextStyle(color: Colors.black),
               ),
               subtitle: const Text(
-                "4,500P",
+                "4,500G",
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF7958FF),

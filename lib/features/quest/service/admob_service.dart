@@ -9,15 +9,23 @@ enum BannerKind {
   banner320x50,      // 고정 320x50
   large320x100,      // 고정 320x100
   mrec300x250,       // 고정 300x250 (보통 본문 중간 삽입용)
+  banner300x50
 }
 
 /// 테스트/운영용 배너 단위 ID
 class AdIds {
-  /// 배포 시 실제 Ad Unit ID로 교체하세요.x
+  /// 배너 광고 ID
   static String get banner {
     // if (Platform.isAndroid) return 'ca-app-pub-9177834780185912/8770459691'; // Android 테스트 배너
     if (Platform.isAndroid) return 'ca-app-pub-3940256099942544/6300978111';
     if (Platform.isIOS)     return 'ca-app-pub-3940256099942544/2934735716'; // iOS 테스트 배너
+    throw UnsupportedError('Unsupported platform');
+  }
+
+  /// 전면 광고 ID
+  static String get interstitial {
+    if (Platform.isAndroid) return 'ca-app-pub-3940256099942544/1033173712'; // ✅ Android 테스트 interstitial
+    if (Platform.isIOS) return 'ca-app-pub-3940256099942544/4411468910';     // ✅ iOS 테스트 interstitial
     throw UnsupportedError('Unsupported platform');
   }
 }
@@ -68,6 +76,9 @@ class _BottomBannerAdState extends State<BottomBannerAd> {
         break;
       case BannerKind.mrec300x250:
         _adSize = AdSize.mediumRectangle;
+        break;
+      case BannerKind.banner300x50:
+        _adSize = const AdSize(width: 300, height: 50); // ✅ 새로 추가
         break;
     }
 

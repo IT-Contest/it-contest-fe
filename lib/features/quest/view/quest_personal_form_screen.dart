@@ -14,12 +14,15 @@ import 'package:it_contest_fe/features/quest/viewmodel/quest_tab_viewmodel.dart'
 import 'package:it_contest_fe/features/mainpage/viewmodel/mainpage_viewmodel.dart';
 import 'package:it_contest_fe/presentation/main_navigation_screen.dart';
 
+import '../../../shared/interstitial_ad_service.dart';
+
 class QuestPersonalFormScreen extends StatefulWidget {
   final QuestItemResponse? quest;
   const QuestPersonalFormScreen({super.key, this.quest});
 
   @override
-  State<QuestPersonalFormScreen> createState() => _QuestPersonalFormScreenState();
+  State<QuestPersonalFormScreen> createState() =>
+      _QuestPersonalFormScreenState();
 }
 
 class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
@@ -35,11 +38,10 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
     if (widget.quest != null) {
       _title = widget.quest!.title;
       _priority = widget.quest!.priority;
-      _period = _mapQuestTypeToKorean(widget.quest!.questType); // 한글로 변환
+      _period = _mapQuestTypeToKorean(widget.quest!.questType);
       _categories = List<String>.from(widget.quest!.hashtags);
-      _date = _parseDate(widget.quest?.startDate); // 시작일자 설정
-      
-      // ViewModel 초기화는 build 후에 실행
+      _date = _parseDate(widget.quest?.startDate);
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final vm = context.read<QuestPersonalCreateViewModel>();
         vm.initializeFromQuest(widget.quest!);
@@ -82,42 +84,15 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
     }
   }
 
-  // 폼 유효성 검사 메서드
   bool _isFormValid() {
-    // 1. 퀘스트 제목이 비어있지 않아야 함
-    if (_title.trim().isEmpty) {
-      //print('제목이 비어있음: "$_title"');
-      return false;
-    }
-    
-    // 2. 우선순위가 선택되어야 함 (0은 기본값이므로 유효함)
-    
-    // 3. 주기(일일/주간/월간/연간)가 선택되어야 함
-    if (_period == null || _period!.isEmpty) {
-      //print('주기가 선택되지 않음: $_period');
-      return false;
-    }
-    
-    // 4. 카테고리가 최소 1개 이상 선택되어야 함
-    if (_categories.isEmpty) {
-      //print('카테고리가 선택되지 않음: $_categories');
-      return false;
-    }
-    
-    // 5. 시작일자가 선택되어야 함
-    if (_date == null) {
-      //print('시작일자가 선택되지 않음: $_date');
-      return false;
-    }
-    
-    // 6. 시작시간과 종료시간이 모두 선택되어야 함 (ViewModel에서 확인)
+    if (_title.trim().isEmpty) return false;
+    if (_period == null || _period!.isEmpty) return false;
+    if (_categories.isEmpty) return false;
+    if (_date == null) return false;
+
     final vm = context.read<QuestPersonalCreateViewModel>();
-    if (vm.startTime == null || vm.endTime == null) {
-      //print('시간이 선택되지 않음: startTime=${vm.startTime}, endTime=${vm.endTime}');
-      return false;
-    }
-    
-    //print('모든 필수값이 입력됨 - 폼 유효함');
+    if (vm.startTime == null || vm.endTime == null) return false;
+
     return true;
   }
 
@@ -126,142 +101,154 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
     return Consumer<QuestPersonalCreateViewModel>(
       builder: (context, vm, child) {
         return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark.copyWith(
-        statusBarColor: Colors.white,
-        statusBarIconBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: Colors.black),
-            onPressed: () {
-              Navigator.of(context).pop();
+          value: SystemUiOverlayStyle.dark.copyWith(
+            statusBarColor: Colors.white,
+            statusBarIconBrightness: Brightness.dark,
+          ),
+          child: WillPopScope(
+            onWillPop: () async {
+              InterstitialAdService.showAd(
+                onClosed: () => Navigator.of(context).pop(),
+              );
+              return false; // 기본 동작 막고 광고 → 닫힌 후 pop
             },
-          ),
-          title: Text(widget.quest != null ? '개인 퀘스트 수정' : '개인 퀘스트 생성',
-              style: const TextStyle(fontWeight: FontWeight.bold)),
-          centerTitle: true,
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black,
-          elevation: 0,
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(1.0),
-            child: Container(
-              color: const Color(0xFFB7B7B7),
-              height: 1.0,
-            ),
-          ),
-          surfaceTintColor: Colors.white,
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-
-              // 1. 퀘스트 제목
-              QuestTitleInput(
-                initialValue: _title,
-                onChanged: (value) {
-                  setState(() => _title = value);
-                  vm.setQuestName(value);
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // 2. 우선순위 및 주기
-              QuestPrioritySection(
-                initialPriority: _priority,
-                initialPeriod: _period,
-                onPriorityChanged: (value) {
-                  setState(() => _priority = value);
-                  vm.setPriority(value); 
-                },
-                onPeriodChanged: (value) {
-                  setState(() => _period = value);
-                  vm.setQuestType(value); 
-                                },
-                showTipBox: true,
-              ),
-              const SizedBox(height: 16),
-
-              // 3. 카테고리
-              CategoryInput(
-                initialValue: _categories,
-                onChanged: (value) {
-                  setState(() => _categories = value);
-                  vm.setHashtags(value); 
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // 4. 날짜 및 시간
-              DateTimeSection(
-                initialStartDate: _parseDate(widget.quest?.startDate),
-                initialDueDate: _parseDate(widget.quest?.dueDate),
-                initialStartTime: _parseTime(widget.quest?.startTime),
-                initialEndTime: _parseTime(widget.quest?.endTime),
-                onStartDateChanged: (date) {
-                  setState(() => _date = date);
-                  vm.setStartDate(date);
-                },
-                onDueDateChanged: vm.setDueDate,
-                onStartTimeChanged: vm.setStartTime,
-                onEndTimeChanged: vm.setEndTime,
-              ),
-              const SizedBox(height: 32),
-
-              // 5. 완료 시 EXP 지급 안내
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFFC2C2C2), width: 1),
-                  borderRadius: BorderRadius.circular(12),
+            child: Scaffold(
+              backgroundColor: Colors.white,
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                      size: 20, color: Colors.black),
+                  onPressed: () {
+                    InterstitialAdService.showAd(
+                      onClosed: () => Navigator.of(context).pop(),
+                    );
+                  },
                 ),
-                child: const Center(
-                  child: Text.rich(
-                    TextSpan(
-                      text: '완료시 ',
-                      style: TextStyle(fontSize: 16, color: Color(0xFF9B9B9B), fontWeight: FontWeight.w600),
-                      children: [
-                        TextSpan(
-                          text: '0,000exp',
-                          style: TextStyle(color: Color(0xFF7958FF), fontWeight: FontWeight.w800),
-                        ),
-                        TextSpan(text: ' 지급'),
-                      ],
-                    ),
+                title: Text(
+                  widget.quest != null ? '개인 퀘스트 수정' : '개인 퀘스트 생성',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                centerTitle: true,
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                elevation: 0,
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(1.0),
+                  child: Container(
+                    color: const Color(0xFFB7B7B7),
+                    height: 1.0,
                   ),
                 ),
+                surfaceTintColor: Colors.white,
               ),
-              const SizedBox(height: 26),
+              body: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. 퀘스트 제목
+                    QuestTitleInput(
+                      initialValue: _title,
+                      onChanged: (value) {
+                        setState(() => _title = value);
+                        vm.setQuestName(value);
+                      },
+                    ),
+                    const SizedBox(height: 16),
 
-              // 6. 생성 완료 버튼
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: (vm.isLoading || !_isFormValid())
-                      ? null
-                      : () async {
+                    // 2. 우선순위 및 주기
+                    QuestPrioritySection(
+                      initialPriority: _priority,
+                      initialPeriod: _period,
+                      onPriorityChanged: (value) {
+                        setState(() => _priority = value);
+                        vm.setPriority(value);
+                      },
+                      onPeriodChanged: (value) {
+                        setState(() => _period = value);
+                        vm.setQuestType(value);
+                      },
+                      showTipBox: true,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 3. 카테고리
+                    CategoryInput(
+                      initialValue: _categories,
+                      onChanged: (value) {
+                        setState(() => _categories = value);
+                        vm.setHashtags(value);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    // 4. 날짜 및 시간
+                    DateTimeSection(
+                      initialStartDate: _parseDate(widget.quest?.startDate),
+                      initialDueDate: _parseDate(widget.quest?.dueDate),
+                      initialStartTime: _parseTime(widget.quest?.startTime),
+                      initialEndTime: _parseTime(widget.quest?.endTime),
+                      onStartDateChanged: (date) {
+                        setState(() => _date = date);
+                        vm.setStartDate(date);
+                      },
+                      onDueDateChanged: vm.setDueDate,
+                      onStartTimeChanged: vm.setStartTime,
+                      onEndTimeChanged: vm.setEndTime,
+                    ),
+                    const SizedBox(height: 32),
+
+                    // 5. 완료 시 EXP 지급 안내
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        border:
+                        Border.all(color: const Color(0xFFC2C2C2), width: 1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text.rich(
+                          TextSpan(
+                            text: '완료시 ',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF9B9B9B),
+                                fontWeight: FontWeight.w600),
+                            children: [
+                              TextSpan(
+                                text: '0,000exp',
+                                style: TextStyle(
+                                    color: Color(0xFF7958FF),
+                                    fontWeight: FontWeight.w800),
+                              ),
+                              TextSpan(text: ' 지급'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 26),
+
+                    // 6. 생성 완료 버튼
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: (vm.isLoading || !_isFormValid())
+                            ? null
+                            : () async {
                           if (widget.quest != null) {
                             // 수정 로직
-                            final success = await vm.updateQuest(widget.quest!.questId);
+                            final success =
+                            await vm.updateQuest(widget.quest!.questId);
                             if (success) {
                               if (mounted) {
-                                // 수정 완료 후 퀘스트 리스트 새로고침
-                                final questTabVM = context.read<QuestTabViewModel>();
+                                final questTabVM =
+                                context.read<QuestTabViewModel>();
                                 await questTabVM.loadQuests(force: true);
-                                
-                                Navigator.pop(context); // 수정 완료 후 이전 화면으로
-                              }
-                            } else if (vm.errorMessage != null) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(vm.errorMessage!)),
-                                );
+
+                                Navigator.pop(context);
                               }
                             }
                           } else {
@@ -269,57 +256,57 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                             final success = await vm.createQuest();
                             if (success) {
                               if (mounted) {
-                                // 생성 완료 후 퀘스트 리스트 새로고침
-                                final questTabVM = context.read<QuestTabViewModel>();
-                                await questTabVM.loadQuests(force: true);
-                                
-                                // 메인페이지 퀘스트도 새로고침 (필요시)
-                                try {
-                                  final mainPageVM = context.read<MainPageViewModel>();
-                                  await mainPageVM.loadMainQuests();
-                                } catch (e) {
-                                  // MainPageViewModel이 없을 수도 있으므로 에러 무시
-                                  print('MainPageViewModel not found: $e');
-                                }
-                                
-                                // 메인 네비게이션으로 이동하고 퀘스트 탭(인덱스 1) 선택
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const MainNavigationScreen(initialIndex: 1),
-                                  ),
-                                  (route) => false,
-                                );
-                                
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('퀘스트가 성공적으로 생성되었습니다.')),
-                                );
-                              }
-                            } else if (vm.errorMessage != null) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(vm.errorMessage!)),
+                                InterstitialAdService.showAd(
+                                  onClosed: () {
+                                    final questTabVM = context
+                                        .read<QuestTabViewModel>();
+                                    questTabVM.loadQuests(force: true);
+
+                                    try {
+                                      final mainPageVM = context
+                                          .read<MainPageViewModel>();
+                                      mainPageVM.loadMainQuests();
+                                    } catch (_) {}
+
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                        const MainNavigationScreen(
+                                            initialIndex: 1),
+                                      ),
+                                          (route) => false,
+                                    );
+
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              '퀘스트가 성공적으로 생성되었습니다.')),
+                                    );
+                                  },
                                 );
                               }
                             }
                           }
                         },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isFormValid() 
-                        ? const Color(0xFF7958FF) 
-                        : const Color(0xFFB7B7B7),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                  ),
-                  child: vm.isLoading
-                      ? const SizedBox(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isFormValid()
+                              ? const Color(0xFF7958FF)
+                              : const Color(0xFFB7B7B7),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                        ),
+                        child: vm.isLoading
+                            ? const SizedBox(
                           height: 20,
                           width: 24,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2),
                         )
-                      : Text(
+                            : Text(
                           widget.quest != null ? '수정 완료' : '생성 완료',
                           style: const TextStyle(
                             fontSize: 18,
@@ -327,16 +314,17 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    const AdBanner(),
+                  ],
                 ),
               ),
-              const SizedBox(height: 40),
-              const AdBanner(),
-            ],
+            ),
           ),
-        ),
-      ),
-      );
-    },
+        );
+      },
     );
   }
 }

@@ -1,9 +1,95 @@
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/quest/view/widgets/pomodoro_full_screen.dart';
+import 'package:it_contest_fe/features/quest/view/widgets/quest_pomodoro_section.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
+import '../../../../shared/ad_banner.dart';
 import '../../../../shared/widgets/reward_tag.dart';
+import '../../service/admob_service.dart';
 import '../../viewmodel/quest_pomodoro_viewmodel.dart';
+
+class PomodoroFullScreen extends StatelessWidget {
+  const PomodoroFullScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // ✅ 배경색 그라데이션
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFF3FAFF), // 위쪽 색
+              Color(0xFFEEEBFF), // 아래쪽 색
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            // ✅ AppBar 대체 커스텀 헤더
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.only(top: 40, left: 8, right: 8, bottom: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new, // ✅ Flutter 제공 <
+                      color: Colors.black,
+                      size: 26, // 👉 크기 조절 (24~28 권장)
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  const Text(
+                    "뽀모도로 전체",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 48), // 오른쪽 공간 맞추기
+                ],
+              ),
+            ),
+            // ✅ AppBar 구분선
+            Container(height: 1, color: Color(0xFFB7B7B7)),
+
+            const SizedBox(height: 16),
+            // ✅ "집중 모드" 표시
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/icons/timer.png',
+                  width: 20,
+                  height: 20,
+                  color: const Color(0xFF7958FF),
+                ),
+                const SizedBox(width: 6),
+                const Text(
+                  '집중 모드',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Color(0xFF7958FF),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // ✅ 기존 900줄짜리 QuestPomodoroSection 불러오기
+            const Expanded(child: QuestPomodoroSection()),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 class QuestPomodoroSection extends StatelessWidget {
   const QuestPomodoroSection({super.key});
@@ -49,13 +135,10 @@ class QuestPomodoroSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = Provider.of<QuestPomodoroViewModel>(context);
 
-    // 타이머 진행률 계산 (ViewModel의 total 기준)
     final totalSeconds = vm.total.inSeconds.toDouble();
     final remainingSeconds = vm.remaining.inSeconds.toDouble();
-    // 남은 시간 기준 진행률: 1.0(시작) → 0.0(끝)로 감소
     final progress = (remainingSeconds / totalSeconds).clamp(0.0, 1.0);
 
-    // 집중 모드 완료 다이얼로그 표시
     if (vm.showFocusCompleteDialog) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         vm.showFocusCompleteDialog = false;
@@ -63,7 +146,6 @@ class QuestPomodoroSection extends StatelessWidget {
       });
     }
 
-    // 사이클 완료 다이얼로그 표시
     if (vm.showCycleCompleteDialog) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         vm.showCycleCompleteDialog = false;
@@ -73,46 +155,11 @@ class QuestPomodoroSection extends StatelessWidget {
 
     return Column(
       children: [
-        // 타이틀/집중모드 바깥으로 분리
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                '뽀모도로 타이머',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 20,
-                  color: Color(0xFF4C1FFF),
-                ),
-              ),
-              Row(
-                children: [
-                  Image.asset('assets/icons/timer.png', width: 28, height: 28),
-                  const SizedBox(width: 6),
-                  Text(
-                    vm.mode == PomodoroMode.focus ? '집중 모드' : '휴식 모드',
-                    style: const TextStyle(
-                      fontFamily: 'Inter',
-                      color: Color(0xFF7958FF),
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
         const SizedBox(height: 32),
-        // 원형 타이머
         Center(
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // 내부 흰색 원 (먼저 그리기)
               Container(
                 width: 280,
                 height: 280,
@@ -139,21 +186,16 @@ class QuestPomodoroSection extends StatelessWidget {
                         const SizedBox(width: 20),
                         IconButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (_) => const PomodoroFullScreen()),
-                            );
+                            Navigator.pop(context); // ✅ 축소 버튼 → 돌아가기
                           },
                           icon: Image.asset(
-                            "assets/icons/full.png",
+                            "assets/icons/before.png", // ✅ 축소 아이콘
                             width: 32,
                             height: 32,
                           ),
                         ),
                       ],
                     ),
-
-                    // 시간 표시
                     Text(
                       _formatDuration(vm.remaining),
                       style: const TextStyle(
@@ -165,7 +207,6 @@ class QuestPomodoroSection extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // 버튼들
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -174,11 +215,15 @@ class QuestPomodoroSection extends StatelessWidget {
                           height: 40,
                           child: ElevatedButton(
                             onPressed: !vm.isRunning
-                              ? (vm.mode == PomodoroMode.focus ? vm.startFocus : vm.startRest)
-                              : null,
+                                ? (vm.mode == PomodoroMode.focus
+                                ? vm.startFocus
+                                : vm.startRest)
+                                : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF7958FF),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               elevation: 0,
                             ),
                             child: const Text(
@@ -197,10 +242,15 @@ class QuestPomodoroSection extends StatelessWidget {
                           width: 70,
                           height: 40,
                           child: OutlinedButton(
-                            onPressed: vm.isRunning ? () => _showStopConfirmDialog(context) : null,
+                            onPressed: vm.isRunning
+                                ? () => _showStopConfirmDialog(context)
+                                : null,
                             style: OutlinedButton.styleFrom(
-                              side: const BorderSide(color: Color(0xFF7958FF), width: 1),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              side: const BorderSide(
+                                  color: Color(0xFF7958FF), width: 1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               backgroundColor: Colors.white,
                             ),
                             child: const Text(
@@ -216,11 +266,9 @@ class QuestPomodoroSection extends StatelessWidget {
                         ),
                       ],
                     ),
-
                   ],
                 ),
               ),
-              // 그라데이션 진행률 원 (흰색 원 위에 그리기)
               IgnorePointer(
                 ignoring: true,
                 child: SizedBox(
@@ -251,37 +299,32 @@ class QuestPomodoroSection extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // TIP 제목
-              const Text(
+            children: const [
+              Text(
                 '뽀모도로 타이머 TIP',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF7958FF),
                 ),
               ),
-              const SizedBox(height: 12),
-
-              // ⬇️ 집중 보상 (밑으로 이동)
+              SizedBox(height: 12),
               Row(
-                children: const [
+                children: [
                   SizedBox(width: 30),
                   Text(
                     '집중 보상',
                     style: TextStyle(
-                      color: Colors.black, // ✅ 보라색 → 검정색
+                      color: Colors.black,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   SizedBox(width: 16),
-                  RewardTag(label: '경험치 +10'), // 태그 그대로
+                  RewardTag(label: '경험치 +10'),
                 ],
               ),
-              const SizedBox(height: 8),
-
-              // 설명 텍스트
-              const Text(
+              SizedBox(height: 8),
+              Text(
                 '뽀모도로 기본은 25분 집중하고 5분 휴식을 진행하는 방법입니다! 더 많은 뽀모도로 사이클을 완료할수록 그만큼 많은 보상이 지급됩니다! 그럼 화이팅!🔥',
                 style: TextStyle(fontSize: 13, color: Colors.black87),
               ),
@@ -289,70 +332,15 @@ class QuestPomodoroSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 32),
+
+        const AdBanner(
+          kind: BannerKind.banner300x50,
+        ),
       ],
     );
   }
 }
 
-// 그라데이션 진행률을 그리는 CustomPainter
-class GradientProgressPainter extends CustomPainter {
-  final double progress;
-  final Gradient gradient;
-  final double strokeWidth;
-
-  GradientProgressPainter({
-    required this.progress,
-    required this.gradient,
-    this.strokeWidth = 36.0,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    // 배경 트랙(옅은 보라) 그리기
-    final bgPaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.butt
-      ..style = PaintingStyle.stroke;
-
-    // 진행 트랙(그라데이션)
-    final fgPaint = Paint()
-      ..shader = gradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height))
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round
-      ..style = PaintingStyle.stroke;
-
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = (size.width - strokeWidth) / 2;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    // 전체 배경 링(0~360도)
-    canvas.drawArc(
-      rect,
-      -math.pi / 2,
-      2 * math.pi,
-      false,
-      bgPaint,
-    );
-
-    // 진행 링: progress=1.0이면 가득, 0.0이면 0
-    final sweep = (progress.clamp(0.0, 1.0)) * 2 * math.pi;
-    if (sweep > 0) {
-      canvas.drawArc(
-        rect,
-        -math.pi / 2,
-        -sweep,
-        false,
-        fgPaint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
-}
-
-// 정지 확인 모달 다이얼로그
 class _StopConfirmDialog extends StatelessWidget {
   const _StopConfirmDialog();
 
