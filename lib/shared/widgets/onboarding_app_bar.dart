@@ -10,7 +10,7 @@ class OnboardingAppBar extends StatelessWidget implements PreferredSizeWidget {
     super.key,
     this.iconColor = const Color(0xFF7958FF),
     this.height = 80,
-    this.padding = const EdgeInsets.symmetric(horizontal: 28),
+    this.padding = const EdgeInsets.only(left: 0, right: 28),
     this.onBack,
   });
 
@@ -28,7 +28,7 @@ class OnboardingAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new, color: iconColor),
+                    icon: Icon(Icons.arrow_back_ios_new, color: Colors.black,),
                     onPressed: onBack ?? () => Navigator.of(context).maybePop(),
                   ),
                   Expanded(
@@ -36,7 +36,6 @@ class OnboardingAppBar extends StatelessWidget implements PreferredSizeWidget {
                       child: Image.asset('assets/images/logo.jpg', height: 40),
                     ),
                   ),
-                  SizedBox(width: 48), // 오른쪽 공간 맞춤(알림 등 없음)
                 ],
               ),
             ),
