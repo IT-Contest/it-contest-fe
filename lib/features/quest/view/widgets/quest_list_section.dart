@@ -4,6 +4,7 @@ import 'dart:math';
 import '../../view/daily_quest_fullpage.dart';
 import '../../viewmodel/quest_tab_viewmodel.dart';
 import '../../model/completion_status.dart';
+import '../quest_personal_view_screen.dart';
 
 class QuestListSection extends StatelessWidget {
   final int selectedTab;
@@ -99,104 +100,117 @@ class QuestListSection extends StatelessWidget {
           itemBuilder: (context, index) {
             final quest = questTabViewModel.filteredQuests[index];
             return _QuestCard(
-              title: quest.title,
-              exp: quest.expReward,
-              gold: quest.goldReward,
-              done: quest.completionStatus == CompletionStatus.COMPLETED,
+              quest: quest, // ✅ 전체 객체 넘김
               onCheck: () => questTabViewModel.toggleQuest(quest.questId),
             );
           },
         ),
+
       ],
     );
   }
 }
 
 class _QuestCard extends StatelessWidget {
-  final String title;
-  final int exp;
-  final int gold;
-  final bool done;
+  final dynamic quest; // quest 객체 전체 넘김
   final VoidCallback? onCheck;
-  const _QuestCard({required this.title, required this.exp, required this.gold, this.done = false, this.onCheck});
+
+  const _QuestCard({required this.quest, this.onCheck});
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFFE0E0E0),
-          width: 1,
+    final done = quest.completionStatus == CompletionStatus.COMPLETED;
+
+    return InkWell(
+      onTap: () {
+        // 카드 클릭 시 조회화면 이동
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => QuestPersonalFormPage(quest: quest),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: const Color(0xFFE0E0E0),
+            width: 1,
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Image.asset(
-              done ? 'assets/icons/quest_select.png' : 'assets/icons/quest_not_select.png',
+        child: Row(
+          children: [
+            Container(
               width: 44,
               height: 44,
-              fit: BoxFit.contain,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: done ? const Color(0xFF643EFF) : Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    _RewardTag(label: '경험치 +$exp'),
-                    const SizedBox(width: 8),
-                    _RewardTag(label: '골드 +$gold', border: true),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: onCheck,
-            child: Container(
-              width: 32,
-              height: 32,
               decoration: BoxDecoration(
-                color: done ? const Color(0xFF643EFF) : const Color(0xFFFAFAFA),
-                border: Border.all(
-                  color: const Color(0xFF7958FF),
-                  width: 1,
-                ),
-                shape: BoxShape.circle,
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: done
-                  ? const Center(
-                      child: Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    )
-                  : null,
+              child: Image.asset(
+                done
+                    ? 'assets/icons/quest_select.png'
+                    : 'assets/icons/quest_not_select.png',
+                width: 44,
+                height: 44,
+                fit: BoxFit.contain,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    quest.title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: done ? const Color(0xFF643EFF) : Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      _RewardTag(label: '경험치 +${quest.expReward}'),
+                      const SizedBox(width: 8),
+                      _RewardTag(label: '골드 +${quest.goldReward}', border: true),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: onCheck, // ✅ 체크 버튼은 그대로 동작
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: done ? const Color(0xFF643EFF) : const Color(0xFFFAFAFA),
+                  border: Border.all(
+                    color: const Color(0xFF7958FF),
+                    width: 1,
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: done
+                    ? const Center(
+                  child: Icon(
+                    Icons.check,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                )
+                    : null,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -225,4 +239,4 @@ class _RewardTag extends StatelessWidget {
       ),
     );
   }
-} 
+}

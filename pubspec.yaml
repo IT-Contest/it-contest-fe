@@ -38,6 +38,7 @@ dev_dependencies:
     sdk: flutter
   intl: ^0.20.2
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
 flutter:
   uses-material-design: true
@@ -51,3 +52,8 @@ flutter:
     - family: Jalnan
       fonts:
         - asset: assets/fonts/Jalnan font OTF.otf
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo_3d.png"
