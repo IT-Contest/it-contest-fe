@@ -118,8 +118,11 @@ class AccountSettingsPage extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.warning_amber_rounded,
-                  color: Colors.red, size: 48),
+              Image.asset(
+                "assets/icons/warning.png",
+                width: 48,
+                height: 48,
+              ),
               const SizedBox(height: 16),
               const Text.rich(
                 TextSpan(
