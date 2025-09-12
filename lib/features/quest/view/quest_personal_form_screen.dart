@@ -13,6 +13,7 @@ import 'package:it_contest_fe/features/quest/model/quest_item_response.dart';
 import 'package:it_contest_fe/features/quest/viewmodel/quest_tab_viewmodel.dart';
 import 'package:it_contest_fe/features/mainpage/viewmodel/mainpage_viewmodel.dart';
 import 'package:it_contest_fe/presentation/main_navigation_screen.dart';
+import 'package:it_contest_fe/shared/widgets/quest_creation_modal.dart';
 
 import '../../../shared/interstitial_ad_service.dart';
 
@@ -184,6 +185,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
 
                     // 4. 날짜 및 시간
                     DateTimeSection(
+                      questType: vm.questType, // 퀘스트 타입 전달
                       initialStartDate: _parseDate(widget.quest?.startDate),
                       initialDueDate: _parseDate(widget.quest?.dueDate),
                       initialStartTime: _parseTime(widget.quest?.startTime),
@@ -278,12 +280,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                                           (route) => false,
                                     );
 
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              '퀘스트가 성공적으로 생성되었습니다.')),
-                                    );
+                                    QuestCreationModal.show(context);
                                   },
                                 );
                               }
