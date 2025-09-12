@@ -7,6 +7,7 @@ import '../model/completion_status.dart';
 import '../model/quest_item_response.dart';
 import 'widgets/quest_card.dart';
 import 'quest_personal_form_screen.dart'; // QuestPersonalFormScreen으로 변경
+import '../../../shared/widgets/quest_completion_modal.dart';
 
 class DailyQuestFullPage extends StatefulWidget {
   final bool showEditDeleteButtons;
@@ -164,7 +165,21 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                         exp: quest.expReward,
                         gold: quest.goldReward,
                         done: isDone,
-                        onCheck: () => viewModel.toggleQuest(quest.questId),
+                        onCheck: () {
+                          viewModel.toggleQuest(
+                            quest.questId,
+                            onCompleted: (isFirstCompletion) {
+                              // isFirstCompletion이 true일 때만 모달 표시
+                              if (isFirstCompletion) {
+                                QuestCompletionModal.show(
+                                  context,
+                                  expReward: quest.expReward,
+                                  goldReward: quest.goldReward,
+                                );
+                              }
+                            },
+                          );
+                        },
                         highlightTitle: false,
                         showBackground: true,
                         useFilledIconBg: true,

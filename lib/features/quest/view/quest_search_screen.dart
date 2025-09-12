@@ -4,6 +4,7 @@ import 'package:it_contest_fe/shared/widgets/onboarding_app_bar.dart';
 
 import '../model/completion_status.dart';
 import '../viewmodel/quest_tab_viewmodel.dart'; // ViewModel 변경
+import '../../../shared/widgets/quest_completion_modal.dart';
 
 class QuestSearchScreen extends StatefulWidget {
   final String initialQuery;
@@ -176,7 +177,21 @@ class _QuestSearchScreenState extends State<QuestSearchScreen> {
                                   ),
                                   // 오른쪽 체크 버튼
                                   GestureDetector(
-                                    onTap: () => viewModel.toggleQuest(quest.questId), // 호출 함수 변경
+                                    onTap: () {
+                                      viewModel.toggleQuest(
+                                        quest.questId,
+                                        onCompleted: (isFirstCompletion) {
+                                          // isFirstCompletion이 true일 때만 모달 표시
+                                          if (isFirstCompletion) {
+                                            QuestCompletionModal.show(
+                                              context,
+                                              expReward: quest.expReward,
+                                              goldReward: quest.goldReward,
+                                            );
+                                          }
+                                        },
+                                      );
+                                    },
                                     child: Container(
                                       width: 32,
                                       height: 32,
