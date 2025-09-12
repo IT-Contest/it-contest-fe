@@ -88,7 +88,7 @@ class QuestTabViewModel extends ChangeNotifier {
   }
 
   // 퀘스트 완료 토글
-  Future<void> toggleQuest(int questId) async {
+  Future<void> toggleQuest(int questId, {Function(bool)? onCompleted}) async {
     final idx = allQuests.indexWhere((q) => q.questId == questId);
     if (idx != -1) {
       final quest = allQuests[idx];
@@ -114,6 +114,12 @@ class QuestTabViewModel extends ChangeNotifier {
         }
         
         notifyListeners();
+
+        // 3. 퀘스트 완료 시 콜백 호출 (isFirstCompletion 전달)
+        if (newStatus == CompletionStatus.COMPLETED && onCompleted != null) {
+          print('[QuestTabViewModel] 퀘스트 완료됨 - questId: $questId, isFirstCompletion: ${response.isFirstCompletion}');
+          onCompleted(response.isFirstCompletion);
+        }
         
       } catch (e) {
         // 에러 처리 (예: 사용자에게 알림 표시)
