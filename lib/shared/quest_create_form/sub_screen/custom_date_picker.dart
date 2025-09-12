@@ -9,7 +9,14 @@ Future<DateTime?> showCustomDatePicker({
   required DateTime lastDate,
 }) async {
   DateTime? selectedDate = initialDate;
+  
+  // focusedDate가 firstDate와 lastDate 범위 내에 있도록 보장
   DateTime focusedDate = initialDate;
+  if (initialDate.isBefore(firstDate)) {
+    focusedDate = firstDate;
+  } else if (initialDate.isAfter(lastDate)) {
+    focusedDate = lastDate;
+  }
 
   return showDialog<DateTime>(
     context: context,
@@ -32,23 +39,52 @@ Future<DateTime?> showCustomDatePicker({
                     });
                   }, () {
                     setState(() {
-                      selectedDate = DateTime.now();
-                      focusedDate = DateTime.now();
+                      DateTime today = DateTime.now();
+                      
+                      // 오늘 날짜가 유효한 범위 내에 있는지 확인
+                      if (today.isBefore(firstDate)) {
+                        selectedDate = firstDate;
+                        focusedDate = firstDate;
+                      } else if (today.isAfter(lastDate)) {
+                        selectedDate = lastDate;
+                        focusedDate = lastDate;
+                      } else {
+                        selectedDate = today;
+                        focusedDate = today;
+                      }
                     });
                   }, () => Navigator.of(context).pop()),
                   const SizedBox(height: 10),
                   // 커스텀 캘린더 헤더
                   _buildCalendarHeader(context, focusedDate, (newYear) {
                     setState(() {
-                      focusedDate = DateTime(newYear, focusedDate.month, focusedDate.day);
+                      DateTime newDate = DateTime(newYear, focusedDate.month, focusedDate.day);
+                      
+                      // 새로운 날짜가 유효한 범위 내에 있는지 확인
+                      if (newDate.isBefore(firstDate)) {
+                        focusedDate = firstDate;
+                      } else if (newDate.isAfter(lastDate)) {
+                        focusedDate = lastDate;
+                      } else {
+                        focusedDate = newDate;
+                      }
                     });
                   }, (isNext) {
                     setState(() {
-                      focusedDate = DateTime(
+                      DateTime newDate = DateTime(
                         focusedDate.year,
                         isNext ? focusedDate.month + 1 : focusedDate.month - 1,
                         1,
                       );
+                      
+                      // 새로운 날짜가 유효한 범위 내에 있는지 확인
+                      if (newDate.isBefore(firstDate)) {
+                        focusedDate = firstDate;
+                      } else if (newDate.isAfter(lastDate)) {
+                        focusedDate = lastDate;
+                      } else {
+                        focusedDate = newDate;
+                      }
                     });
                   }),
                   const SizedBox(height: 10),

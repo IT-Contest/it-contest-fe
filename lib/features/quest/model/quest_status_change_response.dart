@@ -16,7 +16,6 @@ class QuestStatusChangeResponse {
 
   factory QuestStatusChangeResponse.fromJson(Map<String, dynamic> json) {
     final isFirstCompletion = json['isFirstCompletion'] ?? false;
-    print('[QuestStatusChangeResponse] questId: ${json['questId']}, isFirstCompletion: $isFirstCompletion');
     return QuestStatusChangeResponse(
       questId: json['questId'],
       title: json['title'],

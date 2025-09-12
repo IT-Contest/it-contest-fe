@@ -4,6 +4,15 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
 
+  // 퀘스트 타입 (파티 퀘스트는 기본적으로 DAILY)
+  String _questType = 'DAILY';
+  String get questType => _questType;
+  
+  void setQuestType(String type) {
+    _questType = type;
+    notifyListeners();
+  }
+
   // 날짜, 시간 등 필요한 필드 선언 (예시)
   DateTime? _startDate;
   DateTime? _dueDate;
