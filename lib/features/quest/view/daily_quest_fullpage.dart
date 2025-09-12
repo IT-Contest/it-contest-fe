@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:it_contest_fe/features/quest/view/quest_personal_view_screen.dart';
 import 'package:it_contest_fe/features/quest/view/widgets/empty_quest_widget.dart';
 import 'package:provider/provider.dart';
 import '../../quest/viewmodel/quest_tab_viewmodel.dart'; // ViewModel 변경
@@ -138,17 +139,26 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                     final quest = quests[index];
                     final isDone = quest.completionStatus == CompletionStatus.COMPLETED;
                     return GestureDetector(
-                      onTap: widget.showEditDeleteButtons && (_selectedNav == 0 || _selectedNav == 1)
-                          ? () {
-                              setState(() {
-                                if (_selectedQuestId == quest.questId) {
-                                  _selectedQuestId = null; // 이미 선택된 항목이면 선택 해제
-                                } else {
-                                  _selectedQuestId = quest.questId; // 새 항목 선택
-                                }
-                              });
+                      onTap: () {
+                        if (widget.showEditDeleteButtons && (_selectedNav == 0 || _selectedNav == 1)) {
+                          // 수정/삭제 모드일 때는 선택 로직
+                          setState(() {
+                            if (_selectedQuestId == quest.questId) {
+                              _selectedQuestId = null;
+                            } else {
+                              _selectedQuestId = quest.questId;
                             }
-                          : null,
+                          });
+                        } else {
+                          // ✅ 일반 모드에서는 조회 페이지로 이동
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => QuestPersonalFormPage(quest: quest),
+                            ),
+                          );
+                        }
+                      },
                       child: QuestCard(
                         title: quest.title,
                         exp: quest.expReward,
@@ -159,7 +169,7 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                         showBackground: true,
                         useFilledIconBg: true,
                         padding: 12,
-                        isSelected: quest.questId == _selectedQuestId, // 선택 상태 전달
+                        isSelected: quest.questId == _selectedQuestId,
                       ),
                     );
                   },

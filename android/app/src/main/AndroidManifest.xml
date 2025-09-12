@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools" package="com.ssucheahwa.questplanner">
     <application
-        android:label="it_contest_fe"
-        android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+            android:label="퀘스트플래너"
+            android:name="${applicationName}"
+            android:icon="@mipmap/ic_launcher">
         <activity
             android:name="com.ssucheahwa.questplanner.MainActivity"
             android:exported="true"
