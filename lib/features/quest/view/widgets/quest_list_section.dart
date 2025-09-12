@@ -5,6 +5,7 @@ import '../../view/daily_quest_fullpage.dart';
 import '../../viewmodel/quest_tab_viewmodel.dart';
 import '../../model/completion_status.dart';
 import '../quest_personal_view_screen.dart';
+import '../../../../shared/widgets/quest_completion_modal.dart';
 
 class QuestListSection extends StatelessWidget {
   final int selectedTab;
@@ -101,7 +102,21 @@ class QuestListSection extends StatelessWidget {
             final quest = questTabViewModel.filteredQuests[index];
             return _QuestCard(
               quest: quest, // ✅ 전체 객체 넘김
-              onCheck: () => questTabViewModel.toggleQuest(quest.questId),
+              onCheck: () {
+                questTabViewModel.toggleQuest(
+                  quest.questId,
+                  onCompleted: (isFirstCompletion) {
+                    // isFirstCompletion이 true일 때만 모달 표시
+                    if (isFirstCompletion) {
+                      QuestCompletionModal.show(
+                        context,
+                        expReward: quest.expReward,
+                        goldReward: quest.goldReward,
+                      );
+                    }
+                  },
+                );
+              },
             );
           },
         ),

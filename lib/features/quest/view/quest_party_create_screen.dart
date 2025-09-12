@@ -10,6 +10,7 @@ import 'package:it_contest_fe/shared/ad_banner.dart';
 import 'package:it_contest_fe/shared/quest_create_form/party_title_input.dart';
 
 import 'package:it_contest_fe/features/quest/viewmodel/quest_party_create_viewmodel.dart';
+import 'package:it_contest_fe/shared/widgets/quest_creation_modal.dart';
 
 import '../../../shared/interstitial_ad_service.dart';
 
@@ -99,6 +100,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
 
                 // 5. 날짜 및 시간
                 DateTimeSection(
+                  questType: vm.questType, // 퀘스트 타입 전달
                   onStartDateChanged: vm.setStartDate,
                   onDueDateChanged: vm.setDueDate,
                   onStartTimeChanged: vm.setStartTime,
@@ -149,7 +151,12 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                       if (success) {
                         InterstitialAdService.showAd(
                           onClosed: () {
-                            Navigator.pushReplacementNamed(context, '/main');
+                            QuestCreationModal.show(
+                              context,
+                              onClose: () {
+                                Navigator.pushReplacementNamed(context, '/main');
+                              },
+                            );
                           },
                         );
                       } else if (vm.errorMessage != null) {

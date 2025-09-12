@@ -19,8 +19,6 @@ class QuestService {
             ? Options(headers: {'Authorization': 'Bearer $token'})
             : null,
       );
-      print('[응답 상태 코드] ${response.statusCode}');
-      print('[응답 바디] ${response.data}');
       return response.statusCode == 201 || response.statusCode == 200;
     } catch (e, stack) {
       print('[퀘스트 생성 실패] ${e.toString()}');
@@ -52,7 +50,6 @@ class QuestService {
   // 퀘스트 완료 상태 관리
   Future<List<QuestStatusChangeResponse>> changeQuestStatus(List<int> questIds, String completionStatus) async {
     try {
-      print('[changeQuestStatus] 요청: questIds=$questIds, completionStatus=$completionStatus');
       final token = await TokenStorage().getAccessToken();
       final response = await DioClient().dio.patch(
         '/quests/change',
@@ -64,7 +61,6 @@ class QuestService {
             ? Options(headers: {'Authorization': 'Bearer $token'})
             : null,
       );
-      print('[changeQuestStatus] 응답: ${response.data}');
       final List<dynamic> result = response.data['result'];
       return result.map((e) => QuestStatusChangeResponse.fromJson(e)).toList();
     } catch (e, stack) {

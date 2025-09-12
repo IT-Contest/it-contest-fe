@@ -80,7 +80,7 @@ class DailyQuestViewModel extends ChangeNotifier {
   }
 
   // 퀘스트 완료 / 취소
-  Future<void> toggleQuestCompletionById(int questId, {bool syncWithServer = false}) async {
+  Future<void> toggleQuestCompletionById(int questId, {bool syncWithServer = false, Function(bool)? onCompleted}) async {
     try {
       final idx = quests.indexWhere((q) => q.questId == questId);
       if (idx == -1) return;
@@ -94,9 +94,14 @@ class DailyQuestViewModel extends ChangeNotifier {
       notifyListeners();
 
       // 2. 서버에 상태 변경 요청
-      await _service.updateQuestStatus(questId, newStatus);
+      final response = await _service.updateQuestStatus(questId, newStatus);
 
-      // 3. 서버 동기화는 옵션으로
+      // 3. 퀘스트 완료 시 콜백 호출 (isFirstCompletion 전달)
+      if (newStatus == CompletionStatus.COMPLETED && onCompleted != null) {
+        onCompleted(response.isFirstCompletion);
+      }
+
+      // 4. 서버 동기화는 옵션으로
       if (syncWithServer) {
         await fetchMainQuests();
       }

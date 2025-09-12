@@ -64,10 +64,6 @@ class QuestTabViewModel extends ChangeNotifier {
     try {
       allQuests = await _service.fetchQuestList();
       _isLoaded = true; // 로드 성공 시 플래그 설정
-      print('[퀘스트 API 응답]');
-      for (final q in allQuests) {
-        print(q.toJson());
-      }
       filterQuests();
     } catch (e) {
       errorMessage = e.toString();
@@ -88,7 +84,7 @@ class QuestTabViewModel extends ChangeNotifier {
   }
 
   // 퀘스트 완료 토글
-  Future<void> toggleQuest(int questId) async {
+  Future<void> toggleQuest(int questId, {Function(bool)? onCompleted}) async {
     final idx = allQuests.indexWhere((q) => q.questId == questId);
     if (idx != -1) {
       final quest = allQuests[idx];
@@ -114,6 +110,11 @@ class QuestTabViewModel extends ChangeNotifier {
         }
         
         notifyListeners();
+
+        // 3. 퀘스트 완료 시 콜백 호출 (isFirstCompletion 전달)
+        if (newStatus == CompletionStatus.COMPLETED && onCompleted != null) {
+          onCompleted(response.isFirstCompletion);
+        }
         
       } catch (e) {
         // 에러 처리 (예: 사용자에게 알림 표시)
@@ -133,14 +134,11 @@ class QuestTabViewModel extends ChangeNotifier {
         allQuests.removeWhere((q) => q.questId == questId);
         filteredQuests.removeWhere((q) => q.questId == questId); 
         notifyListeners();
-        print('[퀘스트 삭제 성공] questId: $questId');
         return true;
       } else {
-        print('[퀘스트 삭제 실패] questId: $questId');
         return false;
       }
     } catch (e) {
-      print('[퀘스트 삭제 오류] $e');
       return false;
     }
   }

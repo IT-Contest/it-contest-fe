@@ -11,6 +11,7 @@ class DateTimeSection extends StatefulWidget {
   final DateTime? initialDueDate;
   final TimeOfDay? initialStartTime;
   final TimeOfDay? initialEndTime;
+  final String? questType; // 퀘스트 타입 추가 (DAILY, WEEKLY, MONTHLY, YEARLY)
 
   const DateTimeSection({
     super.key,
@@ -22,6 +23,7 @@ class DateTimeSection extends StatefulWidget {
     this.initialDueDate,
     this.initialStartTime,
     this.initialEndTime,
+    this.questType,
   });
 
   @override
@@ -52,26 +54,61 @@ class _DateTimeSectionState extends State<DateTimeSection> {
   String _getHour(TimeOfDay? t) => t == null ? '' : ((t.hour % 12 == 0 ? 12 : t.hour % 12).toString().padLeft(2, '0'));
   String _getMinute(TimeOfDay? t) => t == null ? '' : t.minute.toString().padLeft(2, '0');
 
+  // 퀘스트 타입에 따른 최소 마감일 계산
+  DateTime _getMinimumDueDate(DateTime startDate) {
+    switch (widget.questType) {
+      case 'WEEKLY':
+        return startDate.add(const Duration(days: 7));
+      case 'MONTHLY':
+        return DateTime(startDate.year, startDate.month + 1, startDate.day);
+      case 'YEARLY':
+        return DateTime(startDate.year + 1, startDate.month, startDate.day);
+      default: // DAILY 또는 null
+        return startDate;
+    }
+  }
+
   Future<void> _pickStartDate() async {
     final picked = await showCustomDatePicker(
       context: context,
       initialDate: _startDate ?? DateTime.now(),
       firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      lastDate: _dueDate ?? DateTime(2100), // 마감일이 설정되어 있으면 그것을 lastDate로 제한
     );
     if (picked != null) {
-      setState(() => _startDate = picked);
+      final minimumDueDate = _getMinimumDueDate(picked);
+      
+      setState(() {
+        _startDate = picked;
+        // 마감일이 설정되지 않았거나, 현재 마감일이 최소 기간보다 이전인 경우 자동 조정
+        if (_dueDate == null || _dueDate!.isBefore(minimumDueDate)) {
+          _dueDate = minimumDueDate;
+        }
+      });
+      
       widget.onStartDateChanged?.call(picked);
+      if (_dueDate != null) {
+        widget.onDueDateChanged?.call(_dueDate!);
+      }
     }
   }
 
   Future<void> _pickDueDate() async {
+    // 시작일이 설정되어 있다면 퀘스트 타입에 따른 최소 마감일을 계산
+    DateTime firstDate;
+    if (_startDate != null) {
+      firstDate = _getMinimumDueDate(_startDate!);
+    } else {
+      firstDate = DateTime(2000);
+    }
+
     final picked = await showCustomDatePicker(
       context: context,
       initialDate: _dueDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: firstDate,
       lastDate: DateTime(2100),
     );
+    
     if (picked != null) {
       setState(() => _dueDate = picked);
       widget.onDueDateChanged?.call(picked);
