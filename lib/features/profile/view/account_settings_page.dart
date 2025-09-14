@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import '../../auth/view/login_screen.dart';
 import '../service/kakao_account_logout_page.dart';
@@ -182,7 +183,18 @@ class AccountSettingsPage extends StatelessWidget {
 
                         try {
                           await authService.withdraw();
-                          Future.microtask(() => showGoodbyeDialog(context)); // 한 프레임 뒤 실행
+
+                          try {
+                            await UserApi.instance.unlink();
+                          } catch (e) {
+                            debugPrint("카카오 unlink 실패: $e");
+                            // 실패해도 서버 탈퇴는 이미 되었으니 무시하거나 로그만 남김
+                          }
+
+                          Future.delayed(Duration.zero, () {
+                            showGoodbyeDialog(context);
+                          });
+
                         } catch (e) {
                           Future.microtask(() {
                             ScaffoldMessenger.of(context).showSnackBar(

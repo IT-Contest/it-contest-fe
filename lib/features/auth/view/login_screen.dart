@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../terms/view/terms_agreement_screen.dart';
 import '../viewmodel/login_viewmodel.dart';
 import 'package:it_contest_fe/features/onboarding/view/onboarding_screen.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:it_contest_fe/features/terms/service/terms_service.dart';
 
 class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+  final List<int> agreedTermIds; // ✅ 약관 동의 IDs 전달받음
+
+  const LoginScreen({
+    super.key,
+    this.agreedTermIds = const [], // ✅ 기본값 비어있는 리스트
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,32 +38,57 @@ class LoginScreen extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                   fontStyle: FontStyle.normal,
                   fontSize: 30,
-                  height: 1, // line-height: 30px / font-size: 30px = 1
-                  letterSpacing: -0.6, // -2% of 30px = -0.6
-                  color: Color(0xFF7D4CFF), // 원하는 색상 지정
+                  height: 1,
+                  letterSpacing: -0.6,
+                  color: Color(0xFF7D4CFF),
                 ),
               ),
               const SizedBox(height: 74),
+
+              // ✅ 카카오 로그인 버튼
               viewModel.isLoading
                   ? const CircularProgressIndicator()
                   : InkWell(
-                      onTap: () async {
-                        // 카카오 로그인
-                        final token = await viewModel.loginWithKakao();
-                        if (token != null) {
-                          Navigator.pushReplacementNamed(context, '/main');
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('카카오 로그인 실패')),
-                          );
-                        }
-                      },
-                      child: Image.asset(
-                        'assets/icons/login_btn.png',
-                        width: 280,
-                      ),
-                    ),
+                onTap: () async {
+                  final token = await viewModel.loginWithKakao();
+                  if (token != null) {
+                    try {
+                      // ✅ 로그인 성공 후 토큰 저장 (이미 하고 있다면 생략)
+                      final termsService = TermsService();
+
+                      // ✅ 필수 약관 동의 여부 확인
+                      final agreed = await termsService.checkRequiredTerms();
+
+                      if (agreed) {
+                        // 이미 동의했으면 메인으로
+                        Navigator.pushReplacementNamed(context, '/main');
+                      } else {
+                        // 동의 안했으면 약관 동의 화면으로
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const TermsAgreementScreen()),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('약관 확인 실패: $e')),
+                      );
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('카카오 로그인 실패')),
+                    );
+                  }
+                },
+                child: Image.asset(
+                  'assets/icons/login_btn.png',
+                  width: 280,
+                ),
+              ),
+
               const SizedBox(height: 24),
+
+              // ✅ 게스트 로그인 버튼
               SizedBox(
                 width: 280,
                 height: 56,
@@ -97,8 +129,10 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              // 회원 탈퇴(카카오 연결 끊기) 버튼 추가 - 임시
+
               const SizedBox(height: 24),
+
+              // ✅ 임시 회원 탈퇴 버튼
               ElevatedButton(
                 onPressed: () async {
                   try {
