@@ -58,13 +58,37 @@ class NotificationPage extends StatelessWidget {
           ],
         ),
       ),
-      body: ListView(
+      body: hasNotifications
+          ? ListView(
         children: const [
           PartyInviteCard(),
           PomodoroFocusEndCard(),
           PomodoroBreakEndCard(),
           DailyQuestCard(),
         ],
+      )
+          : Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              "assets/icons/alarm_empty.png",
+              width: 208,
+              height: 172,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "현재 알림이 없습니다.",
+              style: TextStyle(
+                fontFamily: "SUITE",   // SUITE 폰트 적용
+                fontSize: 20,          // Figma Title 스타일 크기
+                height: 1.5,           // 20px * 1.5 = 30px line height
+                fontWeight: FontWeight.w600, // SemiBold (Figma Title 스타일 보통 SemiBold)
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

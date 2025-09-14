@@ -40,7 +40,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const NotificationPage(
-                            hasNotifications: true, // 필요 시 상태 전달 가능
+                            hasNotifications: false, // 필요 시 상태 전달 가능
                           ),
                         ),
                       );
