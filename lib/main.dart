@@ -12,6 +12,7 @@ import 'features/onboarding/view/onboarding_screen.dart';
 import 'features/onboarding/viewmodel/onboarding_viewmodel.dart';
 import 'features/quest/viewmodel/daily_quest_viewmodel.dart';
 import 'features/quest/viewmodel/quest_party_create_viewmodel.dart';
+import 'features/terms/view/terms_agreement_screen.dart';
 import 'presentation/main_navigation_screen.dart';
 import 'features/mainpage/viewmodel/mainpage_viewmodel.dart';
 import 'features/quest/viewmodel/quest_tab_viewmodel.dart';
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: const LoginScreen(),
       routes: {
+        '/terms': (context) => const TermsAgreementScreen(),
         '/main': (context) => MainNavigationScreen(),
         '/onboarding': (context) => OnboardingScreen(),
       },
