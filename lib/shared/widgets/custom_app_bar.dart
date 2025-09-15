@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../alarm/notification_page.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Color iconColor;
@@ -31,7 +32,20 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       child: Image.asset('assets/images/logo.png', height: 40),
                     ),
                   ),
-                  Icon(Icons.notifications_none, color: iconColor), // 오른쪽 아이콘
+                  // 오른쪽 알림 아이콘 버튼
+                  IconButton(
+                    icon: Icon(Icons.notifications_none, color: iconColor),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationPage(
+                            hasNotifications: false, // 필요 시 상태 전달 가능
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -40,7 +54,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             left: 0,
             right: 0,
             bottom: 0,
-            child: Divider(height: 1, thickness: 1, color: Color(0xFFE0E0E0)),
+            child: const Divider(
+              height: 1,
+              thickness: 1,
+              color: Color(0xFFE0E0E0),
+            ),
           ),
         ],
       ),

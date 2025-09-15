@@ -4,6 +4,7 @@ import 'package:it_contest_fe/shared/widgets/bottom_nav_bar.dart';
 
 import '../../profile/view/account_settings_page.dart';
 import '../../profile/view/notification_settings_page.dart';
+import '../../terms/view/terms_detail_screen.dart';
 
 class ProfilePageWidget extends StatelessWidget {
   const ProfilePageWidget({super.key});
@@ -96,7 +97,34 @@ class ProfilePageWidget extends StatelessWidget {
                       );
                     },
                   ),
-                  _buildMenuItem("이용 약관"),
+                  _buildMenuItem(
+                    "서비스 이용약관",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TermsDetailScreen(
+                            title: "서비스 이용약관",
+                            url: "/terms/service-terms-v1.html", // 서버 상대경로
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildMenuItem(
+                    "개인정보 처리방침",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const TermsDetailScreen(
+                            title: "개인정보 처리방침",
+                            url: "/terms/privacy-policy-v1.html", // 서버 상대경로
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                   _buildMenuItem("문의하기"),
                 ],
               ),

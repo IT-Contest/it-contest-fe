@@ -4,7 +4,7 @@ import '../../benefit/view/coupon_list_page.dart';
 
 class BenefitPageWidget extends StatelessWidget {
   final bool isEnabled; // true = 운영모드, false = 비활성화 모드
-  const BenefitPageWidget({super.key, this.isEnabled = true});
+  const BenefitPageWidget({super.key, this.isEnabled = false});
 
   @override
   Widget build(BuildContext context) {
