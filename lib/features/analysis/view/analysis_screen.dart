@@ -6,6 +6,7 @@ import '../model/analysis_models.dart';
 import '../viewmodel/analysis_viewmodel.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import 'coaching_history_screen.dart';
+import '../../quest/view/quest_personal_form_screen.dart';
 
 
 class AnalysisView extends StatefulWidget {
@@ -54,7 +55,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                         style: TextStyle(
                           color: Color(0xFF4C1FFF),
                           fontWeight: FontWeight.bold,
-                          fontSize: 28,
+                          fontSize: 24,
                         ),
                       ),
                     ),
@@ -217,7 +218,11 @@ class _AnalysisViewState extends State<AnalysisView> {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    // TODO: 새 퀘스트 설정 화면으로 이동
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const QuestPersonalFormScreen(),
+                      ),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF7958FF),
@@ -281,71 +286,140 @@ class _AnalysisViewState extends State<AnalysisView> {
 
   // 리더보드 카드
   Widget _buildLeaderboardCard(BuildContext context, AnalysisViewModel viewModel) {
-    return Card(
-      elevation: 4,
-      shadowColor: const Color(0xFFEDE9FE),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
+    return Column(
+      children: [
+        // 리더보드 헤더 (카드 밖)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            const Text('리더보드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4C1FFF))),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('리더보드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4C1FFF))),
-                TextButton(
-                  onPressed: () {
-                    // TODO: 리더보드 전체보기 화면으로 이동
-                  },
-                  child: const Text('전체보기 >', style: TextStyle(color: Color(0xFF7958FF), fontWeight: FontWeight.bold)),
-                )
+                const Text('전체보기', style: TextStyle(color: Color(0xFF757575), fontSize: 16, fontWeight: FontWeight.w400)),
+                const Icon(Icons.chevron_right, size: 20, color: Color(0xFF757575)),
               ],
             ),
-            const SizedBox(height: 8),
-            viewModel.isLoadingLeaderboard
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: viewModel.leaderboard.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final user = viewModel.leaderboard[index];
-                    return Row(
-                      children: [
-                        Text(
-                          user.rank.toString(), 
-                          style: const TextStyle(
-                            fontSize: 18, 
-                            color: Color(0xFF7958FF), 
-                            fontWeight: FontWeight.bold
-                          )
-                        ),
-                        const SizedBox(width: 16),
-                        CircleAvatar(
-                          radius: 22,
-                          backgroundImage: NetworkImage(user.avatarUrl),
-                          onBackgroundImageError: (_, __) {},
-                          child: Text(
-                            user.name.isNotEmpty ? user.name[0] : '?',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(user.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                            Text('${user.exp} exp', style: TextStyle(color: Colors.grey[600])),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
-                ),
           ],
         ),
-      ),
+        const SizedBox(height: 16),
+        // 리더보드 카드
+        Card(
+          elevation: 0,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: viewModel.isLoadingLeaderboard
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    children: List.generate(5, (index) {
+                      // 임시 데이터로 UI 구현
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFE0E0E0), width: 1),
+                        ),
+                        child: Row(
+                          children: [
+                            // 순위 박스
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF6737F4),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  '${index + 1}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            // 아바타 이미지
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF2ECFF),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(24),
+                                child: Image.network(
+                                  'https://via.placeholder.com/48x48/F2ECFF/6737F4?text=A',
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFFF2ECFF),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.person,
+                                        color: Color(0xFF6737F4),
+                                        size: 24,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            // 이름과 경험치
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    '애라',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '4,500 exp',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: const Color(0xFF6737F4),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -356,7 +430,7 @@ class _AnalysisViewState extends State<AnalysisView> {
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        horizontalInterval: 50,
+        horizontalInterval: 10,
         getDrawingHorizontalLine: (value) {
           return FlLine(
             color: Colors.grey[300]!,
@@ -395,7 +469,7 @@ class _AnalysisViewState extends State<AnalysisView> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 50,
+            interval: 10,
             reservedSize: 40,
             getTitlesWidget: (double value, TitleMeta meta) {
               return Text(
@@ -436,10 +510,11 @@ class _AnalysisViewState extends State<AnalysisView> {
   }
 
   double _getMaxY(List<double> data) {
-    if (data.isEmpty) return 100;
+    if (data.isEmpty) return 50;
     final maxValue = data.reduce((a, b) => a > b ? a : b);
-    // Y축 최대값을 적절히 조정 (최대값보다 약간 크게)
-    return ((maxValue / 50).ceil() * 50).toDouble();
+    // Y축 최대값을 적절히 조정 (최소 50, 최대값보다 약간 크게)
+    final calculatedMax = ((maxValue / 10).ceil() * 10).toDouble();
+    return calculatedMax < 50 ? 50 : calculatedMax;
   }
 
   // AI 코칭 모달 표시

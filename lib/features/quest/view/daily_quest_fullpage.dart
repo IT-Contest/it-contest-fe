@@ -168,6 +168,7 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                         onCheck: () {
                           viewModel.toggleQuest(
                             quest.questId,
+                            context: context, // context 전달
                             onCompleted: (isFirstCompletion) {
                               // isFirstCompletion이 true일 때만 모달 표시
                               if (isFirstCompletion) {
