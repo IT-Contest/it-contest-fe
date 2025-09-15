@@ -138,7 +138,7 @@ class _DateTimeSectionState extends State<DateTimeSection> {
         height: 48,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFB7B7B7)),
+          border: Border.all(color: const Color(0xFFD1D5DB)),
           borderRadius: BorderRadius.circular(12),
           color: Colors.white,
         ),
@@ -154,7 +154,7 @@ class _DateTimeSectionState extends State<DateTimeSection> {
         height: 48,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFB7B7B7)),
+          border: Border.all(color: const Color(0xFFD1D5DB)),
           borderRadius: BorderRadius.circular(12),
           color: Colors.white,
         ),
