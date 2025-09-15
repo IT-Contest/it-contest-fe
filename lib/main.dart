@@ -1,3 +1,6 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:it_contest_fe/shared/interstitial_ad_service.dart';
@@ -22,9 +25,14 @@ import 'features/analysis/viewmodel/analysis_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  MobileAds.instance.initialize(); // 📌 AdMob 초기화
 
-  // 📌 앱 시작 시 전면 광고 미리 로드
+  // Firebase 초기화
+  await Firebase.initializeApp();
+
+  // AdMob 초기화
+  MobileAds.instance.initialize();
+
+  // 앱 시작 시 전면 광고 미리 로드
   InterstitialAdService.loadAd();
 
   KakaoSdk.init(nativeAppKey: '95a6f5cbf0b31573e750535a5c9d7aab');
@@ -54,8 +62,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
     return MaterialApp(
       home: const LoginScreen(),
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics), // 네비게이션 이벤트 추적
+      ],
       routes: {
         '/terms': (context) => const TermsAgreementScreen(),
         '/main': (context) => MainNavigationScreen(),

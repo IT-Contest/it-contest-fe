@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "902171965916",
+    "project_id": "ssuchaehwa-analytics",
+    "storage_bucket": "ssuchaehwa-analytics.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:902171965916:android:62ec94b44f83f015b67719",
+        "android_client_info": {
+          "package_name": "com.ssucheahwa.questplanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDx9QdpQVzhxG4JYVqi7Wt0woMoV5onNlM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
