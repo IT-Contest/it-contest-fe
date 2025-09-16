@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../model/completion_status.dart';
 import '../model/quest_item_response.dart';
 import '../service/quest_service.dart';
+import 'package:provider/provider.dart';
+import '../../analysis/viewmodel/analysis_viewmodel.dart';
 
 class DailyQuestViewModel extends ChangeNotifier {
   final QuestService _service = QuestService();
@@ -80,7 +82,7 @@ class DailyQuestViewModel extends ChangeNotifier {
   }
 
   // 퀘스트 완료 / 취소
-  Future<void> toggleQuestCompletionById(int questId, {bool syncWithServer = false, Function(bool)? onCompleted}) async {
+  Future<void> toggleQuestCompletionById(int questId, {bool syncWithServer = false, Function(bool)? onCompleted, BuildContext? context}) async {
     try {
       final idx = quests.indexWhere((q) => q.questId == questId);
       if (idx == -1) return;
@@ -104,6 +106,16 @@ class DailyQuestViewModel extends ChangeNotifier {
       // 4. 서버 동기화는 옵션으로
       if (syncWithServer) {
         await fetchMainQuests();
+      }
+
+      // 5. 분석 데이터 새로고침 (퀘스트 상태 변경 시)
+      if (context != null) {
+        try {
+          final analysisViewModel = context.read<AnalysisViewModel>();
+          analysisViewModel.loadAnalysisData();
+        } catch (e) {
+          // AnalysisViewModel이 없는 경우 무시 (선택적)
+        }
       }
     } catch (e) {
       print('[체크 상태 변경 실패] $e');

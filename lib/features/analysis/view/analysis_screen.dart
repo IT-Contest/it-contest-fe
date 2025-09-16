@@ -55,7 +55,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                         style: TextStyle(
                           color: Color(0xFF4C1FFF),
                           fontWeight: FontWeight.bold,
-                          fontSize: 28,
+                          fontSize: 24,
                         ),
                       ),
                     ),
@@ -218,8 +218,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
+                    Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => const QuestPersonalFormScreen(),
                       ),
@@ -282,8 +281,6 @@ class _AnalysisViewState extends State<AnalysisView> {
       ),
     );
   }
-
-  // 기존 데이터 타입 선택기는 제거됨
 
   // 리더보드 카드
   Widget _buildLeaderboardCard(BuildContext context, AnalysisViewModel viewModel) {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../model/quest_item_response.dart';
 import '../service/quest_service.dart';
 import '../model/completion_status.dart';
+import 'package:provider/provider.dart';
+import '../../analysis/viewmodel/analysis_viewmodel.dart';
 
 class QuestTabViewModel extends ChangeNotifier {
   final QuestService _service = QuestService();
@@ -84,7 +86,7 @@ class QuestTabViewModel extends ChangeNotifier {
   }
 
   // 퀘스트 완료 토글
-  Future<void> toggleQuest(int questId, {Function(bool)? onCompleted}) async {
+  Future<void> toggleQuest(int questId, {Function(bool)? onCompleted, BuildContext? context}) async {
     final idx = allQuests.indexWhere((q) => q.questId == questId);
     if (idx != -1) {
       final quest = allQuests[idx];
@@ -114,6 +116,16 @@ class QuestTabViewModel extends ChangeNotifier {
         // 3. 퀘스트 완료 시 콜백 호출 (isFirstCompletion 전달)
         if (newStatus == CompletionStatus.COMPLETED && onCompleted != null) {
           onCompleted(response.isFirstCompletion);
+        }
+
+        // 4. 분석 데이터 새로고침 (퀘스트 상태 변경 시)
+        if (context != null) {
+          try {
+            final analysisViewModel = context.read<AnalysisViewModel>();
+            analysisViewModel.loadAnalysisData();
+          } catch (e) {
+            // AnalysisViewModel이 없는 경우 무시 (선택적)
+          }
         }
         
       } catch (e) {

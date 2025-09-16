@@ -216,7 +216,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                             text: '완료시 ',
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF9B9B9B),
+                                color: Color(0xFFD1D5DB),
                                 fontWeight: FontWeight.w600),
                             children: [
                               TextSpan(

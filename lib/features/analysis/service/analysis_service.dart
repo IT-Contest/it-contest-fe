@@ -172,12 +172,15 @@ class AnalysisService {
       final response = await DioClient().dio.post(
         '/coaching/analyze',
         data: request.toJson(),
-        options: token != null
-            ? Options(headers: {'Authorization': 'Bearer $token'})
-            : null,
+        options: Options(
+          headers: token != null ? {'Authorization': 'Bearer $token'} : null,
+          receiveTimeout: const Duration(seconds: 30), // AI 분석을 위해 30초로 확장
+        ),
       );
 
       final coachingResponse = CoachingResponse.fromJson(response.data['result']);
+      print('🔍 [AI 코칭] API 응답: ${response.data}');
+      print('🔍 [AI 코칭] canAnalyze: ${coachingResponse.canAnalyze}, message: ${coachingResponse.message}');
       
       if (coachingResponse.canAnalyze && coachingResponse.coachingContent != null) {
         // 코칭 내용이 있으면 저장
