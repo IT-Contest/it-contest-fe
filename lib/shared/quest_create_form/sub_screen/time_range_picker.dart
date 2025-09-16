@@ -61,11 +61,14 @@ Future<TimeRangeResult?> showTimeRangePickerDialog({
                   if (mode != TimeMode.allDay)
                     Row(
                       children: [
-                        const Text('Start', style: TextStyle(color: Colors.black54)),
-                        const Spacer(),
+                        const Expanded(
+                          child: Text('Start', style: TextStyle(color: Colors.black54)),
+                        ),
                         if (mode == TimeMode.range) ...[
-                          const Text('End', style: TextStyle(color: Colors.black54)),
-                          const SizedBox(width: 80), // Spacer for alignment
+                          const SizedBox(width: 24), // 화살표 아이콘 공간
+                          const Expanded(
+                            child: Text('End', style: TextStyle(color: Colors.black54)),
+                          ),
                         ]
                       ],
                     ),
@@ -73,21 +76,24 @@ Future<TimeRangeResult?> showTimeRangePickerDialog({
                   if (mode == TimeMode.time)
                     Row(
                       children: [
-                        _buildTimeDisplay(context, startTime, handleStartTimeChange),
-                        const Spacer(), // 남은 공간을 채우는 Spacer 추가
+                        Expanded(
+                          child: _buildTimeDisplay(context, startTime, handleStartTimeChange),
+                        ),
                       ],
                     )
                   else if (mode == TimeMode.range)
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        _buildTimeDisplay(context, startTime, handleStartTimeChange),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Icon(Icons.arrow_forward, color: Colors.grey),
+                        Expanded(
+                          child: _buildTimeDisplay(context, startTime, handleStartTimeChange),
                         ),
-                        _buildTimeDisplay(context, endTime, handleEndTimeChange),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4.0),
+                          child: Icon(Icons.arrow_forward, color: Colors.grey, size: 20),
+                        ),
+                        Expanded(
+                          child: _buildTimeDisplay(context, endTime, handleEndTimeChange),
+                        ),
                       ],
                     ),
                   const SizedBox(height: 24),
@@ -166,65 +172,100 @@ Widget _buildTimeDisplay(BuildContext context, TimeOfDay time, ValueChanged<Time
 
   bool isAm = time.period == DayPeriod.am;
 
-  return Container(
-    padding: const EdgeInsets.fromLTRB(4, 0, 0, 0), // 오른쪽 패딩만 제거
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.grey.shade300),
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Row(
-      children: [
-        GestureDetector(
-          onTap: selectTime,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text(
-              '${time.hourOfPeriod.toString().padLeft(2, '0')} : ${time.minute.toString().padLeft(2, '0')}',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-          ),
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      // 사용 가능한 너비에 따라 동적으로 크기 조절
+      final double availableWidth = constraints.maxWidth;
+      final double fontSize = availableWidth > 140 ? 20 : 16;
+      final double horizontalPadding = availableWidth > 140 ? 8.0 : 4.0;
+      final double verticalPadding = availableWidth > 140 ? 10.0 : 8.0;
+      final double ampmPadding = availableWidth > 140 ? 8.0 : 6.0;
+      final double ampmFontSize = availableWidth > 140 ? 12 : 10;
+      
+      return Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(12),
         ),
-        Container(
-          decoration: BoxDecoration(
-            border: Border(left: BorderSide(color: Colors.grey.shade300))
-          ),
-          child: Column(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  if (time.hour >= 12) {
-                    onTimeChanged(TimeOfDay(hour: time.hour - 12, minute: time.minute));
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: isAm ? const Color(0xFF6A4DFF) : Colors.transparent,
-                    borderRadius: const BorderRadius.only(topRight: Radius.circular(8)),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: GestureDetector(
+                onTap: selectTime,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: verticalPadding),
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '${time.hourOfPeriod.toString().padLeft(2, '0')} : ${time.minute.toString().padLeft(2, '0')}',
+                        style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
-                  child: Text('AM', style: TextStyle(color: isAm ? Colors.white : Colors.black, fontSize: 12)),
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  if (time.hour < 12) {
-                    onTimeChanged(TimeOfDay(hour: time.hour + 12, minute: time.minute));
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(
-                    color: !isAm ? const Color(0xFF6A4DFF) : Colors.transparent,
-                    borderRadius: const BorderRadius.only(bottomRight: Radius.circular(8)),
-                  ),
-                  child: Text('PM', style: TextStyle(color: !isAm ? Colors.white : Colors.black, fontSize: 12)),
+            ),
+            Expanded(
+              flex: 1,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border(left: BorderSide(color: Colors.grey.shade300))
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (time.hour >= 12) {
+                          onTimeChanged(TimeOfDay(hour: time.hour - 12, minute: time.minute));
+                        }
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(horizontal: ampmPadding, vertical: ampmPadding),
+                        decoration: BoxDecoration(
+                          color: isAm ? const Color(0xFF6A4DFF) : Colors.transparent,
+                          borderRadius: const BorderRadius.only(topRight: Radius.circular(8)),
+                        ),
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('AM', style: TextStyle(color: isAm ? Colors.white : Colors.black, fontSize: ampmFontSize, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        if (time.hour < 12) {
+                          onTimeChanged(TimeOfDay(hour: time.hour + 12, minute: time.minute));
+                        }
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(horizontal: ampmPadding, vertical: ampmPadding),
+                        decoration: BoxDecoration(
+                          color: !isAm ? const Color(0xFF6A4DFF) : Colors.transparent,
+                          borderRadius: const BorderRadius.only(bottomRight: Radius.circular(8)),
+                        ),
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('PM', style: TextStyle(color: !isAm ? Colors.white : Colors.black, fontSize: ampmFontSize, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        )
-      ],
-    ),
+            )
+          ],
+        ),
+      );
+    },
   );
 }
 

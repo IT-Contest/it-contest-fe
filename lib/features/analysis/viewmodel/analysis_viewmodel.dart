@@ -20,6 +20,7 @@ class AnalysisViewModel extends ChangeNotifier {
   bool _isLoadingLeaderboard = false;
   bool _isLoadingCoachingHistory = false;
   bool _isRequestingCoaching = false;
+  String? _lastCoachingDate;
 
   // Getters
   AnalysisTimeframe get selectedTimeframe => _selectedTimeframe;
@@ -39,6 +40,12 @@ class AnalysisViewModel extends ChangeNotifier {
   List<String> get chartLabels => _analysisData?.chartLabels ?? [];
   int get completedQuests => _analysisData?.completedQuests ?? 0;
   int get completedPomodoros => _analysisData?.completedPomodoros ?? 0;
+
+  // 오늘 AI 코칭 사용 가능 여부 확인
+  bool get canRequestCoachingToday {
+    final today = DateTime.now().toIso8601String().split('T')[0];
+    return _lastCoachingDate != today;
+  }
 
   // 초기 데이터 로드
   Future<void> initializeData() async {
@@ -86,13 +93,44 @@ class AnalysisViewModel extends ChangeNotifier {
     }
   }
 
-  // 리더보드 데이터 로드 (API 미구현으로 비활성화)
+  // 리더보드 데이터 로드 (API 미구현으로 더미 데이터 사용)
   Future<void> loadLeaderboard() async {
     _isLoadingLeaderboard = true;
     notifyListeners();
 
-    // 리더보드 API가 구현되지 않았으므로 빈 리스트로 설정
-    _leaderboard = [];
+    // 더미 데이터로 친구 카드 UI 구성
+    _leaderboard = [
+      LeaderboardUser(
+        rank: 1,
+        name: '애라',
+        exp: 4500,
+        avatarUrl: 'https://example.com/avatar1.png',
+      ),
+      LeaderboardUser(
+        rank: 2,
+        name: '애라',
+        exp: 4500,
+        avatarUrl: 'https://example.com/avatar2.png',
+      ),
+      LeaderboardUser(
+        rank: 3,
+        name: '애라',
+        exp: 4500,
+        avatarUrl: 'https://example.com/avatar3.png',
+      ),
+      LeaderboardUser(
+        rank: 4,
+        name: '민지',
+        exp: 3200,
+        avatarUrl: 'https://example.com/avatar4.png',
+      ),
+      LeaderboardUser(
+        rank: 5,
+        name: '준호',
+        exp: 2800,
+        avatarUrl: 'https://example.com/avatar5.png',
+      ),
+    ];
     
     _isLoadingLeaderboard = false;
     notifyListeners();
@@ -105,6 +143,15 @@ class AnalysisViewModel extends ChangeNotifier {
 
     try {
       _coachingHistory = await _analysisService.fetchCoachingHistory();
+      
+      // 오늘 이미 코칭을 받았는지 확인
+      final today = DateTime.now().toIso8601String().split('T')[0];
+      final todayFormatted = today.replaceAll('-', '.');
+      
+      final hasCoachingToday = _coachingHistory.any((item) => item.date == todayFormatted);
+      if (hasCoachingToday) {
+        _lastCoachingDate = today;
+      }
     } catch (e) {
       debugPrint('Failed to load coaching history: $e');
     } finally {
@@ -115,6 +162,11 @@ class AnalysisViewModel extends ChangeNotifier {
 
   // AI 코칭 요청
   Future<CoachingResult> requestAiCoaching() async {
+    // 오늘 이미 사용했는지 확인
+    if (!canRequestCoachingToday) {
+      return CoachingResult.fromError('daily_limit_reached');
+    }
+
     _isRequestingCoaching = true;
     notifyListeners();
 
@@ -125,6 +177,9 @@ class AnalysisViewModel extends ChangeNotifier {
       );
       
       if (result.success && result.coachingContent != null) {
+        // 오늘 날짜를 저장하여 일일 사용 제한 적용
+        _lastCoachingDate = DateTime.now().toIso8601String().split('T')[0];
+        
         // 새로운 코칭 아이템을 히스토리 맨 앞에 추가
         final newCoachingItem = CoachingHistoryItem(
           date: DateTime.now().toIso8601String().split('T')[0].replaceAll('-', '.'),
