@@ -5,6 +5,7 @@ import 'package:it_contest_fe/shared/widgets/onboarding_app_bar.dart';
 import '../model/completion_status.dart';
 import '../viewmodel/quest_tab_viewmodel.dart'; // ViewModel 변경
 import '../../../shared/widgets/quest_completion_modal.dart';
+import '../view/quest_personal_view_screen.dart';
 
 class QuestSearchScreen extends StatefulWidget {
   final String initialQuery;
@@ -89,16 +90,26 @@ class _QuestSearchScreenState extends State<QuestSearchScreen> {
                             final isDone =
                                 quest.completionStatus == CompletionStatus.COMPLETED;
 
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 6),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                    color: const Color(0xFFE0E0E0), width: 1),
-                              ),
-                              child: Row(
+                            return GestureDetector(
+                              onTap: () {
+                                // 조회 페이지로 이동
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => QuestPersonalFormPage(quest: quest),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                      color: const Color(0xFFE0E0E0), width: 1),
+                                ),
+                                child: Row(
                                 children: [
                                   // 좌측 아이콘
                                   Container(
@@ -216,6 +227,7 @@ class _QuestSearchScreenState extends State<QuestSearchScreen> {
                                     ),
                                   ),
                                 ],
+                                ),
                               ),
                             );
                           },
