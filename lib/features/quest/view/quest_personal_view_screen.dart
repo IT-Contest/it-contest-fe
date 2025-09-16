@@ -9,6 +9,8 @@ import 'package:it_contest_fe/shared/quest_create_form/date_time_section.dart';
 
 import 'package:it_contest_fe/features/quest/viewmodel/quest_personal_create_viewmodel.dart';
 import 'package:it_contest_fe/features/quest/model/quest_item_response.dart';
+import 'package:it_contest_fe/features/quest/viewmodel/quest_tab_viewmodel.dart';
+import 'package:it_contest_fe/features/quest/view/quest_personal_form_screen.dart';
 
 class QuestPersonalFormPage extends StatefulWidget {
   final QuestItemResponse? quest;
@@ -119,11 +121,14 @@ class _QuestPersonalFormPageState extends State<QuestPersonalFormPage> {
                 ),
                 surfaceTintColor: Colors.white,
               ),
-              body: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              body: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                     // 1. 퀘스트 제목
                     AbsorbPointer( // ✅ 입력 막음
                       child: QuestTitleInput(
@@ -200,9 +205,159 @@ class _QuestPersonalFormPageState extends State<QuestPersonalFormPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 26),
-                  ],
-                ),
+                        const SizedBox(height: 26),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // 고정된 하단 버튼 영역
+                  if (widget.quest != null)
+                    Container(
+                      color: Colors.white,
+                      child: Column(
+                        children: [
+                          const Divider(color: Color(0xFFE0E0E0), height: 1, thickness: 1),
+                          Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              children: [
+                                Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => QuestPersonalFormScreen(quest: widget.quest),
+                                      ),
+                                    ).then((_) {
+                                      // 수정 후 돌아왔을 때 데이터 새로고침
+                                      Navigator.pop(context);
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF6737F4),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    elevation: 0,
+                                  ),
+                                  child: const Text(
+                                    '수정하기',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () async {
+                                    // 삭제 확인 다이얼로그
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => Dialog(
+                                        backgroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Text(
+                                                '주의',
+                                                style: TextStyle(
+                                                  color: Color(0xFF4C1FFF),
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 16),
+                                              const Text(
+                                                '퀘스트를 삭제하시겠습니까?',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 24),
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: OutlinedButton(
+                                                      onPressed: () => Navigator.pop(context, false),
+                                                      style: OutlinedButton.styleFrom(
+                                                        side: const BorderSide(color: Color(0xFF4C1FFF)),
+                                                        foregroundColor: const Color(0xFF4C1FFF),
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(12),
+                                                        ),
+                                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                                      ),
+                                                      child: const Text('취소'),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: ElevatedButton(
+                                                      onPressed: () => Navigator.pop(context, true),
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor: const Color(0xFF4C1FFF),
+                                                        foregroundColor: Colors.white,
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(12),
+                                                        ),
+                                                        padding: const EdgeInsets.symmetric(vertical: 12),
+                                                      ),
+                                                      child: const Text('삭제'),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                    
+                                    if (confirm == true) {
+                                      // 삭제 실행
+                                      final questTabViewModel = context.read<QuestTabViewModel>();
+                                      final success = await questTabViewModel.deleteQuest(widget.quest!.questId);
+                                      
+                                      if (success && mounted) {
+                                        Navigator.pop(context);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('퀘스트가 삭제되었습니다.')),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Color(0xFF6737F4), width: 1),
+                                    foregroundColor: const Color(0xFF6737F4),
+                                    backgroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                  ),
+                                  child: const Text(
+                                    '삭제하기',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                                ],
+                              ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
