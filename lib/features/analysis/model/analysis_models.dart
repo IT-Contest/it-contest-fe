@@ -99,10 +99,10 @@ class QuestAnalysisResponse {
       completed = json['completed'] ?? 0;
       total = json['total'] ?? 0;
     } else if (json.containsKey('date')) {
-      // 일일 데이터 형식: {date: "2025-01-01", completedCount: 0, totalCount: 0}
+      // 일일 데이터 형식: {date: "2025-01-01", completed: 0, total: 0}
       dateValue = json['date'] ?? '';
-      completed = json['completedCount'] ?? 0;
-      total = json['totalCount'] ?? 0;
+      completed = json['completed'] ?? 0;
+      total = json['total'] ?? 0;
     } else if (json.containsKey('month')) {
       // 월간 데이터 형식: {month: "2025-01", completed: 0, total: 0}
       dateValue = json['month'] ?? '';

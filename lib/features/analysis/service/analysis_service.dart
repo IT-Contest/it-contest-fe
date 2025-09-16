@@ -19,7 +19,6 @@ class AnalysisService {
         return await _fetchPomodoroAnalysisData(timeframe, token);
       }
     } catch (e) {
-      print('❌ [AnalysisService] API Error: $e');
       rethrow;
     }
   }

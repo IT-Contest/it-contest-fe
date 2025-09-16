@@ -23,25 +23,25 @@ class QuestAddSection extends StatelessWidget {
           side: const BorderSide(color: Color(0xFF7958FF), width: 1),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           backgroundColor: Colors.white,
-          padding: const EdgeInsets.fromLTRB(88, 14, 88, 19),
+          padding: EdgeInsets.zero,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: const [
-            Padding(
-              padding: EdgeInsets.only(top: 2),
-              child: Icon(Icons.add, color: Color(0xFF7958FF), size: 24),
-            ),
-            SizedBox(width: 10),
-            Text(
-              '새 퀘스트 추가',
-              style: TextStyle(
-                color: Color(0xFF7958FF),
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.add, color: Color(0xFF7958FF), size: 24),
+              SizedBox(width: 10),
+              Text(
+                '새 퀘스트 추가',
+                style: TextStyle(
+                  color: Color(0xFF7958FF),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -19,8 +19,6 @@ class DailyQuestFullPage extends StatefulWidget {
 
 class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
   String _filter = 'ALL'; // 'ALL', 'PERSONAL', 'PARTY'
-  int _selectedNav = -1; // 0: 수정, 1: 삭제
-  int? _selectedQuestId; // 선택된 퀘스트 ID 추가
 
   @override
   void initState() {
@@ -141,24 +139,13 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                     final isDone = quest.completionStatus == CompletionStatus.COMPLETED;
                     return GestureDetector(
                       onTap: () {
-                        if (widget.showEditDeleteButtons && (_selectedNav == 0 || _selectedNav == 1)) {
-                          // 수정/삭제 모드일 때는 선택 로직
-                          setState(() {
-                            if (_selectedQuestId == quest.questId) {
-                              _selectedQuestId = null;
-                            } else {
-                              _selectedQuestId = quest.questId;
-                            }
-                          });
-                        } else {
-                          // ✅ 일반 모드에서는 조회 페이지로 이동
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => QuestPersonalFormPage(quest: quest),
-                            ),
-                          );
-                        }
+                        // 조회 페이지로 이동
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => QuestPersonalFormPage(quest: quest),
+                          ),
+                        );
                       },
                       child: QuestCard(
                         title: quest.title,
@@ -184,7 +171,6 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                         showBackground: true,
                         useFilledIconBg: true,
                         padding: 12,
-                        isSelected: quest.questId == _selectedQuestId,
                       ),
                     );
                   },
@@ -194,242 +180,7 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
           ),
         ],
       ),
-      bottomNavigationBar: widget.showEditDeleteButtons
-          ? (_selectedNav == 0
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Divider(color: Color(0xFFE0E0E0), height: 1, thickness: 1),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12), // 기존 수정/삭제 버튼과 동일하게
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 46, // 기존 버튼과 동일하게
-                        child: OutlinedButton(
-                          onPressed: _selectedQuestId != null
-                              ? () {
-                                  final selectedQuest = context
-                                      .read<QuestTabViewModel>()
-                                      .allQuests
-                                      .firstWhere((q) => q.questId == _selectedQuestId);
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => QuestPersonalFormScreen(quest: selectedQuest),
-                                    ),
-                                  ).then((_) => setState(() => _selectedQuestId = null)); // 돌아오면 선택 해제
-                                }
-                              : null,
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFF4C1FFF), width: 1),
-                            backgroundColor: _selectedQuestId != null ? const Color(0xFF4C1FFF) : Colors.white,
-                            foregroundColor: _selectedQuestId != null ? Colors.white : const Color(0xFF4C1FFF),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            padding: EdgeInsets.zero,
-                            textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                            disabledForegroundColor: const Color(0xFF4C1FFF).withOpacity(0.5),
-                          ),
-                          child: Text(_selectedQuestId != null ? '선택한 퀘스트 수정하기' : '수정할 퀘스트를 선택해주세요'),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : _selectedNav == 1
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Divider(color: Color(0xFFE0E0E0), height: 1, thickness: 1),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 46,
-                            child: OutlinedButton(
-                              onPressed: _selectedQuestId != null
-                                  ? () async {
-                                      // 삭제 확인 다이얼로그
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (context) => Dialog(
-                                          backgroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(16),
-                                          ),
-                                          child: Container(
-                                            padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                // 제목
-                                                const Text(
-                                                  '주의',
-                                                  style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0xFFD33248),
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 16),
-                                                // 메시지
-                                                const Text(
-                                                  '완료된 퀘스트의 경우 지급되었던 경험치와\n골드가 차감됩니다.\n그래도 삭제하시겠습니까?',
-                                                  textAlign: TextAlign.left,
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    color: Colors.black87,
-                                                    height: 1.4,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 24),
-                                                // 버튼들
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: SizedBox(
-                                                        height: 48,
-                                                        child: ElevatedButton(
-                                                          onPressed: () => Navigator.of(context).pop(true),
-                                                          style: ElevatedButton.styleFrom(
-                                                            backgroundColor: const Color(0xFF7958FF),
-                                                            foregroundColor: Colors.white,
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius: BorderRadius.circular(12),
-                                                            ),
-                                                            elevation: 0,
-                                                          ),
-                                                          child: const Text(
-                                                            '삭제',
-                                                            style: TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight: FontWeight.w600,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 12),
-                                                    Expanded(
-                                                      child: SizedBox(
-                                                        height: 48,
-                                                        child: OutlinedButton(
-                                                          onPressed: () => Navigator.of(context).pop(false),
-                                                          style: OutlinedButton.styleFrom(
-                                                            side: const BorderSide(color: Color(0xFF7958FF), width: 1),
-                                                            foregroundColor: const Color(0xFF7958FF),
-                                                            shape: RoundedRectangleBorder(
-                                                              borderRadius: BorderRadius.circular(12),
-                                                            ),
-                                                          ),
-                                                          child: const Text(
-                                                            '취소',
-                                                            style: TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight: FontWeight.w600,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                      
-                                      // 삭제 확인 다이얼로그 결과 처리
-                                      if (confirm == true) {
-                                        final success = await context
-                                            .read<QuestTabViewModel>()
-                                            .deleteQuest(_selectedQuestId!);
-                                        
-                                        if (success) {
-                                          setState(() {
-                                            _selectedQuestId = null;
-                                            _selectedNav = -1; // 삭제 완료 후 하단 버튼을 수정/삭제 선택 버튼으로 되돌리기
-                                          });
-                                        }
-                                      }
-                                    }
-                                  : null,
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Color(0xFF4C1FFF), width: 1),
-                                backgroundColor: _selectedQuestId != null ? const Color(0xFF4C1FFF) : Colors.white,
-                                foregroundColor: _selectedQuestId != null ? Colors.white : const Color(0xFF4C1FFF),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                padding: EdgeInsets.zero,
-                                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                                disabledForegroundColor: const Color(0xFF4C1FFF).withOpacity(0.5),
-                              ),
-                              child: Text(_selectedQuestId != null ? '선택한 퀘스트 삭제하기' : '삭제할 퀘스트를 선택해주세요'),
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Divider(color: Color(0xFFE0E0E0), height: 1, thickness: 1),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: SizedBox(
-                                  height: 46,
-                                  child: OutlinedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _selectedNav = 0;
-                                        _selectedQuestId = null; // 수정 모드 진입 시 선택 초기화
-                                      });
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      side: const BorderSide(color: Color(0xFF4C1FFF), width: 1),
-                                      backgroundColor: _selectedNav == 0 ? const Color(0xFF4C1FFF) : Colors.white,
-                                      foregroundColor: _selectedNav == 0 ? Colors.white : const Color(0xFF4C1FFF),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      padding: EdgeInsets.zero,
-                                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                                    ),
-                                    child: const Text('수정하기'),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: SizedBox(
-                                  height: 46,
-                                  child: OutlinedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        _selectedNav = 1;
-                                        _selectedQuestId = null; // 삭제 모드 진입 시 선택 초기화
-                                      });
-                                    },
-                                    style: OutlinedButton.styleFrom(
-                                      side: const BorderSide(color: Color(0xFF4C1FFF), width: 1),
-                                      backgroundColor: _selectedNav == 1 ? const Color(0xFF4C1FFF) : Colors.white,
-                                      foregroundColor: _selectedNav == 1 ? Colors.white : const Color(0xFF4C1FFF),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                      padding: EdgeInsets.zero,
-                                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                                    ),
-                                    child: const Text('삭제하기'),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ))
-          : null,
+      bottomNavigationBar: null,
     );
   }
 }

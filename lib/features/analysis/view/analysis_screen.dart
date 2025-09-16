@@ -6,6 +6,7 @@ import '../model/analysis_models.dart';
 import '../viewmodel/analysis_viewmodel.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import 'coaching_history_screen.dart';
+import '../../quest/view/quest_personal_form_screen.dart';
 
 
 class AnalysisView extends StatefulWidget {
@@ -217,7 +218,12 @@ class _AnalysisViewState extends State<AnalysisView> {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    // TODO: 새 퀘스트 설정 화면으로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const QuestPersonalFormScreen(),
+                      ),
+                    );
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFF7958FF),
@@ -281,71 +287,105 @@ class _AnalysisViewState extends State<AnalysisView> {
 
   // 리더보드 카드
   Widget _buildLeaderboardCard(BuildContext context, AnalysisViewModel viewModel) {
-    return Card(
-      elevation: 4,
-      shadowColor: const Color(0xFFEDE9FE),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
+    return Column(
+      children: [
+        // 리더보드 헤더 (카드 밖)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('리더보드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4C1FFF))),
-                TextButton(
-                  onPressed: () {
-                    // TODO: 리더보드 전체보기 화면으로 이동
-                  },
-                  child: const Text('전체보기 >', style: TextStyle(color: Color(0xFF7958FF), fontWeight: FontWeight.bold)),
-                )
-              ],
-            ),
-            const SizedBox(height: 8),
-            viewModel.isLoadingLeaderboard
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: viewModel.leaderboard.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final user = viewModel.leaderboard[index];
-                    return Row(
-                      children: [
-                        Text(
-                          user.rank.toString(), 
-                          style: const TextStyle(
-                            fontSize: 18, 
-                            color: Color(0xFF7958FF), 
-                            fontWeight: FontWeight.bold
-                          )
-                        ),
-                        const SizedBox(width: 16),
-                        CircleAvatar(
-                          radius: 22,
-                          backgroundImage: NetworkImage(user.avatarUrl),
-                          onBackgroundImageError: (_, __) {},
-                          child: Text(
-                            user.name.isNotEmpty ? user.name[0] : '?',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(user.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                            Text('${user.exp} exp', style: TextStyle(color: Colors.grey[600])),
-                          ],
-                        ),
-                      ],
-                    );
-                  },
-                ),
+            const Text('리더보드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4C1FFF))),
+            TextButton(
+              onPressed: () {
+                // TODO: 리더보드 전체보기 화면으로 이동
+              },
+              child: const Text('전체보기 >', style: TextStyle(color: Color(0xFF7958FF), fontWeight: FontWeight.bold)),
+            )
           ],
         ),
-      ),
+        const SizedBox(height: 8),
+        // 리더보드 아이템들
+        viewModel.isLoadingLeaderboard
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: viewModel.leaderboard.asMap().entries.map((entry) {
+                final index = entry.key;
+                final user = entry.value;
+                
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Card(
+                    elevation: 2,
+                    color: Colors.white,
+                    shadowColor: const Color(0xFFEDE9FE),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          // 순위 배지
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF7958FF),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                user.rank.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // 프로필 이미지
+                          CircleAvatar(
+                            radius: 24,
+                            backgroundImage: NetworkImage(user.avatarUrl),
+                            onBackgroundImageError: (_, __) {},
+                            child: Text(
+                              user.name.isNotEmpty ? user.name[0] : '?',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // 사용자 정보
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user.name,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${user.exp.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]},')} exp',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF7958FF),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+      ],
     );
   }
 
@@ -356,7 +396,7 @@ class _AnalysisViewState extends State<AnalysisView> {
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        horizontalInterval: 50,
+        horizontalInterval: 5,
         getDrawingHorizontalLine: (value) {
           return FlLine(
             color: Colors.grey[300]!,
@@ -395,7 +435,7 @@ class _AnalysisViewState extends State<AnalysisView> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 50,
+            interval: 5,
             reservedSize: 40,
             getTitlesWidget: (double value, TitleMeta meta) {
               return Text(
@@ -436,10 +476,8 @@ class _AnalysisViewState extends State<AnalysisView> {
   }
 
   double _getMaxY(List<double> data) {
-    if (data.isEmpty) return 100;
-    final maxValue = data.reduce((a, b) => a > b ? a : b);
-    // Y축 최대값을 적절히 조정 (최대값보다 약간 크게)
-    return ((maxValue / 50).ceil() * 50).toDouble();
+    // 항상 20을 최대값으로 고정
+    return 20;
   }
 
   // AI 코칭 모달 표시
@@ -457,6 +495,9 @@ class _AnalysisViewState extends State<AnalysisView> {
       if (result.success && result.coachingContent != null) {
         // 분석 결과 모달 표시
         _showCoachingResultModal(context, result.coachingContent!);
+      } else if (result.errorMessage == 'daily_limit_reached') {
+        // 일일 사용 제한 팝업 표시
+        _showDailyLimitDialog(context);
       } else {
         // 오류 처리
         _showErrorDialog(context, result.errorMessage ?? '분석 중 오류가 발생했습니다.');
@@ -684,6 +725,75 @@ class _AnalysisViewState extends State<AnalysisView> {
           fontSize: 14,
           height: 1.4,
           color: Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  // 일일 사용 제한 다이얼로그
+  void _showDailyLimitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 경고 아이콘
+              Container(
+                width: 60,
+                height: 60,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFD73027),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_rounded,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'AI 코칭 기능은 하루 한 번만\n활용이 가능합니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7958FF),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    '확인',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
