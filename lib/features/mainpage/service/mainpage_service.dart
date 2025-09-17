@@ -30,4 +30,27 @@ class MainpageService {
     final result = response.data['result'];
     return MainpageUserResponse.fromJson(result);
   }
+
+  // 친추 초대 api
+  Future<String> createFriendInvite() async {
+    final token = await TokenStorage().getAccessToken();
+    final response = await DioClient().dio.post(
+      '/quests/invite',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+
+    final result = response.data['result'];
+    return result['inviteLink']; // inviteLink 대신 UUID만 받음
+  }
+
+
+  // 친구 초대 수락 api
+  Future<void> acceptFriendInvite(String inviteToken) async {
+    final token = await TokenStorage().getAccessToken();
+    await DioClient().dio.post(
+      '/quests/invite/accept',
+      queryParameters: {'token': inviteToken},
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+  }
 }

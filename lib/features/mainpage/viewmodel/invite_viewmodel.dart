@@ -1,24 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import '../service/mainpage_service.dart';
 
 class InviteViewModel extends ChangeNotifier {
-  final String inviteCode;
+  String? inviteLink;
 
-  InviteViewModel({required this.inviteCode});
-
-  // 도메인 기반 링크로 변경
-  String get inviteLink =>
-      'http://192.168.45.148:8080/invite.html?code=$inviteCode';
+  Future<void> fetchInviteLink() async {
+    inviteLink = await MainpageService().createFriendInvite();
+    notifyListeners();
+  }
 
   void copyLink(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: inviteLink));
+    if (inviteLink == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('초대 링크가 아직 생성되지 않았습니다.')),
+      );
+      return;
+    }
+    Clipboard.setData(ClipboardData(text: inviteLink!));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('초대 링크가 복사되었습니다!')),
     );
   }
 
   Future<void> shareToKakao(BuildContext context) async {
+    if (inviteLink == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('초대 링크가 아직 생성되지 않았습니다.')),
+      );
+      return;
+    }
+
     final String message = '''
 [퀘스트플래너 초대]
 

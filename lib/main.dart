@@ -10,6 +10,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'features/auth/view/login_screen.dart';
 import 'features/auth/viewmodel/login_viewmodel.dart';
 import 'features/friends/viewmodel/friend_viewmodel.dart';
+import 'features/mainpage/service/mainpage_service.dart';
 import 'features/mainpage/viewmodel/invite_viewmodel.dart';
 import 'features/onboarding/view/onboarding_screen.dart';
 import 'features/onboarding/viewmodel/onboarding_viewmodel.dart';
@@ -39,6 +40,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        Provider(create: (_) => MainpageService()),
         ChangeNotifierProvider(create: (_) => LoginViewModel()),
         ChangeNotifierProvider(create: (_) => MainPageViewModel()),
         ChangeNotifierProvider(create: (_) => DailyQuestViewModel()),
@@ -46,7 +48,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => QuestTabViewModel()),
         ChangeNotifierProvider(create: (_) => QuestPomodoroViewModel()),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
-        ChangeNotifierProvider(create: (_) => InviteViewModel(inviteCode: 'temp')),
+        ChangeNotifierProvider(create: (_) => InviteViewModel()),
         ChangeNotifierProvider(create: (_) => OnboardingViewModel()),
         ChangeNotifierProvider(create: (_) => QuestPersonalCreateViewModel()),
         ChangeNotifierProvider(create: (_) => AnalysisViewModel()),
@@ -72,7 +74,7 @@ class MyApp extends StatelessWidget {
       ],
       routes: {
         '/terms': (context) => const TermsAgreementScreen(),
-        '/main': (context) => MainNavigationScreen(),
+        '/main': (context) => const MainNavigationScreen(),
         '/onboarding': (context) => OnboardingScreen(),
       },
     );

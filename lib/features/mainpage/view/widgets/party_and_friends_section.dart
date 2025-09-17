@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../../friends/view/all_friends_page.dart';
 import '../../../friends/viewmodel/friend_viewmodel.dart';
-import '../../../quest/view/party_create_page.dart';
 import '../../../quest/view/party_join_page.dart';
+import '../../../quest/view/quest_party_create_screen.dart';
 
 class PartyAndFriendsSection extends StatelessWidget {
   const PartyAndFriendsSection({super.key});
@@ -83,15 +83,14 @@ class PartyAndFriendsSection extends StatelessWidget {
                           Container(
                             width: 48,
                             height: 48,
-                            margin: const EdgeInsets.only(right: 12),
                             decoration: const BoxDecoration(
                               color: Color(0xFF5C2EFF),
                               shape: BoxShape.circle,
                             ),
                             child: Center(
                               child: Text(
-                                '+${friends.length}', // 항상 friend 수 기반
-                                style: const TextStyle(
+                                '+${friends.length}',
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -99,7 +98,17 @@ class PartyAndFriendsSection extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          const Text('더보기', style: TextStyle(fontSize: 12)),
+                          SizedBox(
+                            width: 48,
+                            child: Transform.translate(
+                              offset: const Offset(1.5, 0),
+                              child: const Text(
+                                '더보기',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -114,7 +123,7 @@ class PartyAndFriendsSection extends StatelessWidget {
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyCreatePage())),
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const QuestPartyCreateScreen())),
                         icon: Image.asset('assets/icons/party_add.png', width: 20, height: 20),
                         label: const Text('파티 퀘스트 생성', style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(

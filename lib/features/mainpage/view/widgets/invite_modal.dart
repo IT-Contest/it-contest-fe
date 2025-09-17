@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../viewmodel/invite_viewmodel.dart';
 
-
 class InviteModal {
-  static void show(BuildContext context) {
+  static Future<void> show(BuildContext context) async {
     final inviteViewModel = Provider.of<InviteViewModel>(context, listen: false);
+
+    // 초대 링크 발급
+    await inviteViewModel.fetchInviteLink();
 
     showModalBottomSheet(
       context: context,
