@@ -149,8 +149,10 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                       },
                       child: QuestCard(
                         title: quest.title,
-                        exp: quest.expReward,
-                        gold: quest.goldReward,
+                        exp: quest.title.toLowerCase().contains('온보딩') || 
+                             quest.title.toLowerCase().contains('onboarding') ? 100 : 10,
+                        gold: quest.title.toLowerCase().contains('온보딩') || 
+                              quest.title.toLowerCase().contains('onboarding') ? 50 : 5,
                         done: isDone,
                         onCheck: () {
                           viewModel.toggleQuest(
@@ -159,10 +161,16 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                             onCompleted: (isFirstCompletion) {
                               // isFirstCompletion이 true일 때만 모달 표시
                               if (isFirstCompletion) {
+                                // 올바른 보상값 계산
+                                final correctExpReward = quest.title.toLowerCase().contains('온보딩') || 
+                                    quest.title.toLowerCase().contains('onboarding') ? 100 : 10;
+                                final correctGoldReward = quest.title.toLowerCase().contains('온보딩') || 
+                                    quest.title.toLowerCase().contains('onboarding') ? 50 : 5;
+                                    
                                 QuestCompletionModal.show(
                                   context,
-                                  expReward: quest.expReward,
-                                  goldReward: quest.goldReward,
+                                  expReward: correctExpReward,
+                                  goldReward: correctGoldReward,
                                 );
                               }
                             },

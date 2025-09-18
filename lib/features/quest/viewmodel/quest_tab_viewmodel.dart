@@ -4,6 +4,7 @@ import '../service/quest_service.dart';
 import '../model/completion_status.dart';
 import 'package:provider/provider.dart';
 import '../../analysis/viewmodel/analysis_viewmodel.dart';
+import '../../mainpage/viewmodel/mainpage_viewmodel.dart';
 
 class QuestTabViewModel extends ChangeNotifier {
   final QuestService _service = QuestService();
@@ -66,6 +67,21 @@ class QuestTabViewModel extends ChangeNotifier {
     try {
       allQuests = await _service.fetchQuestList();
       _isLoaded = true; // 로드 성공 시 플래그 설정
+      
+      // 첫 로드 시 퀘스트 보상 업데이트 (한 번만 실행)
+      if (force || allQuests.isNotEmpty) {
+        try {
+          print('🔧 [퀘스트 보상 업데이트] 기존 퀘스트들의 보상을 올바른 값으로 업데이트 중...');
+          await _service.updateAllQuestRewards();
+          print('✅ [퀘스트 보상 업데이트] 완료');
+          
+          // 업데이트 후 다시 로드
+          allQuests = await _service.fetchQuestList();
+        } catch (e) {
+          print('⚠️ [퀘스트 보상 업데이트] 실패: $e');
+        }
+      }
+      
       filterQuests();
     } catch (e) {
       errorMessage = e.toString();
@@ -95,8 +111,12 @@ class QuestTabViewModel extends ChangeNotifier {
           : CompletionStatus.COMPLETED;
 
       try {
-        // 1. 서버 API를 호출하고, 성공 응답을 받습니다.
-        final response = await _service.updateQuestStatus(questId, newStatus);
+        // 디버깅: 퀘스트 보상 정보 출력
+        print('🎯 [퀘스트 완료] questId=$questId, title=${quest.title}, expReward=${quest.expReward}, goldReward=${quest.goldReward}');
+        
+        // 1. 서버 API를 호출하고, 성공 응답을 받습니다. (퀘스트 제목 전달)
+        final response = await _service.updateQuestStatus(questId, newStatus, questTitle: quest.title);
+        print('📦 [API 응답] isFirstCompletion=${response.isFirstCompletion}');
         
         // 2. 응답으로 받은 최신 상태를 사용하여 로컬 데이터를 직접 업데이트합니다.
         // QuestStatusChangeResponse에는 completionStatus가 없으므로,
@@ -118,13 +138,25 @@ class QuestTabViewModel extends ChangeNotifier {
           onCompleted(response.isFirstCompletion);
         }
 
-        // 4. 분석 데이터 새로고침 (퀘스트 상태 변경 시)
+        // 4. 데이터 새로고침 (퀘스트 상태 변경 시)
         if (context != null) {
           try {
+            // 분석 데이터 새로고침
             final analysisViewModel = context.read<AnalysisViewModel>();
             analysisViewModel.loadAnalysisData();
           } catch (e) {
             // AnalysisViewModel이 없는 경우 무시 (선택적)
+          }
+
+          try {
+            // 홈화면 사용자 데이터 새로고침 (경험치, 골드, 레벨 업데이트)
+            print('🎯 [QuestTabViewModel] 퀘스트 완료 후 홈화면 데이터 새로고침 시작...');
+            final mainPageViewModel = context.read<MainPageViewModel>();
+            await mainPageViewModel.refreshUserInfo();
+            print('✅ [QuestTabViewModel] 홈화면 데이터 새로고침 완료');
+          } catch (e) {
+            // MainPageViewModel이 없는 경우 무시 (선택적)
+            print('[홈화면 데이터 새로고침 실패] $e');
           }
         }
         
