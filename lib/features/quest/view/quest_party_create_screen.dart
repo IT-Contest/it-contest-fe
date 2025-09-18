@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:it_contest_fe/features/quest/view/party_invite_page.dart';
 import 'package:provider/provider.dart';
 
 import 'package:it_contest_fe/shared/quest_create_form/title_input.dart';
@@ -17,7 +18,12 @@ import '../../friends/view/all_friends_page.dart';
 import '../../friends/viewmodel/friend_viewmodel.dart';
 
 class QuestPartyCreateScreen extends StatefulWidget {
-  const QuestPartyCreateScreen({super.key});
+  final List<dynamic> invitedFriends;
+
+  const QuestPartyCreateScreen({
+    super.key,
+    this.invitedFriends = const [],
+  });
 
   @override
   State<QuestPartyCreateScreen> createState() => _QuestPartyCreateScreenState();
@@ -36,6 +42,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
     final friendVM = context.watch<FriendViewModel>();
     final friends = friendVM.friends; // FriendViewModel에서 가져오기
     final hasFriends = friends.isNotEmpty;
+    final invitedFriends = widget.invitedFriends;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -83,29 +90,37 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. 파티명
-                PartyTitleInput(onChanged: (value) => setState(() => _title = value)),
+                // 파티명 (PartyTitleInput)
+                PartyTitleInput(
+                  onChanged: (value) {
+                    vm.setContent(value); // ✅ ViewModel.content에 저장
+                  },
+                ),
                 const SizedBox(height: 16),
 
-                // 2. 퀘스트 제목
-                QuestTitleInput(onChanged: (value) => setState(() => _title = value)),
+                // 퀘스트 제목 (QuestTitleInput)
+                QuestTitleInput(
+                  onChanged: (value) {
+                    vm.setQuestTitle(value); // ✅ ViewModel.title에 저장
+                  },
+                ),
                 const SizedBox(height: 16),
 
-                // 3. 우선순위
+                // 우선순위 & 기간
                 QuestPrioritySection(
-                  onPriorityChanged: (value) => setState(() => _priority = value),
-                  onPeriodChanged: (value) => setState(() => _period = value),
+                  onPriorityChanged: (value) => vm.setPriority(value),
+                  onPeriodChanged: (value) => vm.setPeriod(value),
                   showTipBox: false,
                 ),
                 const SizedBox(height: 16),
 
-                // 4. 카테고리
-                CategoryInput(onChanged: (value) => setState(() => _categories = value)),
-                const SizedBox(height: 16),
+                // 카테고리
+                CategoryInput(onChanged: (value) => vm.setCategories(value)),
+
 
                 // 5. 날짜 및 시간
                 DateTimeSection(
-                  questType: vm.questType, // 퀘스트 타입 전달
+                  questType: vm.period, // 퀘스트 타입 전달
                   onStartDateChanged: vm.setStartDate,
                   onDueDateChanged: vm.setDueDate,
                   onStartTimeChanged: vm.setStartTime,
@@ -123,30 +138,39 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // 🔹 버튼 (제목 바로 밑)
+                    // "파티 초대하기" 버튼 부분 수정
                     SizedBox(
                       width: 123,
                       height: 46,
                       child: OutlinedButton(
-                        onPressed: () {
-                          // TODO: 파티 초대하기 로직
+                        onPressed: () async {
+                          final selected = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const PartyInvitePage(),
+                            ),
+                          );
+
+                          if (selected != null) {
+                            context.read<QuestPartyCreateViewModel>().setInvitedFriends(selected);
+                            print("✅ 초대한 친구들: $selected");
+                          }
                         },
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Color(0xFFBDBDBD), // 텍스트 색
+                          foregroundColor: const Color(0xFFBDBDBD),
                           side: const BorderSide(
-                            color: Color(0xFFBDBDBD), // Gray400 (#BDBDBD)
+                            color: Color(0xFFBDBDBD),
                             width: 1,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8), // round 정도 (8이 Figma 기본)
+                            borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: EdgeInsets.zero, // SizedBox 크기 그대로 쓰게 하기
+                          padding: EdgeInsets.zero,
                         ),
                         child: const Text(
                           "파티 초대하기",
                           style: TextStyle(
                             fontSize: 14,
-
                           ),
                         ),
                       ),
@@ -267,27 +291,9 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: vm.isLoading
-                        ? null
-                        : () async {
-                      final success = await vm.createPartyQuest();
-                      if (success) {
-                        InterstitialAdService.showAd(
-                          onClosed: () {
-                            QuestCreationModal.show(
-                              context,
-                              onClose: () {
-                                Navigator.pushReplacementNamed(context, '/main');
-                              },
-                            );
-                          },
-                        );
-                      } else if (vm.errorMessage != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(vm.errorMessage!)),
-                        );
-                      }
-                    },
+                    onPressed: vm.isFormValid && !vm.isLoading
+                        ? () => vm.handleCreate(context)
+                        : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF7958FF),
                       shape: RoundedRectangleBorder(
