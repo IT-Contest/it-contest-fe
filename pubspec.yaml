@@ -37,6 +37,7 @@ dependencies:
   google_mobile_ads: ^5.1.0
   table_calendar: ^3.0.9
   fl_chart: ^0.65.0
+  just_audio: ^0.9.40
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +51,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/sounds/
   fonts:
     - family: Inter
       fonts:
