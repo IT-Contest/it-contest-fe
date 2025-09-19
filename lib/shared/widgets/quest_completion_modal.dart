@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../features/mainpage/viewmodel/mainpage_viewmodel.dart';
 
 class QuestCompletionModal extends StatelessWidget {
   final int expReward;
@@ -40,7 +42,21 @@ class QuestCompletionModal extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
-                    onTap: onClose ?? () => Navigator.of(context).pop(),
+                    onTap: () async {
+                      // 홈화면 데이터 새로고침
+                      try {
+                        final mainPageViewModel = context.read<MainPageViewModel>();
+                        await mainPageViewModel.refreshUserInfo();
+                      } catch (e) {
+                        print('[홈화면 데이터 새로고침 실패] $e');
+                      }
+                      
+                      if (onClose != null) {
+                        onClose!();
+                      } else {
+                        Navigator.of(context).pop();
+                      }
+                    },
                     child: const Icon(
                       Icons.close,
                       color: Colors.black,

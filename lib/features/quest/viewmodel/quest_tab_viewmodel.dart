@@ -140,6 +140,7 @@ class QuestTabViewModel extends ChangeNotifier {
 
         if (context != null) {
           try {
+            // 분석 데이터 새로고침
             final analysisViewModel = context.read<AnalysisViewModel>();
             analysisViewModel.loadAnalysisData();
           } catch (_) {}

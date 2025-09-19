@@ -19,6 +19,7 @@ class MainpageService {
   }
 
   Future<MainpageUserResponse> fetchMainUserProfile() async {
+    print('📡 [MainpageService] API 호출 시작: /quests/mainpage');
     final token = await TokenStorage().getAccessToken();
     final response = await DioClient().dio.get(
       '/quests/mainpage',
@@ -27,8 +28,11 @@ class MainpageService {
           : null,
     );
 
+    print('📥 [MainpageService] API 응답: ${response.data}');
     final result = response.data['result'];
-    return MainpageUserResponse.fromJson(result);
+    final userResponse = MainpageUserResponse.fromJson(result);
+    print('✅ [MainpageService] 파싱된 사용자 정보: exp=${userResponse.exp}, gold=${userResponse.gold}, level=${userResponse.level}');
+    return userResponse;
   }
 
   // 친추 초대 api
