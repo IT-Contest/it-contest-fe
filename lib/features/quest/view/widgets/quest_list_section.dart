@@ -109,10 +109,16 @@ class QuestListSection extends StatelessWidget {
                   onCompleted: (isFirstCompletion) {
                     // isFirstCompletion이 true일 때만 모달 표시
                     if (isFirstCompletion) {
+                      // 올바른 보상값 계산
+                      final correctExpReward = quest.title.toLowerCase().contains('온보딩') || 
+                          quest.title.toLowerCase().contains('onboarding') ? 100 : 10;
+                      final correctGoldReward = quest.title.toLowerCase().contains('온보딩') || 
+                          quest.title.toLowerCase().contains('onboarding') ? 50 : 5;
+                          
                       QuestCompletionModal.show(
                         context,
-                        expReward: quest.expReward,
-                        goldReward: quest.goldReward,
+                        expReward: correctExpReward,
+                        goldReward: correctGoldReward,
                       );
                     }
                   },
@@ -132,6 +138,28 @@ class _QuestCard extends StatelessWidget {
   final VoidCallback? onCheck;
 
   const _QuestCard({required this.quest, this.onCheck});
+  
+  // 올바른 경험치 보상 계산
+  int _calculateCorrectExpReward(dynamic quest) {
+    // 온보딩 퀘스트 체크
+    if (quest.title.toLowerCase().contains('온보딩') || 
+        quest.title.toLowerCase().contains('onboarding')) {
+      return 100;
+    }
+    // 일반 퀘스트는 10 exp
+    return 10;
+  }
+  
+  // 올바른 골드 보상 계산
+  int _calculateCorrectGoldReward(dynamic quest) {
+    // 온보딩 퀘스트 체크
+    if (quest.title.toLowerCase().contains('온보딩') || 
+        quest.title.toLowerCase().contains('onboarding')) {
+      return 50;
+    }
+    // 일반 퀘스트는 5 gold
+    return 5;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -193,9 +221,9 @@ class _QuestCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      _RewardTag(label: '경험치 +${quest.expReward}'),
+                      _RewardTag(label: '경험치 +${_calculateCorrectExpReward(quest)}'),
                       const SizedBox(width: 8),
-                      _RewardTag(label: '골드 +${quest.goldReward}', border: true),
+                      _RewardTag(label: '골드 +${_calculateCorrectGoldReward(quest)}', border: true),
                     ],
                   ),
                 ],

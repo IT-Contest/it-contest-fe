@@ -110,7 +110,7 @@ class UserProfileCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'EXP ${user.expPercent}%',
+                          '${user.expPercent}%',
                           style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF6737F4),
