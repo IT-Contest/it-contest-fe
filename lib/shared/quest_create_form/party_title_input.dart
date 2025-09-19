@@ -2,15 +2,22 @@ import 'package:flutter/material.dart';
 
 class PartyTitleInput extends StatefulWidget {
   final ValueChanged<String> onChanged;
-  const PartyTitleInput({super.key, required this.onChanged});
+  final String? initialValue;
+  const PartyTitleInput({super.key, required this.onChanged,     this.initialValue,});
 
   @override
   State<PartyTitleInput> createState() => _PartyTitleInputState();
 }
 
 class _PartyTitleInputState extends State<PartyTitleInput> {
-  final TextEditingController _controller = TextEditingController();
+  late TextEditingController _controller;
   bool _isOverLimit = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+  }
 
   @override
   void dispose() {
@@ -58,4 +65,4 @@ class _PartyTitleInputState extends State<PartyTitleInput> {
       ],
     );
   }
-} 
+}

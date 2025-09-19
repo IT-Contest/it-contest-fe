@@ -66,11 +66,15 @@ class PartyAndFriendsSection extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(f.nickname, style: const TextStyle(fontSize: 12)),
+                          Text(
+                              f.nickname,
+                              style: const TextStyle(fontSize: 12),
+                              textAlign: TextAlign.center,
+                          ),
                         ],
                       )),
 
-                    // ✅ 더보기 버튼은 항상 표시
+                    // 더보기 버튼은 항상 표시
                     GestureDetector(
                       onTap: () {
                         Navigator.push(

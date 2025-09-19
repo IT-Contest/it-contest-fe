@@ -31,7 +31,7 @@ class FriendInfo {
       profileImageUrl: (json['profileImageUrl'] != null &&
           (json['profileImageUrl'] as String).isNotEmpty)
           ? json['profileImageUrl']
-          : 'https://ssuchaehwa.duckdns.org/default-profile.png', // ✅ 기본 이미지 URL
+          : 'https://ssuchaehwa.duckdns.org/simpson.jpg', // ✅ 기본 이미지 URL
     );
   }
 }

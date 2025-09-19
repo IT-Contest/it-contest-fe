@@ -88,7 +88,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
             // 5. 파티원 초대 영역
             const Text(
-              "파티원 초대",
+              "친구 초대",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -102,14 +102,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("파티원 초대 TIP",
+                  Text("친구 초대 TIP",
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF7D4CFF))),
                   SizedBox(height: 8),
-                  Text("친구를 초대하고 파티를 맺어 계획을 진행하면",
-                      style: TextStyle(fontSize: 13, color: Color(0xFF6B6B6B))),
+                  Text("친구를 초대하고 친구와 같이 파티를 맺어 계획을 진행하면",
+                      style: TextStyle(fontSize: 12, color: Color(0xFF6B6B6B))),
                   SizedBox(height: 2),
                   Text.rich(TextSpan(children: [
                     TextSpan(
@@ -117,28 +117,28 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         style: TextStyle(
                             color: Color(0xFF7D4CFF),
                             fontWeight: FontWeight.bold,
-                            fontSize: 13)),
+                            fontSize: 12)),
                     TextSpan(
                         text: "를 얻을 수 있어요!",
                         style:
-                        TextStyle(color: Color(0xFF6B6B6B), fontSize: 13)),
+                        TextStyle(color: Color(0xFF6B6B6B), fontSize: 12)),
                   ])),
                   SizedBox(height: 2),
                   Text.rich(TextSpan(children: [
                     TextSpan(
-                        text: "파티원 초대시 ",
+                        text: "친구 초대시 한 명당",
                         style:
-                        TextStyle(color: Color(0xFF6B6B6B), fontSize: 13)),
+                        TextStyle(color: Color(0xFF6B6B6B), fontSize: 12)),
                     TextSpan(
-                        text: "000exp",
+                        text: " 5exp",
                         style: TextStyle(
                             color: Color(0xFF7D4CFF),
                             fontWeight: FontWeight.bold,
-                            fontSize: 13)),
+                            fontSize: 12)),
                     TextSpan(
                         text: " 추가 지급",
                         style:
-                        TextStyle(color: Color(0xFF6B6B6B), fontSize: 13)),
+                        TextStyle(color: Color(0xFF6B6B6B), fontSize: 12)),
                   ])),
                 ],
               ),
@@ -156,7 +156,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 padding:
                 const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
               ),
-              child: const Text('파티원 초대하기',
+              child: const Text('친구 초대하기',
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -229,7 +229,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: const Column(
           children: [
             Text(
-              "퀘스트를 만들어볼까요?",
+              "첫 퀘스트를 만들어볼까요?",
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
@@ -243,7 +243,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 style: TextStyle(fontSize: 18, color: Colors.grey),
                 children: [
                   TextSpan(
-                    text: "0,000exp",
+                    text: "100exp",
                     style: TextStyle(
                       color: Color(0xFF7D4CFF),
                       fontWeight: FontWeight.bold,
