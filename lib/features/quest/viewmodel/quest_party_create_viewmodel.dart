@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // 🔑 토큰 저장소
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:it_contest_fe/features/quest/model/party_model.dart';
+import 'package:it_contest_fe/features/quest/model/party_update_request.dart';
+import 'package:it_contest_fe/features/quest/model/completion_status.dart'; // ✅ enum
 import 'package:it_contest_fe/features/quest/service/party_service.dart';
 import 'package:it_contest_fe/shared/widgets/quest_creation_modal.dart';
+import '../model/quest_item_response.dart';
 
 class QuestPartyCreateViewModel extends ChangeNotifier {
   bool isLoading = false;
   String? errorMessage;
 
   // 입력값 상태
-  String title = '';        // 퀘스트명 (questTitle)
+  String title = '';        // 퀘스트명
   String content = '';      // 파티 내용
   int priority = 0;
   String? period;
+  CompletionStatus completionStatus = CompletionStatus.INCOMPLETE; // ✅ enum
   List<String> categories = [];
   DateTime? startDate;
   DateTime? dueDate;
@@ -34,7 +38,33 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
         endTime != null;
   }
 
-  // setter
+  /// 초기화 (수정 모드)
+  void initializeFromQuest(QuestItemResponse quest) {
+    content = quest.partyName ?? '';
+    title = quest.title;
+    priority = quest.priority;
+    period = quest.questType;
+    completionStatus = quest.completionStatus ?? CompletionStatus.INCOMPLETE;
+    categories = List<String>.from(quest.hashtags);
+
+    if (quest.startDate != null) {
+      startDate = DateTime.tryParse(quest.startDate!);
+    }
+    if (quest.dueDate != null) {
+      dueDate = DateTime.tryParse(quest.dueDate!);
+    }
+    if (quest.startTime != null) {
+      final parts = quest.startTime!.split(':');
+      startTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    }
+    if (quest.endTime != null) {
+      final parts = quest.endTime!.split(':');
+      endTime = TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
+    }
+    notifyListeners();
+  }
+
+  // ✅ Setter 메서드 전부 복원
   void setQuestTitle(String value) {
     title = value;
     notifyListeners();
@@ -80,12 +110,17 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setCompletionStatus(CompletionStatus status) {
+    completionStatus = status;
+    notifyListeners();
+  }
+
   void setInvitedFriends(List<dynamic> friends) {
     invitedFriends = friends;
     notifyListeners();
   }
 
-  // ✅ 파티 생성 처리
+  /// ✅ 파티 생성 처리
   Future<void> handleCreate(BuildContext context) async {
     isLoading = true;
     notifyListeners();
@@ -93,9 +128,7 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
     final partyService = PartyService();
 
     try {
-      // 🔑 SecureStorage에서 accessToken 불러오기
       final accessToken = await _storage.read(key: "accessToken");
-
       if (accessToken == null || accessToken.isEmpty) {
         throw Exception("로그인 토큰이 없습니다. 다시 로그인 해주세요.");
       }
@@ -105,29 +138,21 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
         questTitle: title,
         priority: priority,
         questType: _mapPeriodToQuestType(period),
-        completionStatus: "INCOMPLETE",
+        completionStatus: completionStatus.name, // ✅ enum → String 변환
         startDate: startDate?.toIso8601String().split("T")[0] ?? "",
         dueDate: dueDate?.toIso8601String().split("T")[0] ?? "",
-        startTime: startTime != null
-            ? "${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}:00"
-            : "",
-        endTime: endTime != null
-            ? "${endTime!.hour.toString().padLeft(2, '0')}:${endTime!.minute.toString().padLeft(2, '0')}:00"
-            : "",
+        startTime: _formatTime(startTime),
+        endTime: _formatTime(endTime),
         hashtags: categories,
       );
 
       final questId = await partyService.createPartyQuest(request, accessToken);
-      print("📤 questId(before) = $questId");
-      print("📤 invitedFriends(before) = $invitedFriends");
+
       if (questId != null && invitedFriends.isNotEmpty) {
         final friendIds = invitedFriends.map((f) => f.userId as int).toList();
         await partyService.inviteFriends(questId, friendIds, accessToken);
-        print("📤 invitedFriends = $invitedFriends");
-        print("📤 questId = $questId");
       }
-      print("📤 questId(after) = $questId");
-      print("📤 invitedFriends(after) = $invitedFriends");
+
       QuestCreationModal.show(
         context,
         onClose: () => Navigator.pushReplacementNamed(context, '/main'),
@@ -142,6 +167,64 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// ✅ 파티 수정 처리
+  Future<bool> handleUpdate(int partyId, BuildContext context) async {
+    isLoading = true;
+    notifyListeners();
+
+    final partyService = PartyService();
+
+    try {
+      final accessToken = await _storage.read(key: "accessToken");
+      if (accessToken == null || accessToken.isEmpty) {
+        throw Exception("로그인 토큰이 없습니다. 다시 로그인 해주세요.");
+      }
+
+      final updateRequest = PartyUpdateRequest(
+        content: content,
+        priority: priority,
+        questType: _mapPeriodToQuestType(period),
+        completionStatus: completionStatus.name, // ✅ enum → String 변환
+        startDate: startDate?.toIso8601String().split("T")[0] ?? "",
+        dueDate: dueDate?.toIso8601String().split("T")[0] ?? "",
+        startTime: _formatTime(startTime),
+        endTime: _formatTime(endTime),
+        hashtags: categories,
+      );
+
+      final success = await partyService.updatePartyQuest(partyId, updateRequest, accessToken);
+
+      if (!success) {
+        throw Exception("파티 수정 실패");
+      }
+
+      return true;
+    } catch (e) {
+      errorMessage = "파티 수정 실패: $e";
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage!)),
+      );
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // 파티 삭제
+  Future<bool> handleDelete(int partyId) async {
+    final partyService = PartyService();
+    final accessToken = await _storage.read(key: "accessToken");
+
+    if (accessToken == null || accessToken.isEmpty) {
+      errorMessage = "로그인 토큰이 없습니다. 다시 로그인 해주세요.";
+      return false;
+    }
+
+    return await partyService.deletePartyQuest(partyId, accessToken);
+  }
+
 
   String _mapPeriodToQuestType(String? period) {
     switch (period) {
@@ -158,4 +241,10 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
     }
   }
 
+  String _formatTime(TimeOfDay? time) {
+    if (time == null) return "";
+    final hour = time.hour.toString().padLeft(2, '0');
+    final minute = time.minute.toString().padLeft(2, '0');
+    return "$hour:$minute:00";
+  }
 }

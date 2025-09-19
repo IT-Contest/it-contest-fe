@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:it_contest_fe/features/quest/view/party_quest_view_screen.dart';
 import 'package:it_contest_fe/features/quest/view/quest_personal_view_screen.dart';
 import 'package:it_contest_fe/features/quest/view/widgets/empty_quest_widget.dart';
 import 'package:provider/provider.dart';
-import '../../quest/viewmodel/quest_tab_viewmodel.dart'; // ViewModel 변경
+import '../../quest/viewmodel/quest_tab_viewmodel.dart';
 import '../model/completion_status.dart';
 import '../model/quest_item_response.dart';
 import 'widgets/quest_card.dart';
-import 'quest_personal_form_screen.dart'; // QuestPersonalFormScreen으로 변경
+import 'quest_personal_form_screen.dart';
 import '../../../shared/widgets/quest_completion_modal.dart';
 
 class DailyQuestFullPage extends StatefulWidget {
@@ -20,11 +22,11 @@ class DailyQuestFullPage extends StatefulWidget {
 class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
   String _filter = 'ALL'; // 'ALL', 'PERSONAL', 'PARTY'
 
-  @override
-  void initState() {
-    super.initState();
-    // initState에서 fetchQuests를 호출할 필요가 없음.
-    // QuestTabViewModel은 이미 QuestScreen에서 데이터를 로드했기 때문.
+  Future<void> _loadPartyQuests() async {
+    final token = await const FlutterSecureStorage().read(key: "accessToken");
+    if (token != null) {
+      await context.read<QuestTabViewModel>().loadPartyQuests(token);
+    }
   }
 
   @override
@@ -82,10 +84,13 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                     child: SizedBox(
                       height: 46,
                       child: OutlinedButton(
-                        onPressed: () {
-                          setState(() {
-                            _filter = _filter == 'PARTY' ? 'ALL' : 'PARTY';
-                          });
+                        onPressed: () async {
+                          final newFilter = _filter == 'PARTY' ? 'ALL' : 'PARTY';
+                          setState(() => _filter = newFilter);
+
+                          if (newFilter == 'PARTY') {
+                            await _loadPartyQuests(); // ✅ 파티 리스트 불러오기
+                          }
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: Color(0xFF8F73FF), width: 1),
@@ -103,10 +108,11 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
               ),
             ),
           if (!widget.showEditDeleteButtons) const SizedBox(height: 8),
+
           Expanded(
-            child: Consumer<QuestTabViewModel>( // ViewModel 변경
+            child: Consumer<QuestTabViewModel>(
               builder: (context, viewModel, _) {
-                if (viewModel.isLoading && viewModel.allQuests.isEmpty) { // 로딩 조건 수정
+                if (viewModel.isLoading && _filter == 'PARTY') {
                   return const Center(child: CircularProgressIndicator());
                 }
 
@@ -114,15 +120,19 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                   return Center(child: Text('에러: ${viewModel.errorMessage!}'));
                 }
 
-                // QuestTabViewModel의 allQuests를 사용하도록 변경
+                // ✅ 필터링된 리스트 선택
                 final List<QuestItemResponse> quests;
                 if (_filter == 'PERSONAL') {
-                  quests = viewModel.allQuests.where((q) => q.partyName == null).toList();
+                  quests = viewModel.allQuests; // ✅ 그대로 사용
                 } else if (_filter == 'PARTY') {
-                  quests = viewModel.allQuests.where((q) => q.partyName != null).toList();
+                  quests = viewModel.partyQuests;
                 } else {
-                  quests = viewModel.allQuests;
+                  quests = [
+                    ...viewModel.allQuests,
+                    ...viewModel.partyQuests,
+                  ]; // ✅ 전체보기면 합쳐서 보여주기
                 }
+
 
                 if (quests.isEmpty) {
                   return const EmptyQuestWidget(
@@ -136,37 +146,70 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                   itemCount: quests.length,
                   itemBuilder: (context, index) {
                     final quest = quests[index];
+
+                    final isPartyQuest = viewModel.partyQuests
+                        .any((p) => p.questId == quest.questId);
+
                     final isDone = quest.completionStatus == CompletionStatus.COMPLETED;
                     return GestureDetector(
                       onTap: () {
-                        // 조회 페이지로 이동
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => QuestPersonalFormPage(quest: quest),
-                          ),
-                        );
+                        final isPartyQuest = viewModel.partyQuests.any((p) => p.questId == quest.questId);
+
+                        if (isPartyQuest) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PartyQuestViewScreen(quest: quest),
+                            ),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => QuestPersonalFormPage(quest: quest),
+                            ),
+                          );
+                        }
                       },
                       child: QuestCard(
-                        title: quest.title,
+                        title: viewModel.partyQuests.any((p) => p.questId == quest.questId)
+                            ? (quest.partyName ?? '이름 없는 파티')
+                            : quest.title,
                         exp: quest.expReward,
                         gold: quest.goldReward,
                         done: isDone,
                         onCheck: () {
-                          viewModel.toggleQuest(
-                            quest.questId,
-                            context: context, // context 전달
-                            onCompleted: (isFirstCompletion) {
-                              // isFirstCompletion이 true일 때만 모달 표시
-                              if (isFirstCompletion) {
-                                QuestCompletionModal.show(
-                                  context,
-                                  expReward: quest.expReward,
-                                  goldReward: quest.goldReward,
-                                );
-                              }
-                            },
-                          );
+                          final isPartyQuest = viewModel.partyQuests.any((p) => p.questId == quest.questId);
+
+                          if (isPartyQuest) {
+                            viewModel.togglePartyQuestCompletion(
+                              quest.questId,
+                              context: context,
+                              onCompleted: (isFirstCompletion) {
+                                if (isFirstCompletion) {
+                                  QuestCompletionModal.show(
+                                    context,
+                                    expReward: quest.expReward,
+                                    goldReward: quest.goldReward,
+                                  );
+                                }
+                              },
+                            );
+                          } else {
+                            viewModel.toggleQuest(
+                              quest.questId,
+                              context: context,
+                              onCompleted: (isFirstCompletion) {
+                                if (isFirstCompletion) {
+                                  QuestCompletionModal.show(
+                                    context,
+                                    expReward: quest.expReward,
+                                    goldReward: quest.goldReward,
+                                  );
+                                }
+                              },
+                            );
+                          }
                         },
                         highlightTitle: false,
                         showBackground: true,
@@ -185,4 +228,3 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
     );
   }
 }
-

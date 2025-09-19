@@ -1,1 +1,1 @@
-enum CompletionStatus { INCOMPLETE, COMPLETED }
+enum CompletionStatus { INCOMPLETE, COMPLETED, IN_PROGRESS }

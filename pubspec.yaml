@@ -33,6 +33,7 @@ dependencies:
   firebase_analytics: ^11.0.0
   dropdown_button2: ^2.3.9
   app_links: ^6.0.0
+  audioplayers: ^6.0.0
 
   google_mobile_ads: ^5.1.0
   table_calendar: ^3.0.9
@@ -50,6 +51,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/sounds/
   fonts:
     - family: Inter
       fonts:
