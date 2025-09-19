@@ -49,11 +49,9 @@ class AnalysisViewModel extends ChangeNotifier {
 
   // 초기 데이터 로드
   Future<void> initializeData() async {
-    await Future.wait([
-      loadAnalysisData(),
-      loadLeaderboard(),
-      loadCoachingHistory(),
-    ]);
+    await loadAnalysisData();
+    await loadLeaderboard();
+    await loadCoachingHistory();
   }
 
   // 시간 범위 선택
@@ -138,11 +136,28 @@ class AnalysisViewModel extends ChangeNotifier {
 
   // 코칭 히스토리 로드
   Future<void> loadCoachingHistory() async {
+    // 이미 로딩 중이면 중복 요청 방지
+    if (_isLoadingCoachingHistory) return;
+    
     _isLoadingCoachingHistory = true;
     notifyListeners();
 
     try {
-      _coachingHistory = await _analysisService.fetchCoachingHistory();
+      final fetchedHistory = await _analysisService.fetchCoachingHistory();
+      
+      // 중복 제거: 날짜와 내용이 같은 아이템 제거
+      final uniqueHistory = <CoachingHistoryItem>[];
+      final seenKeys = <String>{};
+      
+      for (final item in fetchedHistory) {
+        final key = '${item.date}_${item.type}_${item.content.hashCode}';
+        if (!seenKeys.contains(key)) {
+          seenKeys.add(key);
+          uniqueHistory.add(item);
+        }
+      }
+      
+      _coachingHistory = uniqueHistory;
       
       // 오늘 이미 코칭을 받았는지 확인
       final today = DateTime.now().toIso8601String().split('T')[0];
@@ -180,13 +195,8 @@ class AnalysisViewModel extends ChangeNotifier {
         // 오늘 날짜를 저장하여 일일 사용 제한 적용
         _lastCoachingDate = DateTime.now().toIso8601String().split('T')[0];
         
-        // 새로운 코칭 아이템을 히스토리 맨 앞에 추가
-        final newCoachingItem = CoachingHistoryItem(
-          date: DateTime.now().toIso8601String().split('T')[0].replaceAll('-', '.'),
-          type: '${_selectedTimeframe.displayName} ${_selectedDataType.displayName}',
-          content: result.coachingContent!,
-        );
-        _coachingHistory.insert(0, newCoachingItem);
+        // 서버에서 최신 코칭 히스토리를 다시 로드 (중복 방지)
+        await loadCoachingHistory();
         
         // 코칭 히스토리 보기 상태로 변경
         _showCoachingHistory = true;
