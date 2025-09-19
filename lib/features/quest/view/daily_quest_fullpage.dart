@@ -175,15 +175,25 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                         title: viewModel.partyQuests.any((p) => p.questId == quest.questId)
                             ? (quest.partyName ?? '이름 없는 파티')
                             : quest.title,
-                        exp: quest.expReward,
-                        gold: quest.goldReward,
+                        expReward: quest.expReward,
+                        goldReward: quest.goldReward,
                         done: isDone,
+                        goldTrailing: viewModel.partyQuests.any((p) => p.questId == quest.questId)
+                            ? Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Image.asset(
+                            'assets/icons/party_in.png',
+                            width: 20,
+                            height: 20,
+                          ),
+                        )
+                            : null,
                         onCheck: () {
                           final isPartyQuest = viewModel.partyQuests.any((p) => p.questId == quest.questId);
 
                           if (isPartyQuest) {
                             viewModel.togglePartyQuestCompletion(
-                              quest.questId,
+                              quest.partyId!,
                               context: context,
                               onCompleted: (isFirstCompletion) {
                                 if (isFirstCompletion) {

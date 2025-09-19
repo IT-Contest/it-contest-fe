@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:it_contest_fe/features/onboarding/viewmodel/onboarding_viewmodel.dart';
-
 import 'package:it_contest_fe/shared/quest_create_form/title_input.dart';
 import 'package:it_contest_fe/shared/quest_create_form/priority_section/priority.dart';
 import 'package:it_contest_fe/shared/quest_create_form/category_input.dart';
 import 'package:it_contest_fe/shared/quest_create_form/date_time_section.dart';
-import 'package:it_contest_fe/shared/quest_create_form/sub_screen/invite_bottom_sheet.dart';
 import 'package:it_contest_fe/shared/ad_banner.dart';
-
 import 'package:it_contest_fe/shared/widgets/onboarding_app_bar.dart';
 
+import '../../mainpage/view/widgets/invite_modal.dart';
 import '../../quest/viewmodel/quest_personal_create_viewmodel.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -51,8 +48,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
             const SizedBox(height: 16),
 
-            // 2. 우선순위 (팁 + 선택자)
-            const SizedBox(height: 12),
+            // 2. 우선순위 + 기간 선택
             QuestPrioritySection(
               initialPriority: _priority,
               initialPeriod: _period,
@@ -120,15 +116,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             fontSize: 12)),
                     TextSpan(
                         text: "를 얻을 수 있어요!",
-                        style:
-                        TextStyle(color: Color(0xFF6B6B6B), fontSize: 12)),
+                        style: TextStyle(color: Color(0xFF6B6B6B), fontSize: 12)),
                   ])),
                   SizedBox(height: 2),
                   Text.rich(TextSpan(children: [
                     TextSpan(
                         text: "친구 초대시 한 명당",
-                        style:
-                        TextStyle(color: Color(0xFF6B6B6B), fontSize: 12)),
+                        style: TextStyle(color: Color(0xFF6B6B6B), fontSize: 12)),
                     TextSpan(
                         text: " 5exp",
                         style: TextStyle(
@@ -137,30 +131,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             fontSize: 12)),
                     TextSpan(
                         text: " 추가 지급",
-                        style:
-                        TextStyle(color: Color(0xFF6B6B6B), fontSize: 12)),
+                        style: TextStyle(color: Color(0xFF6B6B6B), fontSize: 12)),
                   ])),
                 ],
               ),
             ),
             const SizedBox(height: 16),
+
+            // ✅ InviteModal.show 사용
             OutlinedButton(
               onPressed: () {
-                showInviteBottomSheet(context);
+                InviteModal.show(context);
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(0xFF9F9F9F)),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding:
-                const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
               ),
-              child: const Text('친구 초대하기',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF9F9F9F))),
+              child: const Text(
+                '친구 초대하기',
+                style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF9F9F9F)),
+              ),
             ),
 
             const SizedBox(height: 24),

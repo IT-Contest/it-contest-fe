@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import '../../analysis/viewmodel/analysis_viewmodel.dart';
 import '../model/quest_item_response.dart';
@@ -156,35 +157,46 @@ class QuestTabViewModel extends ChangeNotifier {
         BuildContext? context,
       }) async {
     final idx = partyQuests.indexWhere((q) => q.questId == partyId);
-    if (idx != -1) {
-      final quest = partyQuests[idx];
-      final newStatus = quest.completionStatus == CompletionStatus.COMPLETED
-          ? CompletionStatus.IN_PROGRESS // 🔑 파티퀘스트는 IN_PROGRESS로 되돌림
-          : CompletionStatus.COMPLETED;
+    if (idx == -1) return;
 
-      try {
-        // 백엔드 PATCH API 호출 (partyId, newStatus 전달)
-        final response = await _service.updateQuestStatus(partyId, newStatus);
-        final updatedQuest = quest.copyWith(completionStatus: newStatus);
+    final quest = partyQuests[idx];
+    final newStatus = quest.completionStatus == CompletionStatus.COMPLETED
+        ? CompletionStatus.IN_PROGRESS // 🔑 파티는 IN_PROGRESS로 되돌림
+        : CompletionStatus.COMPLETED;
 
-        partyQuests[idx] = updatedQuest;
-        notifyListeners();
+    try {
+      final token = await const FlutterSecureStorage().read(key: "accessToken");
+      if (token == null) throw Exception("No access token found");
 
-        if (newStatus == CompletionStatus.COMPLETED && onCompleted != null) {
-          onCompleted(response.isFirstCompletion);
-        }
+      // 파티 상태 변경 API 호출
+      final response = await _partyService.changePartyQuestStatus(
+        partyId,
+        newStatus,
+        token,
+      );
 
-        if (context != null) {
-          try {
-            final analysisViewModel = context.read<AnalysisViewModel>();
-            analysisViewModel.loadAnalysisData();
-          } catch (_) {}
-        }
-      } catch (e) {
-        print('Error toggling party quest: $e');
+      // UI 리스트 업데이트
+      final updatedQuest = quest.copyWith(completionStatus: newStatus);
+      partyQuests[idx] = updatedQuest;
+      notifyListeners();
+
+      // 첫 완료일 때만 보상 모달 표시
+      if (newStatus == CompletionStatus.COMPLETED && onCompleted != null) {
+        onCompleted(response.isFirstCompletion);
       }
+
+      // 분석 데이터 갱신
+      if (context != null) {
+        try {
+          final analysisViewModel = context.read<AnalysisViewModel>();
+          analysisViewModel.loadAnalysisData();
+        } catch (_) {}
+      }
+    } catch (e) {
+      print("❌ togglePartyQuestCompletion error: $e");
     }
   }
+
 
 
   Future<bool> deleteQuest(int questId) async {
