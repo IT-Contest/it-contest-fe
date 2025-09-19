@@ -62,11 +62,31 @@ class OnboardingViewModel extends ChangeNotifier {
     return "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
+  Map<String, int> _calculateRewards(String questType, String questName) {
+    // 온보딩 퀘스트는 100 exp
+    if (questName.toLowerCase().contains('온보딩') || 
+        questName.toLowerCase().contains('onboarding')) {
+      return {
+        'exp': 100,
+        'gold': 50,
+      };
+    }
+    
+    // 일반 퀘스트는 10 exp
+    return {
+      'exp': 10,
+      'gold': 5,
+    };
+  }
+
   Future<bool> createQuest() async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
     try {
+      // 엑셀 데이터에 따른 보상 계산
+      final rewards = _calculateRewards(questType, questName);
+      
       final request = QuestCreateRequest(
         content: questName,
         priority: priority,
@@ -81,6 +101,8 @@ class OnboardingViewModel extends ChangeNotifier {
         startDate: startDate != null ? _formatDate(startDate!) : '',
         dueDate: dueDate != null ? _formatDate(dueDate!) : '',
         hashtags: hashtags,
+        expReward: rewards['exp']!,
+        goldReward: rewards['gold']!,
       );
       print('[퀘스트 생성 요청] ${request.toJson().toString()}');
       final success = await QuestService().createQuest(request);

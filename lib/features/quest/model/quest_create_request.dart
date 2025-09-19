@@ -8,6 +8,8 @@ class QuestCreateRequest {
   final String startDate;
   final String dueDate;
   final List<String> hashtags;
+  final int expReward;
+  final int goldReward;
 
   QuestCreateRequest({
     required this.content,
@@ -19,6 +21,8 @@ class QuestCreateRequest {
     required this.startDate,
     required this.dueDate,
     required this.hashtags,
+    required this.expReward,
+    required this.goldReward,
   });
 
   Map<String, dynamic> toJson() => {
@@ -31,5 +35,7 @@ class QuestCreateRequest {
     'startDate': startDate,
     'dueDate': dueDate,
     'hashtags': hashtags,
+    'expReward': expReward,
+    'goldReward': goldReward,
   };
 }

@@ -29,6 +29,8 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,7 +135,6 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                   ]; // ✅ 전체보기면 합쳐서 보여주기
                 }
 
-
                 if (quests.isEmpty) {
                   return const EmptyQuestWidget(
                     imagePath: 'assets/icons/icon3.png',
@@ -151,6 +152,7 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                         .any((p) => p.questId == quest.questId);
 
                     final isDone = quest.completionStatus == CompletionStatus.COMPLETED;
+
                     return GestureDetector(
                       onTap: () {
                         final isPartyQuest = viewModel.partyQuests.any((p) => p.questId == quest.questId);
