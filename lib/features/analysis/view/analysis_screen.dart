@@ -7,6 +7,7 @@ import '../viewmodel/analysis_viewmodel.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import 'coaching_history_screen.dart';
 import '../../quest/view/quest_personal_form_screen.dart';
+import '../../quest/view/widgets/quest_type_bottom_sheet.dart';
 
 
 class AnalysisView extends StatefulWidget {
@@ -218,10 +219,12 @@ class _AnalysisViewState extends State<AnalysisView> {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const QuestPersonalFormScreen(),
-                      ),
+                    QuestTypeBottomSheet.show(
+                      context,
+                      onPersonalQuestTap: () {
+                        // 개인 퀘스트 생성 후 콜백 (필요시 분석 데이터 새로고침)
+                        print('Personal quest created from analysis tab');
+                      },
                     );
                   },
                   style: OutlinedButton.styleFrom(
@@ -506,29 +509,39 @@ class _AnalysisViewState extends State<AnalysisView> {
   Widget _buildLoadingModal() {
     return Dialog(
       backgroundColor: Colors.transparent,
-      child: Container(
-        width: 200,
-        height: 200,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              '분석 중...',
-              style: TextStyle(
-                color: Color(0xFF7958FF),
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      child: Center(
+        child: Container(
+          width: 200,
+          height: 200,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
               ),
-            ),
-            const SizedBox(height: 30),
-            // 도트 로딩 애니메이션
-            const LoadingDots(),
-          ],
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                '분석 중...',
+                style: TextStyle(
+                  color: Color(0xFF7958FF),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 30),
+              // 도트 로딩 애니메이션
+              const LoadingDots(),
+            ],
+          ),
         ),
       ),
     );

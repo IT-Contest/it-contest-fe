@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 class DioClient {
   final Dio _dio = Dio(BaseOptions(
 
-    baseUrl: 'https://ssuchaehwa.duckdns.org',
+    //baseUrl: 'https://ssuchaehwa.duckdns.org',
     // baseUrl: 'http://192.168.45.148:8080',
     // baseUrl: 'http://10.14.19.61:8080',
     baseUrl: 'http://192.168.123.102:8080',
