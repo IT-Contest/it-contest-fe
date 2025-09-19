@@ -1,11 +1,10 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/quest/view/widgets/pomodoro_full_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math' as math;
 import '../../../../shared/widgets/reward_tag.dart';
 import '../../viewmodel/quest_pomodoro_viewmodel.dart';
+import '../../../mainpage/viewmodel/mainpage_viewmodel.dart';
 
 class QuestPomodoroSection extends StatelessWidget {
   const QuestPomodoroSection({super.key});
@@ -50,7 +49,6 @@ class QuestPomodoroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = Provider.of<QuestPomodoroViewModel>(context);
-    final AudioPlayer _player = AudioPlayer();
 
     // 타이머 진행률 계산 (ViewModel의 total 기준)
     final totalSeconds = vm.total.inSeconds.toDouble();
@@ -177,23 +175,8 @@ class QuestPomodoroSection extends StatelessWidget {
                           height: 40,
                           child: ElevatedButton(
                             onPressed: !vm.isRunning
-                                ? () async {
-                              // 🔊 시작 알림 재생
-                              await _player.stop(); // 혹시 이전 재생 중이면 중지
-                              await _player.play(
-                                AssetSource('sounds/start_alert.mp3'),
-                                volume: 1.0,
-                                mode: PlayerMode.lowLatency, // 효과음 전용 모드
-                              );
-
-                              // 기존 로직 실행
-                              if (vm.mode == PomodoroMode.focus) {
-                                vm.startFocus();
-                              } else {
-                                vm.startRest();
-                              }
-                            }
-                                : null,
+                              ? (vm.mode == PomodoroMode.focus ? vm.startFocus : vm.startRest)
+                              : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF7958FF),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -283,6 +266,7 @@ class QuestPomodoroSection extends StatelessWidget {
               // 집중 보상 (밑으로 이동)
               Row(
                 children: const [
+                  SizedBox(width: 30),
                   Text(
                     '집중 보상',
                     style: TextStyle(
@@ -292,7 +276,7 @@ class QuestPomodoroSection extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16),
-                  RewardTag(label: '경험치 +5'), // 태그 그대로
+                  RewardTag(label: '경험치 +10'), // 백엔드와 맞춤
                 ],
               ),
               const SizedBox(height: 8),
@@ -366,7 +350,11 @@ class GradientProgressPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    if (oldDelegate is! GradientProgressPainter) return true;
+    // 진행률 차이가 0.001 이상일 때만 리페인트 (성능 최적화)
+    return (progress - oldDelegate.progress).abs() > 0.001;
+  }
 }
 
 // 정지 확인 모달 다이얼로그
@@ -558,7 +546,12 @@ class _FocusCompleteDialog extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // 휴식 타이머 자동 시작
+                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
+                  vm.startRest();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF7958FF),
                   shape: RoundedRectangleBorder(
@@ -664,7 +657,21 @@ class _CycleCompleteDialog extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  // 다음 집중 사이클 자동 시작
+                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
+                  vm.startFocus();
+                  
+                  // 메인페이지 유저 정보 새로고침
+                  try {
+                    final mainPageViewModel = Provider.of<MainPageViewModel>(context, listen: false);
+                    await mainPageViewModel.refreshUserInfo();
+                    print('✅ [CycleComplete] Main page user info refreshed');
+                  } catch (e) {
+                    print('❌ [CycleComplete] Failed to refresh main page user info: $e');
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF7958FF),
                   shape: RoundedRectangleBorder(
@@ -689,20 +696,13 @@ class _CycleCompleteDialog extends StatelessWidget {
   }
 }
 
-void _showSettingsDialog(BuildContext context) async {
-  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
-
-  // ✅ SharedPreferences에서 저장된 값 불러오기
-  final prefs = await SharedPreferences.getInstance();
-  bool alarmSound = prefs.getBool('alarmSound') ?? false;
-  bool vibration = prefs.getBool('vibration') ?? false;
-
+void _showSettingsDialog(BuildContext context) {
   showDialog(
     context: context,
     barrierDismissible: true,
     builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
+      return Consumer<QuestPomodoroViewModel>(
+        builder: (context, vm, child) {
           return Dialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -742,9 +742,8 @@ void _showSettingsDialog(BuildContext context) async {
                     children: [
                       const Text("알림음 듣기"),
                       GestureDetector(
-                        onTap: () async {
-                          setState(() => alarmSound = !alarmSound);
-                          await prefs.setBool('alarmSound', alarmSound); // ✅ 저장
+                        onTap: () {
+                          vm.updateAlarmSound(!vm.alarmSound);
                         },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
@@ -752,7 +751,7 @@ void _showSettingsDialog(BuildContext context) async {
                           height: 24,
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
-                            color: alarmSound
+                            color: vm.alarmSound
                                 ? const Color(0xFF643EFF)
                                 : Colors.white,
                             border: Border.all(
@@ -763,14 +762,14 @@ void _showSettingsDialog(BuildContext context) async {
                           ),
                           child: AnimatedAlign(
                             duration: const Duration(milliseconds: 200),
-                            alignment: alarmSound
+                            alignment: vm.alarmSound
                                 ? Alignment.centerRight
                                 : Alignment.centerLeft,
                             child: Container(
                               width: 12,
                               height: 12,
                               decoration: BoxDecoration(
-                                color: alarmSound
+                                color: vm.alarmSound
                                     ? Colors.white
                                     : const Color(0xFF643EFF),
                                 shape: BoxShape.circle,
@@ -789,9 +788,8 @@ void _showSettingsDialog(BuildContext context) async {
                     children: [
                       const Text("진동으로 알림 받기"),
                       GestureDetector(
-                        onTap: () async {
-                          setState(() => vibration = !vibration);
-                          await prefs.setBool('vibration', vibration); // ✅ 저장
+                        onTap: () {
+                          vm.updateVibration(!vm.vibration);
                         },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
@@ -799,7 +797,7 @@ void _showSettingsDialog(BuildContext context) async {
                           height: 24,
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
-                            color: vibration
+                            color: vm.vibration
                                 ? const Color(0xFF643EFF)
                                 : Colors.white,
                             border: Border.all(
@@ -810,14 +808,14 @@ void _showSettingsDialog(BuildContext context) async {
                           ),
                           child: AnimatedAlign(
                             duration: const Duration(milliseconds: 200),
-                            alignment: vibration
+                            alignment: vm.vibration
                                 ? Alignment.centerRight
                                 : Alignment.centerLeft,
                             child: Container(
                               width: 12,
                               height: 12,
                               decoration: BoxDecoration(
-                                color: vibration
+                                color: vm.vibration
                                     ? Colors.white
                                     : const Color(0xFF643EFF),
                                 shape: BoxShape.circle,
@@ -858,7 +856,6 @@ void _showSettingsDialog(BuildContext context) async {
                         onChanged: (val) {
                           if (val != null) {
                             vm.updateFocusTime(val);
-                            setState(() {}); // UI 업데이트
                           }
                         },
                       ),

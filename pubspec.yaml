@@ -33,11 +33,10 @@ dependencies:
   firebase_analytics: ^11.0.0
   dropdown_button2: ^2.3.9
   app_links: ^6.0.0
-  audioplayers: ^6.0.0
-
   google_mobile_ads: ^5.1.0
   table_calendar: ^3.0.9
   fl_chart: ^0.65.0
+  just_audio: ^0.9.40
 
 dev_dependencies:
   flutter_test:
