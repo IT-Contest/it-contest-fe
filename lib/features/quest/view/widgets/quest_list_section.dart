@@ -5,6 +5,7 @@ import '../../view/daily_quest_fullpage.dart';
 import '../../viewmodel/quest_tab_viewmodel.dart';
 import '../../model/completion_status.dart';
 import '../quest_personal_view_screen.dart';
+import '../../view/party_quest_view_screen.dart'; // ✅ 파티퀘스트 상세보기
 import '../../../../shared/widgets/quest_completion_modal.dart';
 
 class QuestListSection extends StatelessWidget {
@@ -16,6 +17,13 @@ class QuestListSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final periods = ['일일', '주간', '월간', '연간'];
     final questTabViewModel = Provider.of<QuestTabViewModel>(context);
+
+    // ✅ 개인 + 파티 퀘스트 모두 합친 리스트
+    final combinedQuests = [
+      ...questTabViewModel.filteredQuests,
+      ...questTabViewModel.partyQuests,
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -37,7 +45,8 @@ class QuestListSection extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const DailyQuestFullPage(showEditDeleteButtons: true),
+                    builder: (_) =>
+                    const DailyQuestFullPage(showEditDeleteButtons: true),
                   ),
                 );
               },
@@ -48,8 +57,13 @@ class QuestListSection extends StatelessWidget {
               ),
               child: const Row(
                 children: [
-                  Text('전체보기', style: TextStyle(color: Color(0xFF757575), fontSize: 16, fontWeight: FontWeight.w400)),
-                  Icon(Icons.chevron_right, size: 20, color: Color(0xFF757575)),
+                  Text('전체보기',
+                      style: TextStyle(
+                          color: Color(0xFF757575),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400)),
+                  Icon(Icons.chevron_right,
+                      size: 20, color: Color(0xFF757575)),
                 ],
               ),
             ),
@@ -67,9 +81,11 @@ class QuestListSection extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () => onTabChanged?.call(idx),
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: selectedTab == idx ? const Color(0xFF7958FF) : Colors.white,
+                      backgroundColor:
+                      selectedTab == idx ? const Color(0xFF7958FF) : Colors.white,
                       side: const BorderSide(color: Color(0xFF7958FF), width: 1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       padding: EdgeInsets.zero,
                       minimumSize: const Size(76, 46),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -77,7 +93,9 @@ class QuestListSection extends StatelessWidget {
                     child: Text(
                       periods[idx],
                       style: TextStyle(
-                        color: selectedTab == idx ? Colors.white : const Color(0xFF7958FF),
+                        color: selectedTab == idx
+                            ? Colors.white
+                            : const Color(0xFF7958FF),
                         fontWeight: FontWeight.w700,
                         fontSize: 18,
                       ),
@@ -93,73 +111,68 @@ class QuestListSection extends StatelessWidget {
           }),
         ),
         const SizedBox(height: 12),
-        // 실제 퀘스트 리스트 렌더링
+        // 실제 퀘스트 리스트 렌더링 (최대 3개)
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: min(questTabViewModel.filteredQuests.length, 3),
+          itemCount: min(combinedQuests.length, 3),
           itemBuilder: (context, index) {
-            final quest = questTabViewModel.filteredQuests[index];
+            final quest = combinedQuests[index];
+            final isPartyQuest = questTabViewModel.partyQuests
+                .any((p) => p.questId == quest.questId);
+
             return _QuestCard(
-              quest: quest, // ✅ 전체 객체 넘김
+              quest: quest,
+              isPartyQuest: isPartyQuest,
               onCheck: () {
-                questTabViewModel.toggleQuest(
-                  quest.questId,
-                  context: context, // context 전달
-                  onCompleted: (isFirstCompletion) {
-                    // isFirstCompletion이 true일 때만 모달 표시
-                    if (isFirstCompletion) {
-                      // 올바른 보상값 계산
-                      final correctExpReward = quest.title.toLowerCase().contains('온보딩') || 
-                          quest.title.toLowerCase().contains('onboarding') ? 100 : 10;
-                      final correctGoldReward = quest.title.toLowerCase().contains('온보딩') || 
-                          quest.title.toLowerCase().contains('onboarding') ? 50 : 5;
-                          
-                      QuestCompletionModal.show(
-                        context,
-                        expReward: correctExpReward,
-                        goldReward: correctGoldReward,
-                      );
-                    }
-                  },
-                );
+                if (isPartyQuest) {
+                  questTabViewModel.togglePartyQuestCompletion(
+                    quest.questId,
+                    context: context,
+                    onCompleted: (isFirstCompletion) {
+                      if (isFirstCompletion) {
+                        QuestCompletionModal.show(
+                          context,
+                          expReward: quest.expReward,
+                          goldReward: quest.goldReward,
+                        );
+                      }
+                    },
+                  );
+                } else {
+                  questTabViewModel.toggleQuest(
+                    quest.questId,
+                    context: context,
+                    onCompleted: (isFirstCompletion) {
+                      if (isFirstCompletion) {
+                        QuestCompletionModal.show(
+                          context,
+                          expReward: quest.expReward,
+                          goldReward: quest.goldReward,
+                        );
+                      }
+                    },
+                  );
+                }
               },
             );
           },
         ),
-
       ],
     );
   }
 }
 
 class _QuestCard extends StatelessWidget {
-  final dynamic quest; // quest 객체 전체 넘김
+  final dynamic quest;
+  final bool isPartyQuest;
   final VoidCallback? onCheck;
 
-  const _QuestCard({required this.quest, this.onCheck});
-  
-  // 올바른 경험치 보상 계산
-  int _calculateCorrectExpReward(dynamic quest) {
-    // 온보딩 퀘스트 체크
-    if (quest.title.toLowerCase().contains('온보딩') || 
-        quest.title.toLowerCase().contains('onboarding')) {
-      return 100;
-    }
-    // 일반 퀘스트는 10 exp
-    return 10;
-  }
-  
-  // 올바른 골드 보상 계산
-  int _calculateCorrectGoldReward(dynamic quest) {
-    // 온보딩 퀘스트 체크
-    if (quest.title.toLowerCase().contains('온보딩') || 
-        quest.title.toLowerCase().contains('onboarding')) {
-      return 50;
-    }
-    // 일반 퀘스트는 5 gold
-    return 5;
-  }
+  const _QuestCard({
+    required this.quest,
+    required this.isPartyQuest,
+    this.onCheck,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -167,13 +180,22 @@ class _QuestCard extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        // 카드 클릭 시 조회화면 이동
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => QuestPersonalFormPage(quest: quest),
-          ),
-        );
+        // ✅ 개인/파티 구분하여 다른 화면으로 이동
+        if (isPartyQuest) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PartyQuestViewScreen(quest: quest),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => QuestPersonalFormPage(quest: quest),
+            ),
+          );
+        }
       },
       borderRadius: BorderRadius.circular(14),
       child: Container(
@@ -211,7 +233,9 @@ class _QuestCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    quest.title,
+                    isPartyQuest
+                        ? (quest.partyName ?? '이름 없는 파티')
+                        : quest.title,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -221,16 +245,17 @@ class _QuestCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      _RewardTag(label: '경험치 +${_calculateCorrectExpReward(quest)}'),
+                      _RewardTag(label: '경험치 +${quest.expReward}'),
                       const SizedBox(width: 8),
-                      _RewardTag(label: '골드 +${_calculateCorrectGoldReward(quest)}', border: true),
+                      _RewardTag(
+                          label: '골드 +${quest.goldReward}', border: true),
                     ],
                   ),
                 ],
               ),
             ),
             GestureDetector(
-              onTap: onCheck, // ✅ 체크 버튼은 그대로 동작
+              onTap: onCheck,
               child: Container(
                 width: 32,
                 height: 32,
@@ -244,11 +269,8 @@ class _QuestCard extends StatelessWidget {
                 ),
                 child: done
                     ? const Center(
-                  child: Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  child: Icon(Icons.check,
+                      color: Colors.white, size: 20),
                 )
                     : null,
               ),

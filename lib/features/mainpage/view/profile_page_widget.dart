@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/shared/widgets/custom_app_bar.dart';
 import 'package:it_contest_fe/shared/widgets/bottom_nav_bar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../profile/view/account_settings_page.dart';
 import '../../profile/view/notification_settings_page.dart';
@@ -8,6 +9,13 @@ import '../../terms/view/terms_detail_screen.dart';
 
 class ProfilePageWidget extends StatelessWidget {
   const ProfilePageWidget({super.key});
+
+  Future<void> _launchKakaoLink() async {
+    final Uri url = Uri.parse('https://pf.kakao.com/_ZQjUn');
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception('카카오톡 채널 열기 실패: $url');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +133,10 @@ class ProfilePageWidget extends StatelessWidget {
                       );
                     },
                   ),
-                  _buildMenuItem("문의하기"),
+                  _buildMenuItem(
+                      "문의하기",
+                      onTap: _launchKakaoLink
+                  ),
                 ],
               ),
             ),

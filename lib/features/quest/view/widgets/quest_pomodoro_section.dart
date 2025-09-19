@@ -263,20 +263,20 @@ class QuestPomodoroSection extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // ⬇️ 집중 보상 (밑으로 이동)
+              // 집중 보상 (밑으로 이동)
               Row(
                 children: const [
                   SizedBox(width: 30),
                   Text(
                     '집중 보상',
                     style: TextStyle(
-                      color: Colors.black, // ✅ 보라색 → 검정색
+                      color: Colors.black, // 보라색 → 검정색
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   SizedBox(width: 16),
-                  RewardTag(label: '경험치 +10'), // 태그 그대로
+                  RewardTag(label: '경험치 +10'), // 백엔드와 맞춤
                 ],
               ),
               const SizedBox(height: 8),
@@ -726,7 +726,7 @@ void _showSettingsDialog(BuildContext context) {
                   ),
                   const SizedBox(height: 20),
 
-                  // 알림 설정
+                  // 🔔 알림 설정
                   const Text(
                     "알림 설정",
                     style: TextStyle(
@@ -736,7 +736,7 @@ void _showSettingsDialog(BuildContext context) {
                   ),
                   const SizedBox(height: 10),
 
-                  // 알림음 듣기
+                  // 🔊 알림음 듣기
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -747,8 +747,8 @@ void _showSettingsDialog(BuildContext context) {
                         },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          width: 40, // ✅ Figma width
-                          height: 24, // ✅ Figma height
+                          width: 40,
+                          height: 24,
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
                             color: vm.alarmSound
@@ -756,9 +756,9 @@ void _showSettingsDialog(BuildContext context) {
                                 : Colors.white,
                             border: Border.all(
                               color: const Color(0xFF643EFF),
-                              width: 1, // ✅ border 1px
+                              width: 1,
                             ),
-                            borderRadius: BorderRadius.circular(16), // ✅ radius 16
+                            borderRadius: BorderRadius.circular(16),
                           ),
                           child: AnimatedAlign(
                             duration: const Duration(milliseconds: 200),
@@ -766,8 +766,8 @@ void _showSettingsDialog(BuildContext context) {
                                 ? Alignment.centerRight
                                 : Alignment.centerLeft,
                             child: Container(
-                              width: 12, // ✅ circle width
-                              height: 12, // ✅ circle height
+                              width: 12,
+                              height: 12,
                               decoration: BoxDecoration(
                                 color: vm.alarmSound
                                     ? Colors.white
@@ -782,7 +782,7 @@ void _showSettingsDialog(BuildContext context) {
                   ),
                   const SizedBox(height: 10),
 
-                  // 진동으로 알림 받기
+                  // 📳 진동으로 알림 받기
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -826,24 +826,26 @@ void _showSettingsDialog(BuildContext context) {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 20),
 
-                  // 타이머 시간 변경
+                  // ⏱ 타이머 시간 변경
                   const Text(
                     "타이머 시간 변경",
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Color(0xFF643EFF)),
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF643EFF),
+                    ),
                   ),
                   const SizedBox(height: 10),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text("집중"),
                       DropdownButton<int>(
                         value: vm.focusTotal.inMinutes,
-                        dropdownColor: Colors.white, // ✅ 배경 흰색
-                        style: const TextStyle(color: Colors.black), // ✅ 글자 검정
+                        dropdownColor: Colors.white,
+                        style: const TextStyle(color: Colors.black),
                         items: const [
                           DropdownMenuItem(value: 5, child: Text("5분")),
                           DropdownMenuItem(value: 10, child: Text("10분")),
@@ -859,45 +861,34 @@ void _showSettingsDialog(BuildContext context) {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 20),
 
-                  // 완료 / 취소 버튼
+                  // ✅ 완료 / 취소 버튼
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: () => Navigator.pop(context),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF7958FF),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            "완료",
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          child: const Text("완료", style: TextStyle(color: Colors.white)),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: () => Navigator.pop(context),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xFF7958FF)),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            "취소",
-                            style: TextStyle(color: Color(0xFF7958FF)),
-                          ),
+                          child: const Text("취소", style: TextStyle(color: Color(0xFF7958FF))),
                         ),
                       ),
                     ],
