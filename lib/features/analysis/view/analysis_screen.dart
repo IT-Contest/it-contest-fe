@@ -6,6 +6,7 @@ import '../model/analysis_models.dart';
 import '../viewmodel/analysis_viewmodel.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import 'coaching_history_screen.dart';
+import 'leaderboard_full_screen.dart';
 import '../../quest/view/widgets/quest_type_bottom_sheet.dart';
 
 
@@ -295,7 +296,11 @@ class _AnalysisViewState extends State<AnalysisView> {
             const Text('리더보드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4C1FFF))),
             TextButton(
               onPressed: () {
-                // TODO: 리더보드 전체보기 화면으로 이동
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const LeaderboardFullScreen(),
+                  ),
+                );
               },
               child: const Text('전체보기 >', style: TextStyle(color: Color(0xFF7958FF), fontWeight: FontWeight.bold)),
             )
