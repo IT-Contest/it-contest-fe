@@ -48,13 +48,33 @@ class MainpageService {
   }
 
 
-  // 친구 초대 수락 api
-  Future<void> acceptFriendInvite(String inviteToken) async {
-    final token = await TokenStorage().getAccessToken();
-    await DioClient().dio.post(
-      '/quests/invite/accept',
-      queryParameters: {'token': inviteToken},
-      options: Options(headers: {'Authorization': 'Bearer $token'}),
-    );
+  // 친구 초대 수락 api (EXP 정보 포함)
+  Future<Map<String, dynamic>?> acceptFriendInvite(String inviteToken) async {
+    try {
+      final token = await TokenStorage().getAccessToken();
+      final response = await DioClient().dio.post(
+        '/quests/invite/accept',
+        queryParameters: {'token': inviteToken},
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
+      );
+
+      if (response.statusCode == 200) {
+        print('[친구 초대 수락 응답] ${response.data}');
+        final data = response.data['data'];
+        
+        return {
+          'success': true,
+          'rewardExp': data['rewardExp'] ?? 5,
+          'userExp': data['userExp'] ?? 0,
+          'userLevel': data['userLevel'] ?? 1,
+          'message': data['message'] ?? '친구 초대를 수락했습니다.',
+        };
+      }
+      
+      return {'success': false};
+    } catch (e) {
+      print('[친구 초대 수락 실패] $e');
+      return {'success': false};
+    }
   }
 }

@@ -13,10 +13,9 @@ class PartyService {
   final Dio _dio = DioClient().dio;
   final QuestService _questService = QuestService();
 
-  // 파티 생성
-  Future<int?> createPartyQuest(PartyCreateRequest request, String accessToken) async {
+  // 파티 생성 (EXP 정보 포함)
+  Future<Map<String, dynamic>?> createPartyQuestWithReward(PartyCreateRequest request, String accessToken) async {
     try {
-
       print("📤 headers = {Authorization: Bearer $accessToken}");
 
       final response = await _dio.post(
@@ -24,20 +23,34 @@ class PartyService {
         data: request.toJson(),
         options: Options(
           headers: {
-            "Authorization": "Bearer $accessToken", // ✅ 토큰 추가
+            "Authorization": "Bearer $accessToken",
           },
         ),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // ✅ BaseResponse는 "result" 키 사용
-        return response.data["result"]["questId"];
+        print('[파티 생성 응답] ${response.data}');
+        final data = response.data["data"];
+        
+        return {
+          'success': true,
+          'questId': data["questId"],
+          'rewardExp': data['rewardExp'] ?? 10,
+          'userExp': data['userExp'] ?? 0,
+          'userLevel': data['userLevel'] ?? 1,
+        };
       }
-      return null;
+      return {'success': false};
     } catch (e) {
       print("❌ createPartyQuest error: $e");
-      return null;
+      return {'success': false};
     }
+  }
+
+  // 파티 생성 (기존 - questId만 반환)
+  Future<int?> createPartyQuest(PartyCreateRequest request, String accessToken) async {
+    final result = await createPartyQuestWithReward(request, accessToken);
+    return result?['questId'];
   }
 
   // 파티원 초대

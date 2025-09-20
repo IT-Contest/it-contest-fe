@@ -146,17 +146,25 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
         hashtags: categories,
       );
 
-      final questId = await partyService.createPartyQuest(request, accessToken);
+      final result = await partyService.createPartyQuestWithReward(request, accessToken);
 
-      if (questId != null && invitedFriends.isNotEmpty) {
-        final friendIds = invitedFriends.map((f) => f.userId as int).toList();
-        await partyService.inviteFriends(questId, friendIds, accessToken);
+      if (result != null && result['success'] == true) {
+        final questId = result['questId'];
+        
+        if (questId != null && invitedFriends.isNotEmpty) {
+          final friendIds = invitedFriends.map((f) => f.userId as int).toList();
+          await partyService.inviteFriends(questId, friendIds, accessToken);
+        }
+
+        QuestCreationModal.show(
+          context,
+          onClose: () => Navigator.pushReplacementNamed(context, '/main'),
+          expReward: result['rewardExp'],
+          showExpReward: true,
+        );
+      } else {
+        throw Exception("파티 생성 실패");
       }
-
-      QuestCreationModal.show(
-        context,
-        onClose: () => Navigator.pushReplacementNamed(context, '/main'),
-      );
     } catch (e) {
       errorMessage = "파티 생성 실패: $e";
       ScaffoldMessenger.of(context).showSnackBar(

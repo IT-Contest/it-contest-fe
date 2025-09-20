@@ -30,10 +30,16 @@ class _QuestScreenState extends State<QuestScreen> {
     final questTabViewModel = Provider.of<QuestTabViewModel>(context);
     return Scaffold(
       appBar: const CustomAppBar(),
-      body: Column(
-        children: [
-          Expanded(
-            child: Container(
+      body: GestureDetector(
+        onTap: () {
+          // 다른 영역 클릭 시 키보드 포커스 해제
+          FocusScope.of(context).unfocus();
+        },
+        behavior: HitTestBehavior.translucent,
+        child: Column(
+          children: [
+            Expanded(
+              child: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -69,7 +75,8 @@ class _QuestScreenState extends State<QuestScreen> {
               ),
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/quest/view/widgets/quest_pomodoro_section.dart';
 import 'package:provider/provider.dart';
-import 'dart:math' as math;
 import '../../../../shared/ad_banner.dart';
 import '../../../../shared/widgets/reward_tag.dart';
 import '../../service/admob_service.dart';

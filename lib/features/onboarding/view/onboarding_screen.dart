@@ -10,6 +10,7 @@ import 'package:it_contest_fe/shared/widgets/onboarding_app_bar.dart';
 
 import '../../mainpage/view/widgets/invite_modal.dart';
 import '../../quest/viewmodel/quest_personal_create_viewmodel.dart';
+import '../service/onboarding_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -23,6 +24,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _priority = 0;
   String? _period;
   List<String> _categories = [];
+  final OnboardingService _onboardingService = OnboardingService();
 
   @override
   Widget build(BuildContext context) {
@@ -168,17 +170,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 onPressed: vm.isLoading
                     ? null
                     : () async {
-                  final success = await vm.createQuest();
+                  print('🚀 [온보딩] 퀘스트 생성 시작');
+                  final questCreated = await vm.createQuest();
+                  print('📋 [온보딩] 퀘스트 생성 결과: $questCreated');
 
-                  if (success && mounted) {
-                    Navigator.pushReplacementNamed(context, '/main');
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('첫 퀘스트가 생성되었습니다.')),
-                    );
-                  } else if (vm.errorMessage != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(vm.errorMessage!)),
-                    );
+                  if (questCreated == true && mounted) {
+                    print('✅ [온보딩] 퀘스트 생성 성공, 온보딩 완료 API 호출');
+                    final onboardingResult = await _onboardingService.completeOnboarding();
+                    print('🎁 [온보딩] 온보딩 완료 결과: $onboardingResult');
+                    
+                    if (onboardingResult != null) {
+                      print('🏠 [온보딩] 메인 페이지로 이동 (성공)');
+                      Navigator.pushReplacementNamed(context, '/main');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('온보딩 완료! ${onboardingResult.rewardExp} EXP를 획득했습니다.'),
+                          backgroundColor: const Color(0xFF7D4CFF),
+                        ),
+                      );
+                    } else {
+                      print('🏠 [온보딩] 메인 페이지로 이동 (fallback)');
+                      Navigator.pushReplacementNamed(context, '/main');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('첫 퀘스트가 생성되었습니다.')),
+                      );
+                    }
+                  } else {
+                    print('❌ [온보딩] 퀘스트 생성 실패: ${vm.errorMessage}');
+                    if (vm.errorMessage != null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(vm.errorMessage!)),
+                      );
+                    }
                   }
                 },
                 style: ElevatedButton.styleFrom(

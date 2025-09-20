@@ -201,14 +201,15 @@ class QuestPomodoroViewModel extends ChangeNotifier {
     completedSessions++;
     totalSessionsToday++;
     
-    // 서버에 완료 데이터 전송
-    final success = await _pomodoroService.completePomodoro(
+    // 서버에 완료 데이터 전송 (EXP 정보 포함)
+    final result = await _pomodoroService.completePomodoroWithReward(
       sessionCount: 1,
       totalMinutes: focusTotal.inMinutes + restTotal.inMinutes,
     );
     
-    if (success) {
+    if (result != null && result['success'] == true) {
       print('✅ [PomodoroViewModel] Session completed and saved to server');
+      print('🎁 [PomodoroViewModel] EXP 지급: ${result['rewardExp']}');
       // 메인페이지 새로고침은 완료 다이얼로그에서 처리함
     } else {
       print('❌ [PomodoroViewModel] Failed to save session to server');
