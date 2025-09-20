@@ -270,7 +270,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       activeTrackColor: const Color(0xFF7958FF),
       inactiveThumbColor: const Color(0xFF7958FF),
       inactiveTrackColor: Colors.white,
-      trackOutlineColor: MaterialStateProperty.all(const Color(0xFF7958FF)),
+      trackOutlineColor: WidgetStateProperty.all(const Color(0xFF7958FF)),
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );

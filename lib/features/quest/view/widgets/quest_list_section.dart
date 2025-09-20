@@ -42,6 +42,8 @@ class QuestListSection extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
+                // 키보드 포커스 해제
+                FocusScope.of(context).unfocus();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -79,7 +81,11 @@ class QuestListSection extends StatelessWidget {
                 child: SizedBox(
                   height: 46,
                   child: OutlinedButton(
-                    onPressed: () => onTabChanged?.call(idx),
+                    onPressed: () {
+                      // 키보드 포커스 해제
+                      FocusScope.of(context).unfocus();
+                      onTabChanged?.call(idx);
+                    },
                     style: OutlinedButton.styleFrom(
                       backgroundColor:
                       selectedTab == idx ? const Color(0xFF7958FF) : Colors.white,
@@ -180,6 +186,8 @@ class _QuestCard extends StatelessWidget {
 
     return InkWell(
       onTap: () {
+        // 키보드 포커스 해제
+        FocusScope.of(context).unfocus();
         // ✅ 개인/파티 구분하여 다른 화면으로 이동
         if (isPartyQuest) {
           Navigator.push(

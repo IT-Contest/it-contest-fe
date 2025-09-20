@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class RewardTag extends StatelessWidget {
   final String label;
   final bool border;
-  const RewardTag({required this.label, this.border = false});
+  const RewardTag({super.key, required this.label, this.border = false});
   @override
   Widget build(BuildContext context) {
     return Container(

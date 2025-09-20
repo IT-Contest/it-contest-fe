@@ -133,15 +133,15 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
         goldReward: rewards['gold']!,
       );
 
-      final success = await QuestService().createQuest(request);
+      final result = await QuestService().createQuestWithReward(request);
       
-      if (success) {
+      if (result != null && result['success'] == true) {
         print('[퀘스트 생성 성공]');
+        return true;
       } else {
         errorMessage = '퀘스트 생성에 실패했습니다.';
+        return false;
       }
-      
-      return success;
     } catch (e) {
       errorMessage = '퀘스트 생성 중 오류가 발생했습니다: $e';
       print('[퀘스트 생성 오류] $e');
