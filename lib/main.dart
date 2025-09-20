@@ -7,6 +7,7 @@ import 'package:it_contest_fe/shared/interstitial_ad_service.dart';
 import 'package:provider/provider.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
+import 'core/fcm/fcm_service.dart';
 import 'features/auth/view/login_screen.dart';
 import 'features/auth/viewmodel/login_viewmodel.dart';
 import 'features/friends/viewmodel/friend_viewmodel.dart';
@@ -23,6 +24,8 @@ import 'features/quest/viewmodel/quest_tab_viewmodel.dart';
 import 'features/quest/viewmodel/quest_pomodoro_viewmodel.dart';
 import 'features/quest/viewmodel/quest_personal_create_viewmodel.dart';
 import 'features/analysis/viewmodel/analysis_viewmodel.dart';
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +35,8 @@ void main() async {
 
   // AdMob 초기화
   MobileAds.instance.initialize();
+
+  await FCMService.initFCM();
 
   // 앱 시작 시 전면 광고 미리 로드
   InterstitialAdService.loadAd();
@@ -68,6 +73,7 @@ class MyApp extends StatelessWidget {
     final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
     return MaterialApp(
+      navigatorKey: navigatorKey,
       home: const LoginScreen(),
       navigatorObservers: [
         FirebaseAnalyticsObserver(analytics: analytics), // 네비게이션 이벤트 추적

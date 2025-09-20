@@ -2,6 +2,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/dio_client.dart';
 import 'package:it_contest_fe/core/storage/token_storage.dart';
+import '../../../core/fcm/fcm_token_api.dart';
 import '../model/user_token_response.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'dart:io';
@@ -38,6 +39,8 @@ class GuestLoginService {
         tokenResponse.accessToken,
         tokenResponse.refreshToken,
       );
+
+      await FcmTokenApi(_dio).registerToken(tokenResponse.accessToken);
 
       return tokenResponse;
     } catch (e) {
