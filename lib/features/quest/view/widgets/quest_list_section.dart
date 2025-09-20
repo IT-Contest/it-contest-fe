@@ -247,8 +247,22 @@ class _QuestCard extends StatelessWidget {
                     children: [
                       _RewardTag(label: '경험치 +${quest.expReward}'),
                       const SizedBox(width: 8),
-                      _RewardTag(
-                          label: '골드 +${quest.goldReward}', border: true),
+
+                      // 🔧 골드 태그 + 파티 아이콘 묶음
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _RewardTag(label: '골드 +${quest.goldReward}', border: true),
+                          if (isPartyQuest) ...[
+                            const SizedBox(width: 10),
+                            Image.asset(
+                              'assets/icons/party_in.png',
+                              width: 20,
+                              height: 20,
+                            ),
+                          ],
+                        ],
+                      ),
                     ],
                   ),
                 ],

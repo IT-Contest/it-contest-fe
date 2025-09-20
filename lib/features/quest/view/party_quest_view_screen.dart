@@ -208,7 +208,7 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
                                       fontWeight: FontWeight.w600),
                                   children: [
                                     TextSpan(
-                                      text: '0,000exp',
+                                      text: '10exp',
                                       style: TextStyle(
                                           color: Color(0xFF7958FF),
                                           fontWeight: FontWeight.w800),

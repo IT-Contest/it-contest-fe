@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class QuestCard extends StatelessWidget {
   final String title;
-  final int exp;
-  final int gold;
+  final int expReward;
+  final int goldReward;
+  final Widget? goldTrailing;
   final bool done;
   final VoidCallback? onCheck;
   final bool highlightTitle;
@@ -14,8 +15,9 @@ class QuestCard extends StatelessWidget {
 
   const QuestCard({
     required this.title,
-    required this.exp,
-    required this.gold,
+    required this.expReward,
+    required this.goldReward,
+    this.goldTrailing,
     this.done = false,
     this.onCheck,
     this.highlightTitle = false,
@@ -73,9 +75,20 @@ class QuestCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    _RewardTag(label: '경험치 +$exp'),
+                    _RewardTag(label: '경험치 +$expReward'),
                     const SizedBox(width: 8),
-                    _RewardTag(label: '골드 +$gold', border: true),
+
+                    // 🔧 골드 태그 + goldTrailing 묶음
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _RewardTag(label: '골드 +$goldReward', border: true),
+                        if (goldTrailing != null) ...[
+                          const SizedBox(width: 10),
+                          goldTrailing!, // 파티 아이콘 삽입
+                        ],
+                      ],
+                    ),
                   ],
                 ),
               ],

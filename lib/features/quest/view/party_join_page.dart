@@ -1,18 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:it_contest_fe/features/quest/service/party_service.dart';
 
-class PartyJoinPage extends StatelessWidget {
+import '../../../shared/alarm/widgets/party_invitation_card.dart';
+
+class PartyJoinPage extends StatefulWidget {
   const PartyJoinPage({super.key});
+
+  @override
+  State<PartyJoinPage> createState() => _PartyJoinPageState();
+}
+
+class _PartyJoinPageState extends State<PartyJoinPage> {
+  final PartyService _partyService = PartyService();
+  List<Map<String, dynamic>> invitations = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInvitations();
+  }
+
+  Future<void> _loadInvitations() async {
+    final token = await const FlutterSecureStorage().read(key: "accessToken");
+    if (token != null) {
+      final list = await _partyService.fetchInvitedParties(token);
+      setState(() {
+        invitations = list;
+        isLoading = false;
+      });
+    } else {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // 배경 흰색
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 1,
         centerTitle: true,
         title: const Text(
-          '파티 참가',
+          '파티 초대장',
           style: TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
@@ -23,118 +55,20 @@ class PartyJoinPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView.builder(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : invitations.isEmpty
+          ? const Center(
+        child: Text(
+          '받은 파티 초대장이 없습니다.',
+          style: TextStyle(color: Colors.black54, fontSize: 16),
+        ),
+      )
+          : ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: 5, // 더미 초대 5개
+        itemCount: invitations.length,
         itemBuilder: (context, index) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.grey.shade300),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 초대 헤더
-                const Text(
-                  '초대장이 도착했어요!',
-                  style: TextStyle(
-                    color: Color(0xFF5C2EFF),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // 내용 및 프로필
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            '파티에 참여하실건가요?\n'
-                                '파티명 : 함께 하실 두 분 구함.\n'
-                                '퀘스트명 : 플랜더스와 친구되기.',
-                            style: TextStyle(fontSize: 13),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 3,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            '완료 시 0,000exp 지급',
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(50),
-                      child: Image.asset(
-                        'assets/images/simpson.jpg',
-                        width: 48,
-                        height: 48,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // 버튼
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5C2EFF),
-                          foregroundColor: Colors.white, // ✅ 글자색 흰색으로 설정
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                        ),
-                        child: const Text('수락하기'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {},
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF5C2EFF), width: 1.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                        ),
-                        child: const Text(
-                          '거절하기',
-                          style: TextStyle(color: Color(0xFF5C2EFF)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
+          return PartyInvitationCard(partyData: invitations[index]);
         },
       ),
     );
