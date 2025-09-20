@@ -7,7 +7,7 @@ class DioClient {
 
     baseUrl: 'https://ssuchaehwa.duckdns.org',
     // baseUrl: 'http://192.168.45.148:8080',
-    // baseUrl: 'http://10.14.19.61:8080',
+    // baseUrl: 'http://10.21.34.153:8080',
     // baseUrl: 'http://192.168.123.102:8080',
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 30),
