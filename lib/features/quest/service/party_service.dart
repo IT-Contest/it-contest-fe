@@ -14,7 +14,8 @@ class PartyService {
   final QuestService _questService = QuestService();
 
   // 파티 생성 (EXP 정보 포함)
-  Future<Map<String, dynamic>?> createPartyQuestWithReward(PartyCreateRequest request, String accessToken) async {
+  Future<Map<String, dynamic>?> createPartyQuestWithReward(
+      PartyCreateRequest request, String accessToken) async {
     try {
       print("📤 headers = {Authorization: Bearer $accessToken}");
 
@@ -22,20 +23,18 @@ class PartyService {
         "/quests/party/create",
         data: request.toJson(),
         options: Options(
-          headers: {
-            "Authorization": "Bearer $accessToken",
-          },
+          headers: {"Authorization": "Bearer $accessToken"},
         ),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('[파티 생성 응답] ${response.data}');
-        final data = response.data["data"];
-        
+        final data = response.data["result"]; // ✅ 여기 맞음
+
         return {
           'success': true,
           'questId': data["questId"],
-          'rewardExp': data['rewardExp'] ?? 10,
+          'rewardExp': data['rewardExp'] ?? 0,
           'userExp': data['userExp'] ?? 0,
           'userLevel': data['userLevel'] ?? 1,
         };

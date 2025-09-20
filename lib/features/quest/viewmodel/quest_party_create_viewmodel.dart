@@ -146,11 +146,13 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
         hashtags: categories,
       );
 
-      final result = await partyService.createPartyQuestWithReward(request, accessToken);
+      final response = await partyService.createPartyQuestWithReward(request, accessToken);
 
-      if (result != null && result['success'] == true) {
-        final questId = result['questId'];
-        
+      // ✅ 서버 응답 구조 확인 후 파싱
+      if (response != null && response['success'] == true) {
+        final result = response['result']; // 내부 result 접근
+        final questId = result?['questId'];
+
         if (questId != null && invitedFriends.isNotEmpty) {
           final friendIds = invitedFriends.map((f) => f.userId as int).toList();
           await partyService.inviteFriends(questId, friendIds, accessToken);
@@ -159,7 +161,7 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
         QuestCreationModal.show(
           context,
           onClose: () => Navigator.pushReplacementNamed(context, '/main'),
-          expReward: result['rewardExp'],
+          expReward: result?['rewardExp'] ?? 0,
           showExpReward: true,
         );
       } else {
@@ -175,6 +177,7 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
 
   /// ✅ 파티 수정 처리
   Future<bool> handleUpdate(int partyId, BuildContext context) async {
