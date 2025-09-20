@@ -12,6 +12,7 @@ class AnalysisViewModel extends ChangeNotifier {
   // 데이터 상태
   AnalysisData? _analysisData;
   List<LeaderboardUser> _leaderboard = [];
+  List<LeaderboardUser> _fullLeaderboard = [];
   List<CoachingHistoryItem> _coachingHistory = [];
   bool _showCoachingHistory = false;
   
@@ -27,6 +28,7 @@ class AnalysisViewModel extends ChangeNotifier {
   AnalysisDataType get selectedDataType => _selectedDataType;
   AnalysisData? get analysisData => _analysisData;
   List<LeaderboardUser> get leaderboard => _leaderboard;
+  List<LeaderboardUser> get fullLeaderboard => _fullLeaderboard;
   List<CoachingHistoryItem> get coachingHistory => _coachingHistory;
   bool get showCoachingHistory => _showCoachingHistory;
   bool get isLoadingAnalysis => _isLoadingAnalysis;
@@ -96,37 +98,25 @@ class AnalysisViewModel extends ChangeNotifier {
     _isLoadingLeaderboard = true;
     notifyListeners();
 
-    // 더미 데이터로 친구 카드 UI 구성
+    // 더미 데이터로 친구 카드 UI 구성 (전체보기와 동일한 3명)
     _leaderboard = [
       LeaderboardUser(
         rank: 1,
-        name: '애라',
+        name: '성진',
         exp: 4500,
         avatarUrl: 'https://example.com/avatar1.png',
       ),
       LeaderboardUser(
         rank: 2,
         name: '애라',
-        exp: 4500,
+        exp: 3000,
         avatarUrl: 'https://example.com/avatar2.png',
       ),
       LeaderboardUser(
         rank: 3,
-        name: '애라',
-        exp: 4500,
+        name: '채민',
+        exp: 500,
         avatarUrl: 'https://example.com/avatar3.png',
-      ),
-      LeaderboardUser(
-        rank: 4,
-        name: '민지',
-        exp: 3200,
-        avatarUrl: 'https://example.com/avatar4.png',
-      ),
-      LeaderboardUser(
-        rank: 5,
-        name: '준호',
-        exp: 2800,
-        avatarUrl: 'https://example.com/avatar5.png',
       ),
     ];
     
@@ -224,6 +214,37 @@ class AnalysisViewModel extends ChangeNotifier {
     
     final item = _coachingHistory[index];
     _coachingHistory[index] = item.copyWith(isExpanded: !item.isExpanded);
+    notifyListeners();
+  }
+
+  // 전체 리더보드 로드 (더 많은 데이터)
+  Future<void> loadFullLeaderboard() async {
+    _isLoadingLeaderboard = true;
+    notifyListeners();
+
+    // 전체 리더보드 더미 데이터
+    _fullLeaderboard = [
+      LeaderboardUser(
+        rank: 1,
+        name: '성진',
+        exp: 4500,
+        avatarUrl: 'https://example.com/avatar1.png',
+      ),
+      LeaderboardUser(
+        rank: 2,
+        name: '애라',
+        exp: 3000,
+        avatarUrl: 'https://example.com/avatar2.png',
+      ),
+      LeaderboardUser(
+        rank: 3,
+        name: '채민',
+        exp: 500,
+        avatarUrl: 'https://example.com/avatar3.png',
+      ),
+    ];
+    
+    _isLoadingLeaderboard = false;
     notifyListeners();
   }
 
