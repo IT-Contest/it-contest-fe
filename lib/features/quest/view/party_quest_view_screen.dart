@@ -8,10 +8,7 @@ import 'package:it_contest_fe/shared/quest_create_form/priority_section/priority
 import 'package:it_contest_fe/shared/quest_create_form/category_input.dart';
 import 'package:it_contest_fe/shared/quest_create_form/date_time_section.dart';
 
-import 'package:it_contest_fe/features/quest/viewmodel/quest_personal_create_viewmodel.dart';
 import 'package:it_contest_fe/features/quest/model/quest_item_response.dart';
-import 'package:it_contest_fe/features/quest/viewmodel/quest_tab_viewmodel.dart';
-import 'package:it_contest_fe/features/quest/view/quest_personal_form_screen.dart';
 
 import '../../../shared/quest_create_form/party_title_input.dart';
 import '../viewmodel/quest_party_create_viewmodel.dart';

@@ -3,13 +3,35 @@ import 'package:it_contest_fe/features/quest/viewmodel/daily_quest_viewmodel.dar
 import 'package:provider/provider.dart';
 import '../quest_search_screen.dart';
 
-class QuestSearchSection extends StatelessWidget {
+class QuestSearchSection extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   const QuestSearchSection({super.key, this.onChanged});
 
   @override
+  State<QuestSearchSection> createState() => _QuestSearchSectionState();
+}
+
+class _QuestSearchSectionState extends State<QuestSearchSection> {
+  late TextEditingController controller;
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController();
+    _focusNode = FocusNode();
+    
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final controller = TextEditingController();
     final viewModel = Provider.of<DailyQuestViewModel>(context, listen: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,8 +54,12 @@ class QuestSearchSection extends StatelessWidget {
                 height: 48,
                 child: TextField(
                   controller: controller,
-                  onChanged: onChanged,
+                  focusNode: _focusNode,
+                  onChanged: widget.onChanged,
                   onSubmitted: (value) async {
+                    // 키보드 포커스 해제
+                    _focusNode.unfocus();
+                    FocusScope.of(context).unfocus();
                     await viewModel.fetchQuests();
                     Navigator.push(
                       context,
@@ -60,6 +86,9 @@ class QuestSearchSection extends StatelessWidget {
                     ),
                     suffixIcon: GestureDetector(
                       onTap: () async {
+                        // 키보드 포커스 해제
+                        _focusNode.unfocus();
+                        FocusScope.of(context).unfocus();
                         await viewModel.fetchQuests();
                         Navigator.push(
                           context,

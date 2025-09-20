@@ -8,7 +8,7 @@ import '../model/quest_status_change_response.dart';
 
 class QuestService {
 
-  // 퀘스트 생성하기
+  // 퀘스트 생성하기 (기본 - bool 반환)
   Future<bool> createQuest(QuestCreateRequest request) async {
     try {
       final token = await TokenStorage().getAccessToken();
@@ -19,11 +19,58 @@ class QuestService {
             ? Options(headers: {'Authorization': 'Bearer $token'})
             : null,
       );
+      
       return response.statusCode == 201 || response.statusCode == 200;
     } catch (e, stack) {
       print('[퀘스트 생성 실패] ${e.toString()}');
       print(stack);
       return false;
+    }
+  }
+
+  // 퀘스트 생성하기 (EXP 정보 포함)
+  Future<Map<String, dynamic>?> createQuestWithReward(QuestCreateRequest request) async {
+    try {
+      final token = await TokenStorage().getAccessToken();
+      final response = await DioClient().dio.post(
+        '/quests',
+        data: request.toJson(),
+        options: token != null
+            ? Options(headers: {'Authorization': 'Bearer $token'})
+            : null,
+      );
+      
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        print('[퀘스트 생성 응답] ${response.data}');
+        
+        // 백엔드 응답에서 실제 EXP 정보 추출
+        final responseData = response.data;
+        
+        if (responseData is Map && responseData['result'] != null) {
+          final data = responseData['result'];
+          return {
+            'success': true,
+            'rewardExp': data['rewardExp'] ?? 10,
+            'userExp': data['userExp'] ?? 0,
+            'userLevel': data['userLevel'] ?? 1,
+            'message': responseData['message'] ?? '', 
+          };
+        }
+        
+        // fallback
+        return {
+          'success': true,
+          'rewardExp': 10,
+          'userExp': 0,
+          'userLevel': 1,
+        };
+      }
+      
+      return {'success': false};
+    } catch (e, stack) {
+      print('[퀘스트 생성 실패] ${e.toString()}');
+      print(stack);
+      return {'success': false};
     }
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/shared/widgets/custom_app_bar.dart';
-import 'package:it_contest_fe/shared/widgets/bottom_nav_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../profile/view/account_settings_page.dart';

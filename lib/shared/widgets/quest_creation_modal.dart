@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 
 class QuestCreationModal extends StatelessWidget {
   final VoidCallback? onClose;
+  final int? expReward;
+  final bool showExpReward;
 
   const QuestCreationModal({
     super.key,
     this.onClose,
+    this.expReward,
+    this.showExpReward = false,
   });
 
   @override
@@ -47,6 +51,42 @@ class QuestCreationModal extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
+            
+            // EXP 보상 메시지 (조건부 표시)
+            if (showExpReward && expReward != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF7D4CFF).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: const Color(0xFF7D4CFF).withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.stars,
+                      color: const Color(0xFF7D4CFF),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '+${expReward!} EXP 획득!',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF7D4CFF),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            
             const SizedBox(height: 32),
             
             // 확인 버튼
@@ -81,12 +121,19 @@ class QuestCreationModal extends StatelessWidget {
   static void show(
     BuildContext context, {
     VoidCallback? onClose,
+    int? expReward,
+    bool showExpReward = false,
   }) {
+    // 중복 모달 방지
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => QuestCreationModal(
         onClose: onClose,
+        expReward: expReward,
+        showExpReward: showExpReward,
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/terms/view/terms_detail_screen.dart';
-import '../../auth/view/login_screen.dart';
 import '../model/terms_model.dart';
 import '../service/terms_service.dart';
 

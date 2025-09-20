@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../analysis/viewmodel/analysis_viewmodel.dart';
 import '../model/quest_item_response.dart';
 import '../model/completion_status.dart';
-import '../model/invitation_status.dart'; // ✅ 새로 만든 enum import
+// ✅ 새로 만든 enum import
 import '../service/quest_service.dart';
 import '../service/party_service.dart';
 

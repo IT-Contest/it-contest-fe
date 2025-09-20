@@ -14,6 +14,8 @@ class QuestAddSection extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton(
         onPressed: () {
+          // 키보드 포커스 해제
+          FocusScope.of(context).unfocus();
           QuestTypeBottomSheet.show(
             context,
             onPersonalQuestTap: onTap,

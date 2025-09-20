@@ -255,8 +255,8 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                             }
                           } else {
                             // 생성 로직
-                            final success = await vm.createQuest();
-                            if (success) {
+                            final result = await vm.createQuest();
+                            if (result != null && result == true) {
                               if (mounted) {
                                 InterstitialAdService.showAd(
                                   onClosed: () {
@@ -280,7 +280,11 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                                           (route) => false,
                                     );
 
-                                    QuestCreationModal.show(context);
+                                    QuestCreationModal.show(
+                                      context,
+                                      //xpReward: result['rewardExp'],
+                                      showExpReward: true,
+                                    );
                                   },
                                 );
                               }

@@ -30,7 +30,7 @@ class PriorityInputSection extends StatelessWidget {
             value: selectedPriority,
             hint: const Text(
               "숫자를 선택해 주세요",
-              style: const TextStyle(
+              style: TextStyle(
                 color: Color(0xFFD1D5DB)
               ),
             ),
