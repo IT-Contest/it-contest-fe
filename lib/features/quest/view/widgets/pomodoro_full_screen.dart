@@ -310,7 +310,6 @@ class QuestPomodoroSection extends StatelessWidget {
               SizedBox(height: 12),
               Row(
                 children: [
-                  SizedBox(width: 30),
                   Text(
                     '집중 보상',
                     style: TextStyle(

@@ -7,11 +7,11 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:it_contest_fe/features/terms/service/terms_service.dart';
 
 class LoginScreen extends StatelessWidget {
-  final List<int> agreedTermIds; // ✅ 약관 동의 IDs 전달받음
+  final List<int> agreedTermIds; // 약관 동의 IDs 전달받음
 
   const LoginScreen({
     super.key,
-    this.agreedTermIds = const [], // ✅ 기본값 비어있는 리스트
+    this.agreedTermIds = const [], // 기본값 비어있는 리스트
   });
 
   @override
@@ -53,10 +53,10 @@ class LoginScreen extends StatelessWidget {
                   final token = await viewModel.loginWithKakao();
                   if (token != null) {
                     try {
-                      // ✅ 로그인 성공 후 토큰 저장 (이미 하고 있다면 생략)
+                      // 로그인 성공 후 토큰 저장 (이미 하고 있다면 생략)
                       final termsService = TermsService();
 
-                      // ✅ 필수 약관 동의 여부 확인
+                      // 필수 약관 동의 여부 확인
                       final agreed = await termsService.checkRequiredTerms();
 
                       if (agreed) {
@@ -88,7 +88,7 @@ class LoginScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // ✅ 게스트 로그인 버튼
+              // 게스트 로그인 버튼
               SizedBox(
                 width: 280,
                 height: 56,
@@ -132,7 +132,7 @@ class LoginScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // ✅ 임시 회원 탈퇴 버튼
+              // 임시 회원 탈퇴 버튼
               ElevatedButton(
                 onPressed: () async {
                   try {

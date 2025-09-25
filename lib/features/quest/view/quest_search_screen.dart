@@ -41,8 +41,8 @@ class _QuestSearchScreenState extends State<QuestSearchScreen> {
     final viewModel = Provider.of<QuestTabViewModel>(context); // ViewModel 변경
     final filtered = viewModel.allQuests.where((q) { // allQuests 사용
       final query = _query.trim().toLowerCase();
-      final titleMatch = q.title.toLowerCase().contains(query);
-      final partyMatch = q.partyName?.toLowerCase().contains(query) ?? false;
+      final titleMatch = (q.title ?? '').toLowerCase().contains(query);
+      final partyMatch = q.partyTitle?.toLowerCase().contains(query) ?? false;
       final hashtagMatch =
           q.hashtags.any((h) => h.toLowerCase().contains(query));
       return titleMatch || partyMatch || hashtagMatch;
@@ -158,7 +158,7 @@ class _QuestSearchScreenState extends State<QuestSearchScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            quest.title,
+                                            quest.questName ?? quest.title ?? '이름 없는 퀘스트',
                                             style: const TextStyle(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w600,
@@ -220,11 +220,16 @@ class _QuestSearchScreenState extends State<QuestSearchScreen> {
                                             // isFirstCompletion이 true일 때만 모달 표시
                                             if (isFirstCompletion) {
                                               // 올바른 보상값 계산
-                                              final correctExpReward = quest.title.toLowerCase().contains('온보딩') || 
-                                                  quest.title.toLowerCase().contains('onboarding') ? 100 : 10;
-                                              final correctGoldReward = quest.title.toLowerCase().contains('온보딩') || 
-                                                  quest.title.toLowerCase().contains('onboarding') ? 50 : 5;
-                                                  
+                                              final questText = (quest.questName ?? quest.title ?? '').toLowerCase();
+
+                                              final correctExpReward = questText.contains('온보딩') || questText.contains('onboarding')
+                                                  ? 100
+                                                  : 10;
+
+                                              final correctGoldReward = questText.contains('온보딩') || questText.contains('onboarding')
+                                                  ? 50
+                                                  : 5;
+
                                               QuestCompletionModal.show(
                                                 context,
                                                 expReward: correctExpReward,

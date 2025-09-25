@@ -33,7 +33,7 @@ class PartyService {
 
         return {
           'success': true,
-          'questId': data["questId"],
+          'partyId': data["partyId"],
           'rewardExp': data['rewardExp'] ?? 0,
           'userExp': data['userExp'] ?? 0,
           'userLevel': data['userLevel'] ?? 1,

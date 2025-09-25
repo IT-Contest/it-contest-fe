@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:it_contest_fe/features/quest/view/party_invite_page.dart';
+import 'package:it_contest_fe/shared/widgets/party_creation_modal.dart';
 import 'package:provider/provider.dart';
 
 import 'package:it_contest_fe/shared/quest_create_form/title_input.dart';
@@ -13,7 +14,10 @@ import 'package:it_contest_fe/shared/quest_create_form/party_title_input.dart';
 import 'package:it_contest_fe/features/quest/viewmodel/quest_party_create_viewmodel.dart';
 
 import '../../../shared/interstitial_ad_service.dart';
+import '../../../shared/widgets/party_update_modal.dart';
+import '../../friends/model/friend_info.dart';
 import '../../friends/view/all_friends_page.dart';
+import '../../friends/view/invited_friends_page.dart';
 import '../../friends/viewmodel/friend_viewmodel.dart';
 import '../model/quest_item_response.dart';
 
@@ -98,15 +102,15 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
               children: [
                 // 파티명
                 PartyTitleInput(
-                  initialValue: vm.content,
-                  onChanged: vm.setContent,
+                  initialValue: vm.partyTitle,
+                  onChanged: vm.setQuestTitle,
                 ),
                 const SizedBox(height: 16),
 
                 // 퀘스트 제목
                 QuestTitleInput(
-                  initialValue: vm.title,
-                  onChanged: vm.setQuestTitle,
+                  initialValue: vm.questName,
+                  onChanged: vm.setContent,
                 ),
                 const SizedBox(height: 16),
 
@@ -188,40 +192,46 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                     // 친구 목록
                     Row(
                       children: [
-                        if (hasFriends)
-                          ...friends.take(3).map((f) => Column(
-                            children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                margin: const EdgeInsets.only(right: 12),
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                ),
-                                clipBehavior: Clip.hardEdge,
-                                child: Image.network(
-                                  f.profileImageUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/images/simpson.jpg',
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
-                                ),
+                        // 🔹 초대한 친구 프로필만 최대 3명 표시
+                        ...vm.invitedFriends.cast<FriendInfo>().take(3).map((f) => Column(
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              margin: const EdgeInsets.only(right: 12),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
                               ),
-                              const SizedBox(height: 4),
-                              Text(f.nickname,
-                                  style: const TextStyle(fontSize: 12)),
-                            ],
-                          )),
+                              clipBehavior: Clip.hardEdge,
+                              child: Image.network(
+                                f.profileImageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    'assets/images/simpson.jpg',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              f.nickname,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        )),
 
+                        // 🔹 "더보기" 버튼은 항상 표시
                         GestureDetector(
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const AllFriendsPage()),
+                                builder: (_) => InvitedFriendsPage(
+                                  invitedFriends: vm.invitedFriends.cast<FriendInfo>(),
+                                ),
+                              ),
                             );
                           },
                           child: Column(
@@ -235,7 +245,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                                 ),
                                 child: Center(
                                   child: Text(
-                                    '+${friends.length}',
+                                    '+${vm.invitedFriends.length}',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -302,10 +312,27 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                       if (isEditMode) {
                         final success = await vm.handleUpdate(widget.quest!.questId, context);
                         if (success && context.mounted) {
-                          Navigator.pop(context);
+                          // 수정 완료 모달 띄우기
+                          PartyUpdateModal.show(
+                            context,
+                            onClose: () {
+                              Navigator.pop(context); // 모달 닫을 때 화면도 닫기
+                              Navigator.pop(context);
+                            },
+                          );
                         }
                       } else {
-                        await vm.handleCreate(context);
+                        final success = await vm.handleCreate(context);
+                        if (success && context.mounted) {
+                          // 생성 완료 모달 띄우기
+                          PartyCreationModal.show(
+                            context,
+                            onClose: () {
+                              Navigator.pop(context); // 모달 닫을 때 화면도 닫기
+                              Navigator.pop(context);
+                            },
+                          );
+                        }
                       }
                     }
                         : null,

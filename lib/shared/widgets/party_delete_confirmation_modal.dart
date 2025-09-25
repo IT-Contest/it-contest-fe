@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class QuestDeleteConfirmationModal extends StatelessWidget {
+class PartyDeleteConfirmationModal extends StatelessWidget {
   final VoidCallback? onDelete;
   final VoidCallback? onCancel;
 
-  const QuestDeleteConfirmationModal({
+  const PartyDeleteConfirmationModal({
     super.key,
     this.onDelete,
     this.onCancel,
@@ -31,10 +31,10 @@ class QuestDeleteConfirmationModal extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // 경고 메시지
           const Text(
-            '완료된 퀘스트의 경우 지급되었던\n경험치와 골드가 차감됩니다.\n그래도 삭제하시겠습니까?',
+            '완료된 파티 퀘스트의 경우 지급되었던\n경험치와 골드가 차감됩니다.\n그래도 삭제하시겠습니까?',
             style: TextStyle(
               fontSize: 16,
               color: Colors.black87,
@@ -43,7 +43,7 @@ class QuestDeleteConfirmationModal extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-          
+
           // 버튼들
           Row(
             children: [
@@ -74,7 +74,7 @@ class QuestDeleteConfirmationModal extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               // 취소 버튼
               Expanded(
                 child: OutlinedButton(
@@ -122,7 +122,7 @@ class QuestDeleteConfirmationModal extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          child: QuestDeleteConfirmationModal(
+          child: PartyDeleteConfirmationModal(
             onDelete: onDelete,
             onCancel: onCancel,
           ),

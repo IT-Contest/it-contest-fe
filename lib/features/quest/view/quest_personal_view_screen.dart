@@ -34,7 +34,7 @@ class _QuestPersonalFormPageState extends State<QuestPersonalFormPage> {
   void initState() {
     super.initState();
     if (widget.quest != null) {
-      _title = widget.quest!.title;
+      _title = widget.quest!.title ?? widget.quest!.questName ?? '';
       _priority = widget.quest!.priority;
       _period = _mapQuestTypeToKorean(widget.quest!.questType);
       _categories = List<String>.from(widget.quest!.hashtags);

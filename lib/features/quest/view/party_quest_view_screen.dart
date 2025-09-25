@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:it_contest_fe/features/quest/view/quest_party_create_screen.dart';
+import 'package:it_contest_fe/shared/widgets/party_delete_success.dart';
 import 'package:provider/provider.dart';
 
 import 'package:it_contest_fe/shared/quest_create_form/title_input.dart';
@@ -12,14 +13,14 @@ import 'package:it_contest_fe/features/quest/model/quest_item_response.dart';
 
 import '../../../shared/quest_create_form/party_title_input.dart';
 import '../viewmodel/quest_party_create_viewmodel.dart';
+import '../../../shared/widgets/party_delete_confirmation_modal.dart';
 
 class PartyQuestViewScreen extends StatefulWidget {
   final QuestItemResponse? quest;
   const PartyQuestViewScreen({super.key, this.quest});
 
   @override
-  State<PartyQuestViewScreen> createState() =>
-      _PartyQuestViewScreenState();
+  State<PartyQuestViewScreen> createState() => _PartyQuestViewScreenState();
 }
 
 class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
@@ -34,8 +35,8 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
   void initState() {
     super.initState();
     if (widget.quest != null) {
-      _title = widget.quest!.title;
-      _partyName = widget.quest!.partyName;
+      _title = widget.quest!.questName ?? '';
+      _partyName = widget.quest!.partyTitle;
       _priority = widget.quest!.priority;
       _period = _mapQuestTypeToKorean(widget.quest!.questType);
       _categories = List<String>.from(widget.quest!.hashtags);
@@ -133,15 +134,16 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // 0. 파티명
-                          AbsorbPointer( // ✅ 읽기 전용 (조회 화면)
+                          AbsorbPointer(
                             child: PartyTitleInput(
-                              initialValue: _partyName, // ViewModel의 content 사용
-                              onChanged: (_) {}
+                              initialValue: _partyName,
+                              onChanged: (_) {},
                             ),
                           ),
                           const SizedBox(height: 16),
+
                           // 1. 퀘스트 제목
-                          AbsorbPointer( // 입력 막음
+                          AbsorbPointer(
                             child: QuestTitleInput(
                               initialValue: _title,
                               onChanged: (_) {},
@@ -150,7 +152,7 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
                           const SizedBox(height: 16),
 
                           // 2. 우선순위 및 주기
-                          AbsorbPointer( // ✅ 입력 막음
+                          AbsorbPointer(
                             child: QuestPrioritySection(
                               initialPriority: _priority,
                               initialPeriod: _period,
@@ -162,7 +164,7 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
                           const SizedBox(height: 16),
 
                           // 3. 카테고리
-                          AbsorbPointer( // ✅ 입력 막음
+                          AbsorbPointer(
                             child: CategoryInput(
                               initialValue: _categories,
                               onChanged: (_) {},
@@ -171,12 +173,16 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
                           const SizedBox(height: 16),
 
                           // 4. 날짜 및 시간
-                          AbsorbPointer( // ✅ 입력 막음
+                          AbsorbPointer(
                             child: DateTimeSection(
-                              initialStartDate: _parseDate(widget.quest?.startDate),
-                              initialDueDate: _parseDate(widget.quest?.dueDate),
-                              initialStartTime: _parseTime(widget.quest?.startTime),
-                              initialEndTime: _parseTime(widget.quest?.endTime),
+                              initialStartDate:
+                              _parseDate(widget.quest?.startDate),
+                              initialDueDate:
+                              _parseDate(widget.quest?.dueDate),
+                              initialStartTime:
+                              _parseTime(widget.quest?.startTime),
+                              initialEndTime:
+                              _parseTime(widget.quest?.endTime),
                               onStartDateChanged: (_) {},
                               onDueDateChanged: (_) {},
                               onStartTimeChanged: (_) {},
@@ -191,8 +197,8 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 18),
                             margin: const EdgeInsets.only(bottom: 12),
                             decoration: BoxDecoration(
-                              border:
-                              Border.all(color: const Color(0xFFC2C2C2), width: 1),
+                              border: Border.all(
+                                  color: const Color(0xFFC2C2C2), width: 1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Center(
@@ -221,147 +227,113 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
                       ),
                     ),
                   ),
-                  // 고정된 하단 버튼 영역
+
+                  // 하단 버튼
                   if (widget.quest != null)
                     Container(
                       color: Colors.white,
                       child: Column(
                         children: [
-                          const Divider(color: Color(0xFFE0E0E0), height: 1, thickness: 1),
+                          const Divider(
+                              color: Color(0xFFE0E0E0),
+                              height: 1,
+                              thickness: 1),
                           Padding(
                             padding: const EdgeInsets.all(20),
                             child: Column(
                               children: [
                                 Row(
                                   children: [
+                                    // 수정하기 버튼
                                     Expanded(
                                       child: ElevatedButton(
                                         onPressed: () {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => QuestPartyCreateScreen(
-                                                quest: widget.quest, // ✅ quest 넘겨서 수정 모드로 열기
-                                              ),
+                                              builder: (context) =>
+                                                  QuestPartyCreateScreen(
+                                                    quest: widget.quest,
+                                                  ),
                                             ),
                                           ).then((_) {
-                                            // 돌아왔을 때 새로고침 or pop 처리
                                             Navigator.pop(context);
                                           });
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF6737F4),
+                                          backgroundColor:
+                                          const Color(0xFF6737F4),
                                           foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 12),
                                           elevation: 0,
                                         ),
                                         child: const Text(
                                           '수정하기',
-                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),
                                     const SizedBox(width: 12),
+
+                                    // 삭제하기 버튼
                                     Expanded(
                                       child: OutlinedButton(
                                         onPressed: () async {
-                                          // ✅ 삭제 확인 다이얼로그
-                                          final confirm = await showDialog<bool>(
-                                            context: context,
-                                            barrierDismissible: false,
-                                            builder: (context) => Dialog(
-                                              backgroundColor: Colors.white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(16),
-                                              ),
-                                              child: Container(
-                                                padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-                                                child: Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    const Text(
-                                                      '주의',
-                                                      style: TextStyle(
-                                                        color: Color(0xFF4C1FFF),
-                                                        fontSize: 24,
-                                                        fontWeight: FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 16),
-                                                    const Text(
-                                                      '파티 퀘스트를 삭제하시겠습니까?',
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                    const SizedBox(height: 24),
-                                                    Row(
-                                                      children: [
-                                                        Expanded(
-                                                          child: OutlinedButton(
-                                                            onPressed: () => Navigator.pop(context, false),
-                                                            style: OutlinedButton.styleFrom(
-                                                              side: const BorderSide(color: Color(0xFF4C1FFF)),
-                                                              foregroundColor: const Color(0xFF4C1FFF),
-                                                              shape: RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.circular(12),
-                                                              ),
-                                                              padding: const EdgeInsets.symmetric(vertical: 12),
-                                                            ),
-                                                            child: const Text('취소'),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(width: 8),
-                                                        Expanded(
-                                                          child: ElevatedButton(
-                                                            onPressed: () => Navigator.pop(context, true),
-                                                            style: ElevatedButton.styleFrom(
-                                                              backgroundColor: const Color(0xFF4C1FFF),
-                                                              foregroundColor: Colors.white,
-                                                              shape: RoundedRectangleBorder(
-                                                                borderRadius: BorderRadius.circular(12),
-                                                              ),
-                                                              padding: const EdgeInsets.symmetric(vertical: 12),
-                                                            ),
-                                                            child: const Text('삭제'),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
+                                          PartyDeleteConfirmationModal.show(
+                                            context,
+                                            onDelete: () async {
+                                              final vm = context.read<
+                                                  QuestPartyCreateViewModel>();
+                                              final success =
+                                              await vm.handleDelete(
+                                                  widget.quest!.questId);
+
+                                              if (success && mounted) {
+                                                PartyDeleteSuccessModal.show(
+                                                  context,
+                                                  onClose: () {
+                                                    Navigator.pop(
+                                                        context); // 상세 화면 닫기
+                                                  },
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  const SnackBar(
+                                                      content: Text(
+                                                          '삭제 실패: 서버 오류')),
+                                                );
+                                              }
+                                            },
+                                            onCancel: () {
+                                              Navigator.pop(context);
+                                            },
                                           );
-
-                                          if (confirm == true) {
-                                            final vm = context.read<QuestPartyCreateViewModel>();
-                                            final success = await vm.handleDelete(widget.quest!.questId);
-
-                                            if (success && mounted) {
-                                              Navigator.pop(context); // 상세 화면 닫기
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text('파티 퀘스트가 삭제되었습니다.')),
-                                              );
-                                            } else {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text('삭제 실패: 서버 오류')),
-                                              );
-                                            }
-                                          }
                                         },
                                         style: OutlinedButton.styleFrom(
-                                          side: const BorderSide(color: Color(0xFF6737F4), width: 1),
-                                          foregroundColor: const Color(0xFF6737F4),
+                                          side: const BorderSide(
+                                              color: Color(0xFF6737F4),
+                                              width: 1),
+                                          foregroundColor:
+                                          const Color(0xFF6737F4),
                                           backgroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                          padding: const EdgeInsets.symmetric(vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(12)),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 12),
                                         ),
                                         child: const Text(
                                           '삭제하기',
-                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold),
                                         ),
                                       ),
                                     ),

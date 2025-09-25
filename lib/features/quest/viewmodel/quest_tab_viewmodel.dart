@@ -101,7 +101,9 @@ class QuestTabViewModel extends ChangeNotifier {
       // 여기서 필터링
       partyQuests = allPartyQuests.where((q) =>
       q.completionStatus == CompletionStatus.IN_PROGRESS ||
-          q.completionStatus == CompletionStatus.COMPLETED).toList();
+          q.completionStatus == CompletionStatus.COMPLETED ||
+          q.completionStatus == CompletionStatus.INCOMPLETE
+      ).toList();
 
       errorMessage = null;
     } catch (e) {

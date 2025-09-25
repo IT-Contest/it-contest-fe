@@ -266,7 +266,6 @@ class QuestPomodoroSection extends StatelessWidget {
               // 집중 보상 (밑으로 이동)
               Row(
                 children: const [
-                  SizedBox(width: 30),
                   Text(
                     '집중 보상',
                     style: TextStyle(
