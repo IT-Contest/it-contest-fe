@@ -205,21 +205,26 @@ class QuestService {
     try {
       final quests = await fetchQuestList();
       bool allSuccess = true;
-      
+
       for (final quest in quests) {
+        // 개인/파티 퀘스트 이름 통합 처리
+        final questLabel = (quest.questName ?? quest.title ?? '').toLowerCase();
+
         // 올바른 보상값 계산
-        final correctExpReward = quest.title.toLowerCase().contains('온보딩') || 
-            quest.title.toLowerCase().contains('onboarding') ? 100 : 10;
-        final correctGoldReward = quest.title.toLowerCase().contains('온보딩') || 
-            quest.title.toLowerCase().contains('onboarding') ? 50 : 5;
-        
+        final correctExpReward = (questLabel.contains('온보딩') || questLabel.contains('onboarding'))
+            ? 100
+            : 10;
+        final correctGoldReward = (questLabel.contains('온보딩') || questLabel.contains('onboarding'))
+            ? 50
+            : 5;
+
         // 현재 보상과 다르면 업데이트
         if (quest.expReward != correctExpReward || quest.goldReward != correctGoldReward) {
           final updateData = {
             'expReward': correctExpReward,
             'goldReward': correctGoldReward,
           };
-          
+
           final success = await updateQuest(quest.questId, updateData);
           if (!success) {
             allSuccess = false;
@@ -229,7 +234,7 @@ class QuestService {
           }
         }
       }
-      
+
       return allSuccess;
     } catch (e, stack) {
       print('[퀘스트 보상 일괄 업데이트 실패] ${e.toString()}');

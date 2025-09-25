@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class QuestDeleteSuccessModal extends StatelessWidget {
+class PartyDeleteSuccessModal extends StatelessWidget {
   final VoidCallback? onClose;
 
-  const QuestDeleteSuccessModal({
+  const PartyDeleteSuccessModal({
     super.key,
     this.onClose,
   });
@@ -36,10 +36,10 @@ class QuestDeleteSuccessModal extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          
+
           // 제목
           const Text(
-            '퀘스트가 삭제되었습니다.',
+            '파티 퀘스트가 삭제되었습니다.',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -47,7 +47,7 @@ class QuestDeleteSuccessModal extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 30),
-          
+
           // 확인 버튼
           SizedBox(
             width: 160,
@@ -94,7 +94,7 @@ class QuestDeleteSuccessModal extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          child: QuestDeleteSuccessModal(
+          child: PartyDeleteSuccessModal(
             onClose: onClose,
           ),
         );

@@ -20,7 +20,7 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
   String? errorMessage;
 
   void initializeFromQuest(QuestItemResponse quest) {
-    questName = quest.title;
+    questName = quest.title ?? '';
     priority = quest.priority;
     questType = quest.questType;
     hashtags = List<String>.from(quest.hashtags);

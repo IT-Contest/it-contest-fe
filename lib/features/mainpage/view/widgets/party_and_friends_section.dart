@@ -44,34 +44,36 @@ class PartyAndFriendsSection extends StatelessWidget {
                 Row(
                   children: [
                     if (hasFriends)
-                      ...friends.take(3).map((f) => Column(
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            margin: const EdgeInsets.only(right: 12),
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
+                      ...friends.take(3).map((f) => Container(
+                        margin: const EdgeInsets.only(right: 12), // ← Column 전체에 margin
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center, // ← 가운데 정렬
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: const BoxDecoration(shape: BoxShape.circle),
+                              clipBehavior: Clip.hardEdge,
+                              child: Image.network(
+                                f.profileImageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset('assets/images/simpson.jpg', fit: BoxFit.cover);
+                                },
+                              ),
                             ),
-                            clipBehavior: Clip.hardEdge,
-                            child: Image.network(
-                              f.profileImageUrl,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/images/simpson.jpg',
-                                  fit: BoxFit.cover,
-                                );
-                              },
+                            const SizedBox(height: 4),
+                            SizedBox(
+                              width: 48, // ← 아바타와 같은 너비 확보
+                              child: Text(
+                                f.nickname,
+                                style: const TextStyle(fontSize: 12),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis, // 닉네임 길 경우 줄임표
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                              f.nickname,
-                              style: const TextStyle(fontSize: 12),
-                              textAlign: TextAlign.center,
-                          ),
-                        ],
+                          ],
+                        ),
                       )),
 
                     // 더보기 버튼은 항상 표시

@@ -242,8 +242,8 @@ class _QuestCard extends StatelessWidget {
                 children: [
                   Text(
                     isPartyQuest
-                        ? (quest.partyName ?? '이름 없는 파티')
-                        : quest.title,
+                        ? (quest.questName ?? '이름 없는 퀘스트') // ✅ 파티 퀘스트는 questName
+                        : quest.title,                          // ✅ 개인 퀘스트는 title
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,

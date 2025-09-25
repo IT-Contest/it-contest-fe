@@ -5,6 +5,7 @@ import 'package:it_contest_fe/features/quest/model/party_update_request.dart';
 import 'package:it_contest_fe/features/quest/model/completion_status.dart'; // ✅ enum
 import 'package:it_contest_fe/features/quest/service/party_service.dart';
 import 'package:it_contest_fe/shared/widgets/quest_creation_modal.dart';
+import '../../friends/model/friend_info.dart';
 import '../model/quest_item_response.dart';
 
 class QuestPartyCreateViewModel extends ChangeNotifier {
@@ -12,8 +13,8 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
   String? errorMessage;
 
   // 입력값 상태
-  String title = '';        // 퀘스트명
-  String content = '';      // 파티 내용
+  String partyTitle = '';   // 파티명
+  String questName = '';    // 퀘스트 내용
   int priority = 0;
   String? period;
   CompletionStatus completionStatus = CompletionStatus.INCOMPLETE; // ✅ enum
@@ -27,8 +28,8 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   bool get isFormValid {
-    return title.isNotEmpty &&
-        content.isNotEmpty &&
+    return partyTitle.isNotEmpty &&
+        questName.isNotEmpty &&
         priority > 0 &&
         period != null &&
         categories.isNotEmpty &&
@@ -40,8 +41,8 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
 
   /// 초기화 (수정 모드)
   void initializeFromQuest(QuestItemResponse quest) {
-    content = quest.partyName ?? '';
-    title = quest.title;
+    partyTitle = quest.partyTitle ?? '';
+    questName = quest.questName ?? '';
     priority = quest.priority;
     period = quest.questType;
     completionStatus = quest.completionStatus ?? CompletionStatus.INCOMPLETE;
@@ -64,14 +65,14 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ✅ Setter 메서드 전부 복원
+  // ✅ Setter 메서드
   void setQuestTitle(String value) {
-    title = value;
+    partyTitle = value;
     notifyListeners();
   }
 
   void setContent(String value) {
-    content = value;
+    questName = value;
     notifyListeners();
   }
 
@@ -120,8 +121,23 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// ✅ 보상 계산 로직 (개인 퀘스트와 동일하게 적용)
+  Map<String, int> _calculateRewards(String questName) {
+    if (questName.toLowerCase().contains('온보딩') ||
+        questName.toLowerCase().contains('onboarding')) {
+      return {
+        'exp': 100,
+        'gold': 50,
+      };
+    }
+    return {
+      'exp': 10,
+      'gold': 5,
+    };
+  }
+
   /// ✅ 파티 생성 처리
-  Future<void> handleCreate(BuildContext context) async {
+  Future<bool> handleCreate(BuildContext context) async {
     isLoading = true;
     notifyListeners();
 
@@ -133,51 +149,49 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
         throw Exception("로그인 토큰이 없습니다. 다시 로그인 해주세요.");
       }
 
+      // ✅ 보상 계산
+      final rewards = _calculateRewards(questName);
+
       final request = PartyCreateRequest(
-        content: content,
-        questTitle: title,
+        partyTitle: partyTitle,
+        questName: questName,
         priority: priority,
         questType: _mapPeriodToQuestType(period),
-        completionStatus: completionStatus.name, // ✅ enum → String 변환
+        completionStatus: completionStatus.name,
         startDate: startDate?.toIso8601String().split("T")[0] ?? "",
         dueDate: dueDate?.toIso8601String().split("T")[0] ?? "",
         startTime: _formatTime(startTime),
         endTime: _formatTime(endTime),
         hashtags: categories,
+        expReward: rewards['exp']!,
+        goldReward: rewards['gold']!,
       );
 
       final response = await partyService.createPartyQuestWithReward(request, accessToken);
 
-      // ✅ 서버 응답 구조 확인 후 파싱
       if (response != null && response['success'] == true) {
-        final result = response['result']; // 내부 result 접근
-        final questId = result?['questId'];
+        final partyId = response['partyId'];
 
-        if (questId != null && invitedFriends.isNotEmpty) {
-          final friendIds = invitedFriends.map((f) => f.userId as int).toList();
-          await partyService.inviteFriends(questId, friendIds, accessToken);
+        if (partyId != null && invitedFriends.isNotEmpty) {
+          final friendIds = invitedFriends.map((f) => (f as FriendInfo).userId).toList();
+          await partyService.inviteFriends(partyId, friendIds, accessToken);
         }
 
-        QuestCreationModal.show(
-          context,
-          onClose: () => Navigator.pushReplacementNamed(context, '/main'),
-          expReward: result?['rewardExp'] ?? 0,
-          showExpReward: true,
-        );
+        return true; // 성공
       } else {
-        throw Exception("파티 생성 실패");
+        return false; // 실패
       }
     } catch (e) {
       errorMessage = "파티 생성 실패: $e";
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage!)),
       );
+      return false;
     } finally {
       isLoading = false;
       notifyListeners();
     }
   }
-
 
   /// ✅ 파티 수정 처리
   Future<bool> handleUpdate(int partyId, BuildContext context) async {
@@ -192,16 +206,21 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
         throw Exception("로그인 토큰이 없습니다. 다시 로그인 해주세요.");
       }
 
+      final rewards = _calculateRewards(questName);
+
       final updateRequest = PartyUpdateRequest(
-        content: content,
+        partyTitle: partyTitle,
+        questName: questName,
         priority: priority,
         questType: _mapPeriodToQuestType(period),
-        completionStatus: completionStatus.name, // ✅ enum → String 변환
+        completionStatus: completionStatus.name,
         startDate: startDate?.toIso8601String().split("T")[0] ?? "",
         dueDate: dueDate?.toIso8601String().split("T")[0] ?? "",
         startTime: _formatTime(startTime),
         endTime: _formatTime(endTime),
         hashtags: categories,
+        expReward: rewards['exp']!,   // ✅ 추가
+        goldReward: rewards['gold']!, // ✅ 추가
       );
 
       final success = await partyService.updatePartyQuest(partyId, updateRequest, accessToken);
@@ -235,7 +254,6 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
 
     return await partyService.deletePartyQuest(partyId, accessToken);
   }
-
 
   String _mapPeriodToQuestType(String? period) {
     switch (period) {

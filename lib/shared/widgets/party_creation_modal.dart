@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class QuestCreationModal extends StatelessWidget {
+class PartyCreationModal extends StatelessWidget {
   final VoidCallback? onClose;
   final int? expReward;
   final bool showExpReward;
 
-  const QuestCreationModal({
+  const PartyCreationModal({
     super.key,
     this.onClose,
     this.expReward,
@@ -40,10 +40,10 @@ class QuestCreationModal extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            
+
             // 완료 메시지
             const Text(
-              '퀘스트가 생성되었습니다.',
+              '파티 퀘스트가 생성되었습니다.',
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.black87,
@@ -51,7 +51,7 @@ class QuestCreationModal extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            
+
             // EXP 보상 메시지 (조건부 표시)
             if (showExpReward && expReward != null) ...[
               const SizedBox(height: 16),
@@ -86,9 +86,9 @@ class QuestCreationModal extends StatelessWidget {
                 ),
               ),
             ],
-            
+
             const SizedBox(height: 32),
-            
+
             // 확인 버튼
             SizedBox(
               width: double.infinity,
@@ -119,18 +119,16 @@ class QuestCreationModal extends StatelessWidget {
   }
 
   static void show(
-    BuildContext context, {
-    VoidCallback? onClose,
-    int? expReward,
-    bool showExpReward = false,
-  }) {
-    // 중복 모달 방지
-    // if (ModalRoute.of(context)?.isCurrent != true) return;
+      BuildContext context, {
+        VoidCallback? onClose,
+        int? expReward,
+        bool showExpReward = false,
+      }) {
 
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => QuestCreationModal(
+      builder: (context) => PartyCreationModal(
         onClose: onClose,
         expReward: expReward,
         showExpReward: showExpReward,

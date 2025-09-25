@@ -4,6 +4,7 @@ import 'package:it_contest_fe/features/quest/view/party_quest_view_screen.dart';
 import 'package:it_contest_fe/features/quest/view/quest_personal_view_screen.dart';
 import 'package:it_contest_fe/features/quest/view/widgets/empty_quest_widget.dart';
 import 'package:provider/provider.dart';
+import '../../../shared/widgets/party_completion_modal.dart';
 import '../../quest/viewmodel/quest_tab_viewmodel.dart';
 import '../model/completion_status.dart';
 import '../model/quest_item_response.dart';
@@ -43,7 +44,7 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
         ),
         centerTitle: true,
         title: const Text(
-          '일일 진행 중인 퀘스트',
+          '진행 중인 퀘스트',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         bottom: const PreferredSize(
@@ -174,8 +175,8 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                       },
                       child: QuestCard(
                         title: viewModel.partyQuests.any((p) => p.questId == quest.questId)
-                            ? (quest.partyName ?? '이름 없는 파티')
-                            : quest.title,
+                            ? (quest.questName ?? '이름 없는 퀘스트')  // 파티일 경우 questName
+                            : (quest.title ?? '이름 없는 퀘스트'),   // 개인일 경우 title                       // 이미 String
                         expReward: quest.expReward,
                         goldReward: quest.goldReward,
                         done: isDone,
@@ -198,7 +199,7 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                               context: context,
                               onCompleted: (isFirstCompletion) {
                                 if (isFirstCompletion) {
-                                  QuestCompletionModal.show(
+                                  PartyCompletionModal.show(
                                     context,
                                     expReward: quest.expReward,
                                     goldReward: quest.goldReward,
