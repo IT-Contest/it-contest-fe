@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import '../../../../shared/widgets/reward_tag.dart';
 import '../../viewmodel/quest_pomodoro_viewmodel.dart';
+import '../../../mainpage/viewmodel/mainpage_viewmodel.dart';
 
 class QuestPomodoroSection extends StatelessWidget {
   const QuestPomodoroSection({super.key});
@@ -262,20 +263,19 @@ class QuestPomodoroSection extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // ⬇️ 집중 보상 (밑으로 이동)
+              // 집중 보상 (밑으로 이동)
               Row(
                 children: const [
-                  SizedBox(width: 30),
                   Text(
                     '집중 보상',
                     style: TextStyle(
-                      color: Colors.black, // ✅ 보라색 → 검정색
+                      color: Colors.black, // 보라색 → 검정색
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   SizedBox(width: 16),
-                  RewardTag(label: '경험치 +10'), // 태그 그대로
+                  RewardTag(label: '경험치 +10'), // 백엔드와 맞춤
                 ],
               ),
               const SizedBox(height: 8),
@@ -349,7 +349,11 @@ class GradientProgressPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    if (oldDelegate is! GradientProgressPainter) return true;
+    // 진행률 차이가 0.001 이상일 때만 리페인트 (성능 최적화)
+    return (progress - oldDelegate.progress).abs() > 0.001;
+  }
 }
 
 // 정지 확인 모달 다이얼로그
@@ -541,7 +545,12 @@ class _FocusCompleteDialog extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // 휴식 타이머 자동 시작
+                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
+                  vm.startRest();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF7958FF),
                   shape: RoundedRectangleBorder(
@@ -647,7 +656,21 @@ class _CycleCompleteDialog extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  // 다음 집중 사이클 자동 시작
+                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
+                  vm.startFocus();
+                  
+                  // 메인페이지 유저 정보 새로고침
+                  try {
+                    final mainPageViewModel = Provider.of<MainPageViewModel>(context, listen: false);
+                    await mainPageViewModel.refreshUserInfo();
+                    print('✅ [CycleComplete] Main page user info refreshed');
+                  } catch (e) {
+                    print('❌ [CycleComplete] Failed to refresh main page user info: $e');
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF7958FF),
                   shape: RoundedRectangleBorder(
@@ -673,18 +696,12 @@ class _CycleCompleteDialog extends StatelessWidget {
 }
 
 void _showSettingsDialog(BuildContext context) {
-  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
-
-  // 처음엔 두 개 다 비활성화
-  bool alarmSound = false;
-  bool vibration = false;
-
   showDialog(
     context: context,
     barrierDismissible: true,
     builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
+      return Consumer<QuestPomodoroViewModel>(
+        builder: (context, vm, child) {
           return Dialog(
             backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
@@ -708,7 +725,7 @@ void _showSettingsDialog(BuildContext context) {
                   ),
                   const SizedBox(height: 20),
 
-                  // 알림 설정
+                  // 🔔 알림 설정
                   const Text(
                     "알림 설정",
                     style: TextStyle(
@@ -718,64 +735,22 @@ void _showSettingsDialog(BuildContext context) {
                   ),
                   const SizedBox(height: 10),
 
-                  // 알림음 듣기
+                  // 🔊 알림음 듣기
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text("알림음 듣기"),
                       GestureDetector(
-                        onTap: () => setState(() => alarmSound = !alarmSound),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 40, // ✅ Figma width
-                          height: 24, // ✅ Figma height
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: alarmSound
-                                ? const Color(0xFF643EFF)
-                                : Colors.white,
-                            border: Border.all(
-                              color: const Color(0xFF643EFF),
-                              width: 1, // ✅ border 1px
-                            ),
-                            borderRadius: BorderRadius.circular(16), // ✅ radius 16
-                          ),
-                          child: AnimatedAlign(
-                            duration: const Duration(milliseconds: 200),
-                            alignment: alarmSound
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            child: Container(
-                              width: 12, // ✅ circle width
-                              height: 12, // ✅ circle height
-                              decoration: BoxDecoration(
-                                color: alarmSound
-                                    ? Colors.white
-                                    : const Color(0xFF643EFF),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-
-                  // 진동으로 알림 받기
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("진동으로 알림 받기"),
-                      GestureDetector(
-                        onTap: () => setState(() => vibration = !vibration),
+                        onTap: () {
+                          vm.updateAlarmSound(!vm.alarmSound);
+                        },
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           width: 40,
                           height: 24,
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
-                            color: vibration
+                            color: vm.alarmSound
                                 ? const Color(0xFF643EFF)
                                 : Colors.white,
                             border: Border.all(
@@ -786,14 +761,14 @@ void _showSettingsDialog(BuildContext context) {
                           ),
                           child: AnimatedAlign(
                             duration: const Duration(milliseconds: 200),
-                            alignment: vibration
+                            alignment: vm.alarmSound
                                 ? Alignment.centerRight
                                 : Alignment.centerLeft,
                             child: Container(
                               width: 12,
                               height: 12,
                               decoration: BoxDecoration(
-                                color: vibration
+                                color: vm.alarmSound
                                     ? Colors.white
                                     : const Color(0xFF643EFF),
                                 shape: BoxShape.circle,
@@ -804,24 +779,72 @@ void _showSettingsDialog(BuildContext context) {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 10),
 
+                  // 📳 진동으로 알림 받기
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("진동으로 알림 받기"),
+                      GestureDetector(
+                        onTap: () {
+                          vm.updateVibration(!vm.vibration);
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 40,
+                          height: 24,
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: vm.vibration
+                                ? const Color(0xFF643EFF)
+                                : Colors.white,
+                            border: Border.all(
+                              color: const Color(0xFF643EFF),
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: AnimatedAlign(
+                            duration: const Duration(milliseconds: 200),
+                            alignment: vm.vibration
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            child: Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: vm.vibration
+                                    ? Colors.white
+                                    : const Color(0xFF643EFF),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 20),
 
-                  // 타이머 시간 변경
+                  // ⏱ 타이머 시간 변경
                   const Text(
                     "타이머 시간 변경",
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Color(0xFF643EFF)),
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF643EFF),
+                    ),
                   ),
                   const SizedBox(height: 10),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text("집중"),
                       DropdownButton<int>(
                         value: vm.focusTotal.inMinutes,
-                        dropdownColor: Colors.white, // ✅ 배경 흰색
-                        style: const TextStyle(color: Colors.black), // ✅ 글자 검정
+                        dropdownColor: Colors.white,
+                        style: const TextStyle(color: Colors.black),
                         items: const [
                           DropdownMenuItem(value: 5, child: Text("5분")),
                           DropdownMenuItem(value: 10, child: Text("10분")),
@@ -832,51 +855,39 @@ void _showSettingsDialog(BuildContext context) {
                         onChanged: (val) {
                           if (val != null) {
                             vm.updateFocusTime(val);
-                            setState(() {});
                           }
                         },
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 20),
 
-                  // 완료 / 취소 버튼
+                  // ✅ 완료 / 취소 버튼
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: () => Navigator.pop(context),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF7958FF),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            "완료",
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          child: const Text("완료", style: TextStyle(color: Colors.white)),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: () => Navigator.pop(context),
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xFF7958FF)),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            "취소",
-                            style: TextStyle(color: Color(0xFF7958FF)),
-                          ),
+                          child: const Text("취소", style: TextStyle(color: Color(0xFF7958FF))),
                         ),
                       ),
                     ],

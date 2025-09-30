@@ -1,6 +1,7 @@
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:dio/dio.dart';
 import 'package:it_contest_fe/core/network/dio_client.dart';
+import '../../../core/fcm/fcm_token_api.dart';
 import '../model/user_token_response.dart';
 
 class KakaoLoginService {
@@ -26,6 +27,8 @@ class KakaoLoginService {
         data: {'accessToken': token.accessToken},
       );
       final tokenResponse = UserTokenResponse.fromJson(response.data);
+
+      await FcmTokenApi(_dio).registerToken(tokenResponse.accessToken);
 
       // ✅ 사용자 정보 요청 추가 (선택)
       final user = await UserApi.instance.me();

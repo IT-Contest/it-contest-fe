@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'alarm_list_page.dart';
 
@@ -18,23 +19,37 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
   TimeOfDay questTime = const TimeOfDay(hour: 7, minute: 0);
 
-  Future<void> _pickQuestTime(BuildContext context) async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: questTime,
-    );
-    if (picked != null && picked != questTime) {
-      setState(() {
-        questTime = picked;
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
   }
 
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hourOfPeriod.toString().padLeft(2, '0');
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? "AM" : "PM";
-    return "$hour:$minute $period";
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      dailyQuestNotification = prefs.getBool('dailyQuestNotification') ?? true;
+      questTimeNotification = prefs.getBool('questTimeNotification') ?? true;
+      pomodoroNotification = prefs.getBool('pomodoroNotification') ?? true;
+      partyNotification = prefs.getBool('partyNotification') ?? true;
+
+      final hour = prefs.getInt('questTimeHour');
+      final minute = prefs.getInt('questTimeMinute');
+      if (hour != null && minute != null) {
+        questTime = TimeOfDay(hour: hour, minute: minute);
+      }
+    });
+  }
+
+  Future<void> _saveBool(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
+  }
+
+  Future<void> _saveQuestTime(TimeOfDay time) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('questTimeHour', time.hour);
+    await prefs.setInt('questTimeMinute', time.minute);
   }
 
   @override
@@ -85,18 +100,18 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
           _buildSwitchTile(
             "일일 퀘스트 알림",
             dailyQuestNotification,
-                (value) => setState(() => dailyQuestNotification = value),
+                (value) {
+              setState(() => dailyQuestNotification = value);
+              _saveBool('dailyQuestNotification', value);
+            },
           ),
-          // 퀘스트 알림 시간 설정 (제목 + 토글)
-          SwitchListTile(
-            title: const Text(
-              "퀘스트 알림 시간 설정",
-              style: TextStyle(fontSize: 14),
-            ),
-            value: questTimeNotification,
-            onChanged: (value) => setState(() => questTimeNotification = value),
-            activeColor: Colors.white, // 동그라미 색상
-            activeTrackColor: const Color(0xFF7958FF), // 활성화 시 배경
+          _buildSwitchTile(
+            "퀘스트 알림 시간 설정",
+            questTimeNotification,
+                (value) {
+              setState(() => questTimeNotification = value);
+              _saveBool('questTimeNotification', value);
+            },
           ),
           if (questTimeNotification)
             Padding(
@@ -105,7 +120,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 alignment: Alignment.centerLeft,
                 child: Container(
                   margin: const EdgeInsets.only(left: 16),
-                  width: 180, // 카드 전체 너비
+                  width: 180,
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey.shade300, width: 1.5),
                     borderRadius: BorderRadius.circular(10),
@@ -113,7 +128,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   ),
                   child: Row(
                     children: [
-                      // 시간 영역
                       Expanded(
                         child: GestureDetector(
                           onTap: () async {
@@ -123,6 +137,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                             );
                             if (picked != null) {
                               setState(() => questTime = picked);
+                              _saveQuestTime(picked);
                             }
                           },
                           child: Padding(
@@ -140,8 +155,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                           ),
                         ),
                       ),
-
-                      // AM/PM 토글 버튼 그룹
                       Container(
                         height: 60,
                         decoration: const BoxDecoration(
@@ -167,6 +180,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                                         minute: questTime.minute,
                                       );
                                     });
+                                    _saveQuestTime(questTime);
                                   }
                                 },
                                 fillColor: const Color(0xFF7958FF),
@@ -193,6 +207,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                                         minute: questTime.minute,
                                       );
                                     });
+                                    _saveQuestTime(questTime);
                                   }
                                 },
                                 fillColor: const Color(0xFF7958FF),
@@ -209,19 +224,23 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 ),
               ),
             ),
-
-
           _buildSectionTitle("뽀모도로"),
           _buildSwitchTile(
             "뽀모도로 알림",
             pomodoroNotification,
-                (value) => setState(() => pomodoroNotification = value),
+                (value) {
+              setState(() => pomodoroNotification = value);
+              _saveBool('pomodoroNotification', value);
+            },
           ),
           _buildSectionTitle("파티"),
           _buildSwitchTile(
             "파티 초대장 알림",
             partyNotification,
-                (value) => setState(() => partyNotification = value),
+                (value) {
+              setState(() => partyNotification = value);
+              _saveBool('partyNotification', value);
+            },
           ),
         ],
       ),
@@ -244,43 +263,16 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
   Widget _buildSwitchTile(String title, bool value, Function(bool) onChanged) {
     return SwitchListTile(
-      title: Text(
-        title,
-        style: const TextStyle(fontSize: 14),
-      ),
+      title: Text(title, style: const TextStyle(fontSize: 14)),
       value: value,
       onChanged: onChanged,
-      activeColor: Colors.white, // 동그라미 색상
-      activeTrackColor: const Color(0xFF7958FF), // 배경 보라색
+      activeColor: Colors.white,
+      activeTrackColor: const Color(0xFF7958FF),
+      inactiveThumbColor: const Color(0xFF7958FF),
+      inactiveTrackColor: Colors.white,
+      trackOutlineColor: WidgetStateProperty.all(const Color(0xFF7958FF)),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
-}
-
-/// 🔹 AM/PM 버튼 빌더
-Widget _buildAmPmButton(String text, bool isSelected, VoidCallback onTap) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: 50,
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFF7958FF) : Colors.white,
-        border: Border.all(color: const Color(0xFF7958FF)),
-        borderRadius: text == "AM"
-            ? const BorderRadius.only(
-            topLeft: Radius.circular(6), topRight: Radius.circular(6))
-            : const BorderRadius.only(
-            bottomLeft: Radius.circular(6), bottomRight: Radius.circular(6)),
-      ),
-      child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: isSelected ? Colors.white : Colors.black,
-        ),
-      ),
-    ),
-  );
 }

@@ -2,15 +2,22 @@ import 'package:flutter/material.dart';
 
 class PartyTitleInput extends StatefulWidget {
   final ValueChanged<String> onChanged;
-  const PartyTitleInput({super.key, required this.onChanged});
+  final String? initialValue;
+  const PartyTitleInput({super.key, required this.onChanged,     this.initialValue,});
 
   @override
   State<PartyTitleInput> createState() => _PartyTitleInputState();
 }
 
 class _PartyTitleInputState extends State<PartyTitleInput> {
-  final TextEditingController _controller = TextEditingController();
+  late TextEditingController _controller;
   bool _isOverLimit = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialValue ?? '');
+  }
 
   @override
   void dispose() {
@@ -37,7 +44,7 @@ class _PartyTitleInputState extends State<PartyTitleInput> {
           onChanged: _handleInputChange,
           decoration: InputDecoration(
             hintText: "파티명을 입력해 주세요 (최대 100자 이내)",
-            hintStyle: const TextStyle(color: Color(0xFFB7B7B7), fontSize: 16, fontWeight: FontWeight.bold),
+            hintStyle: const TextStyle(color: Color(0xFFB7B7B7), fontSize: 16),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
               borderSide: const BorderSide(color: Color(0xFFE0E0E0), width: 1),
@@ -58,4 +65,4 @@ class _PartyTitleInputState extends State<PartyTitleInput> {
       ],
     );
   }
-} 
+}

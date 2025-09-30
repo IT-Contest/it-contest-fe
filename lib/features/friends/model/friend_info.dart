@@ -19,17 +19,19 @@ class FriendInfo {
 
   factory FriendInfo.fromJson(Map<String, dynamic> json) {
     final exp = json['exp'] ?? 0;
-    final level = exp ~/ 5000;
     final percent = ((exp % 5000) / 5000 * 100).round().clamp(0, 100);
 
     return FriendInfo(
       userId: json['userId'],
       nickname: json['nickname'] ?? '',
-      level: json['level'] ?? 0, // ✅ 서버에서 온 level 값 사용
+      level: json['level'] ?? 0,
       expPercent: percent,
       totalExp: exp,
       gold: json['gold'] ?? 0,
-      profileImageUrl: json['profileImageUrl'] ?? '',
+      profileImageUrl: (json['profileImageUrl'] != null &&
+          (json['profileImageUrl'] as String).isNotEmpty)
+          ? json['profileImageUrl']
+          : 'https://ssuchaehwa.duckdns.org/simpson.jpg', // ✅ 기본 이미지 URL
     );
   }
 }

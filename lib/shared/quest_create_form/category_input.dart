@@ -101,14 +101,14 @@ class _CategoryInputState extends State<CategoryInput> {
               },
               decoration: InputDecoration(
                 hintText: "카테고리를 직접 입력해 주세요",
-                hintStyle: const TextStyle(color: Color(0xFFB7B7B7), fontSize: 14),
+                hintStyle: const TextStyle(color: Color(0xFFD1D5DB), fontSize: 14),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: const BorderSide(color: Color(0xFFB7B7B7)),
+                  borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
                 ),
                 enabledBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8)),
-                  borderSide: BorderSide(color: Color(0xFFB7B7B7)),
+                  borderSide: BorderSide(color: Color(0xFFD1D5DB)),
                 ),
                 focusedBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(8)),

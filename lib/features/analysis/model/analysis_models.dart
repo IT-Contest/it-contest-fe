@@ -326,7 +326,7 @@ class AnalysisData {
             final daysDiff = targetMonday.difference(firstMondayOfMonth).inDays;
             final weekOfMonth = (daysDiff / 7).floor() + 1;
             
-            return '$month월 ${weekOfMonth}주차';
+            return '$month월 $weekOfMonth주차';
           }
           return dateStr;
         case AnalysisTimeframe.monthly:

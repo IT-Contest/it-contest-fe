@@ -19,7 +19,6 @@ class AnalysisService {
         return await _fetchPomodoroAnalysisData(timeframe, token);
       }
     } catch (e) {
-      print('❌ [AnalysisService] API Error: $e');
       rethrow;
     }
   }
@@ -269,8 +268,28 @@ class AnalysisService {
 
       final List<dynamic> result = response.data['result'] ?? [];
       return result.map((json) {
+        // 서버 시간을 일관된 형식으로 변환
+        String formattedDate = '';
+        if (json['createdAt'] != null) {
+          try {
+            final createdAtStr = json['createdAt'].toString();
+            
+            // 서버에서 이미 포맷된 형태라면 그대로 사용
+            if (createdAtStr.contains('.') && !createdAtStr.contains('T')) {
+              // "2025.09.20 02:19" 형태인 경우 날짜 부분만 추출
+              formattedDate = createdAtStr.split(' ')[0];
+            } else {
+              // ISO 형태인 경우 파싱
+              final dateTime = DateTime.parse(createdAtStr);
+              formattedDate = '${dateTime.year}.${dateTime.month.toString().padLeft(2, '0')}.${dateTime.day.toString().padLeft(2, '0')}';
+            }
+          } catch (e) {
+            formattedDate = json['createdAt'].toString().split(' ')[0]; // 안전장치
+          }
+        }
+        
         return CoachingHistoryItem(
-          date: json['createdAt']?.toString().split('T')[0].replaceAll('-', '.') ?? '',
+          date: formattedDate,
           type: '${json['analysisType']} ${json['questOrPomodoro']}',
           content: json['coachingContent'] ?? '',
         );

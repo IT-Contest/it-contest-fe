@@ -16,51 +16,39 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: height + 1, // Divider 포함
+      height: height + 1,
       color: Colors.white,
-      child: Stack(
-        children: [
-          SafeArea(
-            child: Container(
-              height: height,
-              padding: padding,
-              child: Row(
-                children: [
-                  const SizedBox(width: 40), // 왼쪽 공간(혹은 아이콘)
-                  Expanded(
-                    child: Center(
-                      child: Image.asset('assets/images/logo.png', height: 40),
+      child: SafeArea(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // 🔹 로고를 가운데 배치
+            Center(
+              child: Image.asset('assets/images/logo.png', height: 40),
+            ),
+
+            // 🔹 오른쪽 끝 알림 버튼
+            Positioned(
+              right: 12,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                      const NotificationPage(hasNotifications: false),
                     ),
-                  ),
-                  // 오른쪽 알림 아이콘 버튼
-                  IconButton(
-                    icon: Icon(Icons.notifications_none, color: iconColor),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const NotificationPage(
-                            hasNotifications: false, // 필요 시 상태 전달 가능
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                  );
+                },
+                child: Image.asset(
+                  "assets/icons/alarm_btn1.png",
+                  width: 28,
+                  height: 28,
+                ),
               ),
             ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: const Divider(
-              height: 1,
-              thickness: 1,
-              color: Color(0xFFE0E0E0),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

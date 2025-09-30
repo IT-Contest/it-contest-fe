@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/quest/model/quest_create_request.dart';
 import 'package:it_contest_fe/features/quest/service/quest_service.dart';
 import 'package:it_contest_fe/features/quest/model/quest_item_response.dart';
+import 'package:it_contest_fe/features/quest/model/quest_create_request.dart';
 
 // TimeData class removed; use the imported one from quest_create_request.dart
 
@@ -20,7 +20,7 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
   String? errorMessage;
 
   void initializeFromQuest(QuestItemResponse quest) {
-    questName = quest.title;
+    questName = quest.title ?? '';
     priority = quest.priority;
     questType = quest.questType;
     hashtags = List<String>.from(quest.hashtags);
@@ -109,9 +109,6 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  String _formatDate(DateTime date) {
-    return "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
-  }
 
   Future<bool> createQuest() async {
     isLoading = true;
@@ -119,6 +116,9 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // ✅ 엑셀 데이터에 따른 보상 계산
+      final rewards = _calculateRewards(questType, questName);
+      
       final request = QuestCreateRequest(
         content: questName,
         priority: priority,
@@ -129,17 +129,19 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
         startDate: startDate?.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0],
         dueDate: dueDate?.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0],
         hashtags: hashtags,
+        expReward: rewards['exp']!,
+        goldReward: rewards['gold']!,
       );
 
-      final success = await QuestService().createQuest(request);
+      final result = await QuestService().createQuestWithReward(request);
       
-      if (success) {
+      if (result != null && result['success'] == true) {
         print('[퀘스트 생성 성공]');
+        return true;
       } else {
         errorMessage = '퀘스트 생성에 실패했습니다.';
+        return false;
       }
-      
-      return success;
     } catch (e) {
       errorMessage = '퀘스트 생성 중 오류가 발생했습니다: $e';
       print('[퀘스트 생성 오류] $e');
@@ -150,6 +152,23 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
     }
   }
 
+  Map<String, int> _calculateRewards(String questType, String questName) {
+    // 온보딩 퀘스트 체크 (퀘스트 이름에 '온보딩' 또는 'onboarding'이 포함된 경우)
+    if (questName.toLowerCase().contains('온보딩') || 
+        questName.toLowerCase().contains('onboarding')) {
+      return {
+        'exp': 100,  // 온보딩 퀘스트는 100 exp
+        'gold': 50,  // 온보딩 퀘스트 골드 보상
+      };
+    }
+    
+    // 일반 퀘스트는 엑셀 데이터에 따라 10 exp
+    return {
+      'exp': 10,   // 모든 일반 퀘스트는 10 exp
+      'gold': 5,   // 기본 골드 보상
+    };
+  }
+
   // 퀘스트 수정 메서드 추가
   Future<bool> updateQuest(int questId) async {
     isLoading = true;
@@ -157,6 +176,9 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // 엑셀 데이터에 따른 보상 계산
+      final rewards = _calculateRewards(questType, questName);
+      
       final updateData = {
         'content': questName,
         'priority': priority,
@@ -166,6 +188,8 @@ class QuestPersonalCreateViewModel extends ChangeNotifier {
         'startDate': startDate?.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0],
         'dueDate': dueDate?.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0],
         'hashtags': hashtags,
+        'expReward': rewards['exp']!,
+        'goldReward': rewards['gold']!,
       };
 
       final success = await QuestService().updateQuest(questId, updateData);

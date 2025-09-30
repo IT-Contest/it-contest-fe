@@ -16,6 +16,7 @@ import 'package:it_contest_fe/presentation/main_navigation_screen.dart';
 import 'package:it_contest_fe/shared/widgets/quest_creation_modal.dart';
 
 import '../../../shared/interstitial_ad_service.dart';
+import '../../../shared/widgets/quest_update_modal.dart';
 
 class QuestPersonalFormScreen extends StatefulWidget {
   final QuestItemResponse? quest;
@@ -37,7 +38,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
   void initState() {
     super.initState();
     if (widget.quest != null) {
-      _title = widget.quest!.title;
+      _title = widget.quest!.questName ?? '';
       _priority = widget.quest!.priority;
       _period = _mapQuestTypeToKorean(widget.quest!.questType);
       _categories = List<String>.from(widget.quest!.hashtags);
@@ -216,11 +217,11 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                             text: '완료시 ',
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF9B9B9B),
+                                color: Color(0xFFD1D5DB),
                                 fontWeight: FontWeight.w600),
                             children: [
                               TextSpan(
-                                text: '0,000exp',
+                                text: '10exp',
                                 style: TextStyle(
                                     color: Color(0xFF7958FF),
                                     fontWeight: FontWeight.w800),
@@ -242,21 +243,26 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                             : () async {
                           if (widget.quest != null) {
                             // 수정 로직
-                            final success =
-                            await vm.updateQuest(widget.quest!.questId);
+                            final success = await vm.updateQuest(widget.quest!.questId);
                             if (success) {
                               if (mounted) {
-                                final questTabVM =
-                                context.read<QuestTabViewModel>();
+                                final questTabVM = context.read<QuestTabViewModel>();
                                 await questTabVM.loadQuests(force: true);
 
-                                Navigator.pop(context);
+                                // ✅ 수정 완료 모달 표시
+                                QuestUpdateModal.show(
+                                  context,
+                                  onClose: () {
+                                    Navigator.pop(context); // 모달 닫기
+                                    Navigator.pop(context); // 수정 폼 닫고 -> 상세/리스트로 복귀
+                                  },
+                                );
                               }
                             }
                           } else {
                             // 생성 로직
-                            final success = await vm.createQuest();
-                            if (success) {
+                            final result = await vm.createQuest();
+                            if (result != null && result == true) {
                               if (mounted) {
                                 InterstitialAdService.showAd(
                                   onClosed: () {
@@ -280,7 +286,11 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                                           (route) => false,
                                     );
 
-                                    QuestCreationModal.show(context);
+                                    QuestCreationModal.show(
+                                      context,
+                                      //xpReward: result['rewardExp'],
+                                      showExpReward: true,
+                                    );
                                   },
                                 );
                               }

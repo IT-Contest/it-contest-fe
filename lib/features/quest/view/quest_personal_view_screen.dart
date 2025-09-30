@@ -6,9 +6,13 @@ import 'package:it_contest_fe/shared/quest_create_form/title_input.dart';
 import 'package:it_contest_fe/shared/quest_create_form/priority_section/priority.dart';
 import 'package:it_contest_fe/shared/quest_create_form/category_input.dart';
 import 'package:it_contest_fe/shared/quest_create_form/date_time_section.dart';
+import 'package:it_contest_fe/shared/widgets/quest_delete_confirmation_modal.dart';
+import 'package:it_contest_fe/shared/widgets/quest_delete_success_modal.dart';
 
 import 'package:it_contest_fe/features/quest/viewmodel/quest_personal_create_viewmodel.dart';
 import 'package:it_contest_fe/features/quest/model/quest_item_response.dart';
+import 'package:it_contest_fe/features/quest/viewmodel/quest_tab_viewmodel.dart';
+import 'package:it_contest_fe/features/quest/view/quest_personal_form_screen.dart';
 
 class QuestPersonalFormPage extends StatefulWidget {
   final QuestItemResponse? quest;
@@ -30,7 +34,7 @@ class _QuestPersonalFormPageState extends State<QuestPersonalFormPage> {
   void initState() {
     super.initState();
     if (widget.quest != null) {
-      _title = widget.quest!.title;
+      _title = widget.quest!.title ?? widget.quest!.questName ?? '';
       _priority = widget.quest!.priority;
       _period = _mapQuestTypeToKorean(widget.quest!.questType);
       _categories = List<String>.from(widget.quest!.hashtags);
@@ -119,11 +123,14 @@ class _QuestPersonalFormPageState extends State<QuestPersonalFormPage> {
                 ),
                 surfaceTintColor: Colors.white,
               ),
-              body: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+              body: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                     // 1. 퀘스트 제목
                     AbsorbPointer( // ✅ 입력 막음
                       child: QuestTitleInput(
@@ -189,7 +196,7 @@ class _QuestPersonalFormPageState extends State<QuestPersonalFormPage> {
                                 fontWeight: FontWeight.w600),
                             children: [
                               TextSpan(
-                                text: '0,000exp',
+                                text: '10exp',
                                 style: TextStyle(
                                     color: Color(0xFF7958FF),
                                     fontWeight: FontWeight.w800),
@@ -200,9 +207,99 @@ class _QuestPersonalFormPageState extends State<QuestPersonalFormPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 26),
-                  ],
-                ),
+                        const SizedBox(height: 26),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // 고정된 하단 버튼 영역
+                  if (widget.quest != null)
+                    Container(
+                      color: Colors.white,
+                      child: Column(
+                        children: [
+                          const Divider(color: Color(0xFFE0E0E0), height: 1, thickness: 1),
+                          Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              children: [
+                                Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => QuestPersonalFormScreen(quest: widget.quest),
+                                      ),
+                                    ).then((_) {
+                                      // 수정 후 돌아왔을 때 데이터 새로고침
+                                      Navigator.pop(context);
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF6737F4),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    elevation: 0,
+                                  ),
+                                  child: const Text(
+                                    '수정하기',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () async {
+                                    // 삭제 확인 모달 표시
+                                    QuestDeleteConfirmationModal.show(
+                                      context,
+                                      onDelete: () async {
+                                        // 삭제 실행
+                                        final questTabViewModel = context.read<QuestTabViewModel>();
+                                        final success = await questTabViewModel.deleteQuest(widget.quest!.questId);
+                                        
+                                        if (success && mounted) {
+                                          // 삭제 성공 모달 표시
+                                          QuestDeleteSuccessModal.show(
+                                            context,
+                                            onClose: () {
+                                              Navigator.pop(context); // 퀘스트 상세 화면 닫기
+                                            },
+                                          );
+                                        }
+                                      },
+                                      onCancel: () {
+                                        // 취소 시 아무것도 하지 않음
+                                      },
+                                    );
+                                  },
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(color: Color(0xFF6737F4), width: 1),
+                                    foregroundColor: const Color(0xFF6737F4),
+                                    backgroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                  ),
+                                  child: const Text(
+                                    '삭제하기',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                                ],
+                              ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
               ),
             ),
           ),

@@ -6,7 +6,8 @@ import '../model/analysis_models.dart';
 import '../viewmodel/analysis_viewmodel.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import 'coaching_history_screen.dart';
-import '../../quest/view/quest_personal_form_screen.dart';
+import 'leaderboard_full_screen.dart';
+import '../../quest/view/widgets/quest_type_bottom_sheet.dart';
 
 
 class AnalysisView extends StatefulWidget {
@@ -218,10 +219,12 @@ class _AnalysisViewState extends State<AnalysisView> {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const QuestPersonalFormScreen(),
-                      ),
+                    QuestTypeBottomSheet.show(
+                      context,
+                      onPersonalQuestTap: () {
+                        // 개인 퀘스트 생성 후 콜백 (필요시 분석 데이터 새로고침)
+                        print('Personal quest created from analysis tab');
+                      },
                     );
                   },
                   style: OutlinedButton.styleFrom(
@@ -282,8 +285,6 @@ class _AnalysisViewState extends State<AnalysisView> {
     );
   }
 
-  // 기존 데이터 타입 선택기는 제거됨
-
   // 리더보드 카드
   Widget _buildLeaderboardCard(BuildContext context, AnalysisViewModel viewModel) {
     return Column(
@@ -293,132 +294,101 @@ class _AnalysisViewState extends State<AnalysisView> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text('리더보드', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF4C1FFF))),
-            Row(
-              children: [
-                const Text('전체보기', style: TextStyle(color: Color(0xFF757575), fontSize: 16, fontWeight: FontWeight.w400)),
-                const Icon(Icons.chevron_right, size: 20, color: Color(0xFF757575)),
-              ],
-            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const LeaderboardFullScreen(),
+                  ),
+                );
+              },
+              child: const Text('전체보기 >', style: TextStyle(color: Color(0xFF7958FF), fontWeight: FontWeight.bold)),
+            )
           ],
         ),
-        const SizedBox(height: 16),
-        // 리더보드 카드
-        Card(
-          elevation: 0,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: viewModel.isLoadingLeaderboard
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-                    children: List.generate(5, (index) {
-                      // 임시 데이터로 UI 구현
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFE0E0E0), width: 1),
-                        ),
-                        child: Row(
-                          children: [
-                            // 순위 박스
-                            Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF6737F4),
-                                borderRadius: BorderRadius.circular(8),
+        const SizedBox(height: 8),
+        // 리더보드 아이템들
+        viewModel.isLoadingLeaderboard
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: viewModel.leaderboard.asMap().entries.map((entry) {
+                final index = entry.key;
+                final user = entry.value;
+                
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Card(
+                    elevation: 2,
+                    color: Colors.white,
+                    shadowColor: const Color(0xFFEDE9FE),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          // 순위 배지
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF7958FF),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                user.rank.toString(),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              child: Center(
-                                child: Text(
-                                  '${index + 1}',
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // 프로필 이미지
+                          CircleAvatar(
+                            radius: 24,
+                            backgroundImage: NetworkImage(user.avatarUrl),
+                            onBackgroundImageError: (_, __) {},
+                            child: Text(
+                              user.name.isNotEmpty ? user.name[0] : '?',
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          // 사용자 정보
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user.name,
                                   style: const TextStyle(
-                                    color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
                                   ),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            // 아바타 이미지
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF2ECFF),
-                                borderRadius: BorderRadius.circular(24),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(24),
-                                child: Image.network(
-                                  'https://via.placeholder.com/48x48/F2ECFF/6737F4?text=A',
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      decoration: const BoxDecoration(
-                                        color: Color(0xFFF2ECFF),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.person,
-                                        color: Color(0xFF6737F4),
-                                        size: 24,
-                                      ),
-                                    );
-                                  },
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${user.exp.toString().replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (match) => '${match[1]},')} exp',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Color(0xFF7958FF),
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                            const SizedBox(width: 16),
-                            // 이름과 경험치
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    '애라',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '4,500 exp',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: const Color(0xFF6737F4),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+                );
+              }).toList(),
             ),
-          ),
-        ),
       ],
     );
   }
@@ -430,7 +400,7 @@ class _AnalysisViewState extends State<AnalysisView> {
       gridData: FlGridData(
         show: true,
         drawVerticalLine: false,
-        horizontalInterval: 10,
+        horizontalInterval: 5,
         getDrawingHorizontalLine: (value) {
           return FlLine(
             color: Colors.grey[300]!,
@@ -469,7 +439,7 @@ class _AnalysisViewState extends State<AnalysisView> {
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            interval: 10,
+            interval: 5,
             reservedSize: 40,
             getTitlesWidget: (double value, TitleMeta meta) {
               return Text(
@@ -510,11 +480,8 @@ class _AnalysisViewState extends State<AnalysisView> {
   }
 
   double _getMaxY(List<double> data) {
-    if (data.isEmpty) return 50;
-    final maxValue = data.reduce((a, b) => a > b ? a : b);
-    // Y축 최대값을 적절히 조정 (최소 50, 최대값보다 약간 크게)
-    final calculatedMax = ((maxValue / 10).ceil() * 10).toDouble();
-    return calculatedMax < 50 ? 50 : calculatedMax;
+    // 항상 20을 최대값으로 고정
+    return 20;
   }
 
   // AI 코칭 모달 표시
@@ -532,6 +499,9 @@ class _AnalysisViewState extends State<AnalysisView> {
       if (result.success && result.coachingContent != null) {
         // 분석 결과 모달 표시
         _showCoachingResultModal(context, result.coachingContent!);
+      } else if (result.errorMessage == 'daily_limit_reached') {
+        // 일일 사용 제한 팝업 표시
+        _showDailyLimitDialog(context);
       } else {
         // 오류 처리
         _showErrorDialog(context, result.errorMessage ?? '분석 중 오류가 발생했습니다.');
@@ -543,29 +513,39 @@ class _AnalysisViewState extends State<AnalysisView> {
   Widget _buildLoadingModal() {
     return Dialog(
       backgroundColor: Colors.transparent,
-      child: Container(
-        width: 200,
-        height: 200,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              '분석 중...',
-              style: TextStyle(
-                color: Color(0xFF7958FF),
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      child: Center(
+        child: Container(
+          width: 200,
+          height: 200,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
               ),
-            ),
-            const SizedBox(height: 30),
-            // 도트 로딩 애니메이션
-            const LoadingDots(),
-          ],
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                '분석 중...',
+                style: TextStyle(
+                  color: Color(0xFF7958FF),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 30),
+              // 도트 로딩 애니메이션
+              const LoadingDots(),
+            ],
+          ),
         ),
       ),
     );
@@ -759,6 +739,75 @@ class _AnalysisViewState extends State<AnalysisView> {
           fontSize: 14,
           height: 1.4,
           color: Colors.black87,
+        ),
+      ),
+    );
+  }
+
+  // 일일 사용 제한 다이얼로그
+  void _showDailyLimitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 경고 아이콘
+              Container(
+                width: 60,
+                height: 60,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFD73027),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_rounded,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'AI 코칭 기능은 하루 한 번만\n활용이 가능합니다.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7958FF),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    '확인',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

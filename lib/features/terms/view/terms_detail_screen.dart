@@ -5,6 +5,7 @@ class TermsDetailScreen extends StatelessWidget {
   final String title;
   final String url;
 
+
   const TermsDetailScreen({
     super.key,
     required this.title,
@@ -13,8 +14,8 @@ class TermsDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String baseUrl = "http://192.168.45.148:8080";
-    final String fullUrl = url.startsWith("http") ? url : "$baseUrl$url";
+    final String baseUrl = "https://ssuchaehwa.duckdns.org";
+    final String fullUrl = url.startsWith("https") ? url : "$baseUrl$url";
 
     // 먼저 controller 선언
     final controller = WebViewController();

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+
 import 'package:it_contest_fe/features/mainpage/view/widgets/onboarding_intro_card.dart';
 import 'package:it_contest_fe/features/mainpage/view/widgets/party_and_friends_section.dart';
 import 'package:it_contest_fe/features/mainpage/view/widgets/quest_alert_section.dart';
 import 'package:it_contest_fe/features/mainpage/view/widgets/user_profile_card.dart';
 import 'package:it_contest_fe/features/mainpage/viewmodel/mainpage_viewmodel.dart';
 
-import '../../quest/view/quest_party_create_screen.dart';
+import '../../../features/quest/service/party_service.dart';
+import '../../../shared/alarm/widgets/party_invitation_card.dart';
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
@@ -16,6 +19,8 @@ class HomePageWidget extends StatefulWidget {
 }
 
 class _HomePageWidgetState extends State<HomePageWidget> {
+  final PartyService _partyService = PartyService();
+
   @override
   void initState() {
     super.initState();
@@ -23,7 +28,51 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       final vm = context.read<MainPageViewModel>();
       await vm.loadMainQuests();
       await vm.loadUserInfo(); // 프로필 + 퀘스트 카운트 정보 로드
+
+      // ✅ 가장 최근 파티 초대장 확인
+      await _checkLatestPartyInvitation();
     });
+  }
+
+  Future<void> _checkLatestPartyInvitation() async {
+    final token = await const FlutterSecureStorage().read(key: "accessToken");
+    if (token == null) return;
+
+    final invitations = await _partyService.fetchInvitedParties(token);
+
+    if (invitations.isNotEmpty) {
+      // 최신순 정렬 (createdAt 필드가 있다고 가정)
+      invitations.sort((a, b) {
+        final aDate = DateTime.tryParse(a['createdAt'] ?? '') ?? DateTime(1970);
+        final bDate = DateTime.tryParse(b['createdAt'] ?? '') ?? DateTime(1970);
+        return bDate.compareTo(aDate); // 최신순
+      });
+
+      final latestInvitation = invitations.first;
+
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (context) {
+          return Align(
+            alignment: Alignment.topCenter, // ✅ 상단에 붙이기 (원하면 center로)
+            child: Material(
+              color: Colors.transparent,
+              child: Container(
+                width: double.infinity, // ✅ 가로를 꽉 채움
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+                child: SingleChildScrollView( // ✅ 스크롤 가능하게
+                  child: PartyInvitationCard(
+                    partyData: latestInvitation,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -48,41 +97,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // // ✅ 상단바
-              // Container(
-              //   color: Colors.white,
-              //   child: Column(
-              //     children: [
-              //       const SizedBox(height: 28),
-              //       Padding(
-              //         padding: const EdgeInsets.symmetric(horizontal: 28),
-              //         child: Row(
-              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //           children: [
-              //             const Icon(Icons.menu, color: Colors.deepPurple),
-              //             Image.asset('assets/images/logo.jpg', height: 40),
-              //             GestureDetector(
-              //               onTap: () => vm.toggleAlarm(),
-              //               child: Image.asset(
-              //                 vm.hasAlarm
-              //                     ? 'assets/icons/alarm_btn2.png'
-              //                     : 'assets/icons/alarm_btn1.png',
-              //                 width: 28,
-              //                 height: 28,
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       ),
-              //       const SizedBox(height: 16),
-              //       Container(height: 1, color: Colors.grey),
-              //     ],
-              //   ),
-              // ),
-
               const SizedBox(height: 16),
 
-              // 온보딩 카드 조건부 렌더링
+              // ✅ 온보딩 카드
               if (vm.shouldShowOnboardingCard)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -98,7 +115,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
               const SizedBox(height: 16),
 
-              // 유저 정보 및 퀘스트 알림
+              // ✅ 유저 프로필 + 퀘스트 알림
               Consumer<MainPageViewModel>(
                 builder: (context, viewModel, _) {
                   if (viewModel.user == null) return const SizedBox.shrink();
@@ -119,7 +136,10 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               ),
 
               const SizedBox(height: 16),
+
+              // ✅ 파티 & 친구 섹션
               const PartyAndFriendsSection(),
+
               const SizedBox(height: 40),
             ],
           ),
