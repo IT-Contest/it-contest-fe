@@ -5,12 +5,14 @@ import '../../features/mainpage/viewmodel/mainpage_viewmodel.dart';
 class QuestCompletionModal extends StatelessWidget {
   final int expReward;
   final int goldReward;
+  final bool isCompleted; // ✅ 완료(true)/취소(false)
   final VoidCallback? onClose;
 
   const QuestCompletionModal({
     super.key,
     required this.expReward,
     required this.goldReward,
+    required this.isCompleted,
     this.onClose,
   });
 
@@ -29,10 +31,10 @@ class QuestCompletionModal extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Spacer(), // 왼쪽 공간
-              const Text(
-                '퀘스트 완료',
-                style: TextStyle(
+              const Spacer(),
+              Text(
+                isCompleted ? '퀘스트 완료' : '퀘스트 취소', // ✅ 완료/취소 구분
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -43,43 +45,54 @@ class QuestCompletionModal extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
                     onTap: () async {
-                      // 홈화면 데이터 새로고침
                       try {
                         final mainPageViewModel = context.read<MainPageViewModel>();
                         await mainPageViewModel.refreshUserInfo();
                       } catch (e) {
                         print('[홈화면 데이터 새로고침 실패] $e');
                       }
-                      
                       if (onClose != null) {
                         onClose!();
                       } else {
                         Navigator.of(context).pop();
                       }
                     },
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.black,
-                      size: 28,
-                    ),
+                    child: const Icon(Icons.close, color: Colors.black, size: 28),
                   ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
-          // 완료 메시지
-          const Text(
-            '퀘스트를 완료했습니다. 보상이 지급됩니다.',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
+
+          // ✅ 완료/취소에 따라 메시지 변경
+          Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(
+                  text: '퀘스트를 ',
+                  style: TextStyle(color: Colors.black87, fontSize: 16),
+                ),
+                TextSpan(
+                  text: isCompleted ? '완료' : '취소',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isCompleted ? Colors.blue.shade500 : Colors.red.shade500,
+                  ),
+                ),
+                TextSpan(
+                  text: isCompleted
+                      ? '했습니다. 보상이 지급됩니다.'
+                      : '했습니다. 기존 보상이 회수됩니다.',
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
+                ),
+              ],
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
-          
+
           // 보상 카드들
           Row(
             children: [
@@ -96,22 +109,18 @@ class QuestCompletionModal extends StatelessWidget {
                       Container(
                         width: 48,
                         height: 48,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
                         child: Center(
                           child: Image.asset(
                             'assets/icons/arrow_circle_up.png',
                             width: 30,
                             height: 30,
-                            color: const Color(0xFF8F73FF),
+                            color: Colors.white,
                           ),
                         ),
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        '경험치 + $expReward exp',
+                        '경험치 ${isCompleted ? '+' : '-'} $expReward exp', // ✅ + 또는 - 표시
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -123,7 +132,7 @@ class QuestCompletionModal extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               // 골드 카드
               Expanded(
                 child: Container(
@@ -153,7 +162,7 @@ class QuestCompletionModal extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        '+ $goldReward 골드',
+                        '${isCompleted ? '+' : '-'} $goldReward 골드', // ✅ + 또는 - 표시
                         style: const TextStyle(
                           color: Color(0xFF8F73FF),
                           fontSize: 14,
@@ -173,11 +182,12 @@ class QuestCompletionModal extends StatelessWidget {
   }
 
   static void show(
-    BuildContext context, {
-    required int expReward,
-    required int goldReward,
-    VoidCallback? onClose,
-  }) {
+      BuildContext context, {
+        required int expReward,
+        required int goldReward,
+        required bool isCompleted, // ✅ 전달 필요
+        VoidCallback? onClose,
+      }) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -185,6 +195,7 @@ class QuestCompletionModal extends StatelessWidget {
       builder: (context) => QuestCompletionModal(
         expReward: expReward,
         goldReward: goldReward,
+        isCompleted: isCompleted,
         onClose: onClose,
       ),
     );

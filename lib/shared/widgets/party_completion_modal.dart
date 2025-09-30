@@ -5,12 +5,14 @@ import '../../features/mainpage/viewmodel/mainpage_viewmodel.dart';
 class PartyCompletionModal extends StatelessWidget {
   final int expReward;
   final int goldReward;
+  final bool isCompleted; // ✅ 완료(true)/취소(false)
   final VoidCallback? onClose;
 
   const PartyCompletionModal({
     super.key,
     required this.expReward,
     required this.goldReward,
+    required this.isCompleted,
     this.onClose,
   });
 
@@ -29,10 +31,10 @@ class PartyCompletionModal extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Spacer(), // 왼쪽 공간
-              const Text(
-                '파티 퀘스트 완료',
-                style: TextStyle(
+              const Spacer(),
+              Text(
+                isCompleted ? '파티 퀘스트 완료' : '파티 퀘스트 취소',
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -43,7 +45,6 @@ class PartyCompletionModal extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
                     onTap: () async {
-                      // 홈화면 데이터 새로고침
                       try {
                         final mainPageViewModel = context.read<MainPageViewModel>();
                         await mainPageViewModel.refreshUserInfo();
@@ -57,11 +58,7 @@ class PartyCompletionModal extends StatelessWidget {
                         Navigator.of(context).pop();
                       }
                     },
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.black,
-                      size: 28,
-                    ),
+                    child: const Icon(Icons.close, color: Colors.black, size: 28),
                   ),
                 ),
               ),
@@ -69,12 +66,29 @@ class PartyCompletionModal extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // 완료 메시지
-          const Text(
-            '파티 퀘스트를 완료했습니다. 보상이 지급됩니다.',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black87,
+          // ✅ 완료/취소 메시지 (특정 단어 색상 강조)
+          Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(
+                  text: '파티 퀘스트를 ',
+                  style: TextStyle(color: Colors.black87, fontSize: 16),
+                ),
+                TextSpan(
+                  text: isCompleted ? '완료' : '취소',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isCompleted ? Colors.blue.shade500 : Colors.red.shade500,
+                  ),
+                ),
+                TextSpan(
+                  text: isCompleted
+                      ? '했습니다. 보상이 지급됩니다.'
+                      : '했습니다. 기존 보상이 회수됩니다.',
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
+                ),
+              ],
             ),
             textAlign: TextAlign.center,
           ),
@@ -96,22 +110,18 @@ class PartyCompletionModal extends StatelessWidget {
                       Container(
                         width: 48,
                         height: 48,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
                         child: Center(
                           child: Image.asset(
                             'assets/icons/arrow_circle_up.png',
                             width: 30,
                             height: 30,
-                            color: const Color(0xFF8F73FF),
+                            color: Colors.white,
                           ),
                         ),
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        '경험치 + $expReward exp',
+                        '경험치 ${isCompleted ? '+' : '-'} $expReward exp',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -153,7 +163,7 @@ class PartyCompletionModal extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        '+ $goldReward 골드',
+                        '${isCompleted ? '+' : '-'} $goldReward 골드',
                         style: const TextStyle(
                           color: Color(0xFF8F73FF),
                           fontSize: 14,
@@ -176,6 +186,7 @@ class PartyCompletionModal extends StatelessWidget {
       BuildContext context, {
         required int expReward,
         required int goldReward,
+        required bool isCompleted, // ✅ 완료/취소 여부 전달
         VoidCallback? onClose,
       }) {
     showModalBottomSheet(
@@ -185,6 +196,7 @@ class PartyCompletionModal extends StatelessWidget {
       builder: (context) => PartyCompletionModal(
         expReward: expReward,
         goldReward: goldReward,
+        isCompleted: isCompleted,
         onClose: onClose,
       ),
     );

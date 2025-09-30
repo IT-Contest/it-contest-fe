@@ -215,27 +215,24 @@ class _QuestSearchScreenState extends State<QuestSearchScreen> {
                                       onTap: () {
                                         viewModel.toggleQuest(
                                           quest.questId,
-                                          context: context, // context 전달
-                                          onCompleted: (isFirstCompletion) {
-                                            // isFirstCompletion이 true일 때만 모달 표시
-                                            if (isFirstCompletion) {
-                                              // 올바른 보상값 계산
-                                              final questText = (quest.questName ?? quest.title ?? '').toLowerCase();
+                                          context: context,
+                                          onCompleted: (isCompleted) {
+                                            final questText = (quest.questName ?? quest.title ?? '').toLowerCase();
 
-                                              final correctExpReward = questText.contains('온보딩') || questText.contains('onboarding')
-                                                  ? 100
-                                                  : 10;
+                                            final correctExpReward = questText.contains('온보딩') || questText.contains('onboarding')
+                                                ? 100
+                                                : 10;
 
-                                              final correctGoldReward = questText.contains('온보딩') || questText.contains('onboarding')
-                                                  ? 50
-                                                  : 5;
+                                            final correctGoldReward = questText.contains('온보딩') || questText.contains('onboarding')
+                                                ? 50
+                                                : 5;
 
-                                              QuestCompletionModal.show(
-                                                context,
-                                                expReward: correctExpReward,
-                                                goldReward: correctGoldReward,
-                                              );
-                                            }
+                                            QuestCompletionModal.show(
+                                              context,
+                                              expReward: correctExpReward,
+                                              goldReward: correctGoldReward,
+                                              isCompleted: isCompleted, // ✅ 넘김
+                                            );
                                           },
                                         );
                                       },

@@ -80,20 +80,11 @@ class QuestAlertSection extends StatelessWidget {
               return Expanded(
                 child: Column(
                   children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: q['bgColor'] as Color,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Image.asset(
-                          q['icon'] as String,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
+                    Image.asset(
+                      q['icon'] as String,
+                      width: 60,  // 아이콘 크기 직접 지정
+                      height: 60,
+                      fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 8),
                     Text(

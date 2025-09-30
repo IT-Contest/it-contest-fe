@@ -197,28 +197,26 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                             viewModel.togglePartyQuestCompletion(
                               quest.partyId!,
                               context: context,
-                              onCompleted: (isFirstCompletion) {
-                                if (isFirstCompletion) {
-                                  PartyCompletionModal.show(
-                                    context,
-                                    expReward: quest.expReward,
-                                    goldReward: quest.goldReward,
-                                  );
-                                }
+                              onStatusChanged: (status) {
+                                PartyCompletionModal.show(
+                                  context,
+                                  expReward: quest.expReward,
+                                  goldReward: quest.goldReward,
+                                  isCompleted: status == CompletionStatus.COMPLETED, // ✅ 완료/취소 구분
+                                );
                               },
                             );
                           } else {
                             viewModel.toggleQuest(
                               quest.questId,
                               context: context,
-                              onCompleted: (isFirstCompletion) {
-                                if (isFirstCompletion) {
-                                  QuestCompletionModal.show(
-                                    context,
-                                    expReward: quest.expReward,
-                                    goldReward: quest.goldReward,
-                                  );
-                                }
+                              onCompleted: (isCompleted) { // ✅ 완료인지 취소인지 받음
+                                QuestCompletionModal.show(
+                                  context,
+                                  expReward: quest.expReward,
+                                  goldReward: quest.goldReward,
+                                  isCompleted: isCompleted, // ✅ 전달
+                                );
                               },
                             );
                           }

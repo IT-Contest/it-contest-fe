@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
+import '../../../../shared/widgets/party_completion_modal.dart';
 import '../../view/daily_quest_fullpage.dart';
 import '../../viewmodel/quest_tab_viewmodel.dart';
 import '../../model/completion_status.dart';
@@ -135,28 +136,26 @@ class QuestListSection extends StatelessWidget {
                   questTabViewModel.togglePartyQuestCompletion(
                     quest.questId,
                     context: context,
-                    onCompleted: (isFirstCompletion) {
-                      if (isFirstCompletion) {
-                        QuestCompletionModal.show(
-                          context,
-                          expReward: quest.expReward,
-                          goldReward: quest.goldReward,
-                        );
-                      }
+                    onStatusChanged: (status) {
+                      PartyCompletionModal.show(
+                        context,
+                        expReward: quest.expReward,
+                        goldReward: quest.goldReward,
+                        isCompleted: status == CompletionStatus.COMPLETED, // ✅ 완료/취소 구분
+                      );
                     },
                   );
                 } else {
                   questTabViewModel.toggleQuest(
                     quest.questId,
                     context: context,
-                    onCompleted: (isFirstCompletion) {
-                      if (isFirstCompletion) {
-                        QuestCompletionModal.show(
-                          context,
-                          expReward: quest.expReward,
-                          goldReward: quest.goldReward,
-                        );
-                      }
+                    onCompleted: (isCompleted) {
+                      QuestCompletionModal.show(
+                        context,
+                        expReward: quest.expReward,
+                        goldReward: quest.goldReward,
+                        isCompleted: isCompleted, // ✅ true/false 전달
+                      );
                     },
                   );
                 }
