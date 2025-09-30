@@ -4,17 +4,21 @@ import 'package:provider/provider.dart';
 import '../../analysis/viewmodel/analysis_viewmodel.dart';
 import '../model/quest_item_response.dart';
 import '../model/completion_status.dart';
-// ✅ 새로 만든 enum import
 import '../service/quest_service.dart';
 import '../service/party_service.dart';
 
 class QuestTabViewModel extends ChangeNotifier {
   final QuestService _service = QuestService();
-  final PartyService _partyService = PartyService(); // ✅ 파티 서비스 추가
+  final PartyService _partyService = PartyService();
 
+  // 개인 퀘스트
   List<QuestItemResponse> allQuests = [];
   List<QuestItemResponse> filteredQuests = [];
-  List<QuestItemResponse> partyQuests = []; // ✅ 파티 퀘스트 전용 리스트
+
+  // 파티 퀘스트
+  List<QuestItemResponse> allPartyQuests = []; // 전체 원본
+  List<QuestItemResponse> partyQuests = [];    // 필터링된 결과
+
   String selectedPeriod = 'DAILY';
   bool isLoading = false;
   String? errorMessage;
@@ -76,16 +80,24 @@ class QuestTabViewModel extends ChangeNotifier {
   }
 
   void filterQuests() {
-    filteredQuests = allQuests.where((q) => q.questType == selectedPeriod).toList();
+    filteredQuests =
+        allQuests.where((q) => q.questType == selectedPeriod).toList();
+    notifyListeners();
+  }
+
+  void filterPartyQuests() {
+    partyQuests =
+        allPartyQuests.where((q) => q.questType == selectedPeriod).toList();
     notifyListeners();
   }
 
   void changePeriod(String period) {
     selectedPeriod = period;
     filterQuests();
+    filterPartyQuests(); // 파티 퀘스트도 필터링 적용
   }
 
-  // 파티 퀘스트 전용 API 호출 메서드
+  // 파티 퀘스트 불러오기
   Future<void> loadPartyQuests(String accessToken) async {
     isLoading = true;
     notifyListeners();
@@ -93,21 +105,16 @@ class QuestTabViewModel extends ChangeNotifier {
     try {
       final response = await _partyService.fetchMyParties(accessToken);
 
-      // JSON → QuestItemResponse 변환
-      final allPartyQuests = response
+      allPartyQuests = response
           .map((json) => QuestItemResponse.fromJson(json))
           .toList();
 
-      // 여기서 필터링
-      partyQuests = allPartyQuests.where((q) =>
-      q.completionStatus == CompletionStatus.IN_PROGRESS ||
-          q.completionStatus == CompletionStatus.COMPLETED ||
-          q.completionStatus == CompletionStatus.INCOMPLETE
-      ).toList();
+      partyQuests = List.from(allPartyQuests);
 
       errorMessage = null;
     } catch (e) {
       errorMessage = '파티 퀘스트 조회 실패: $e';
+      allPartyQuests = [];
       partyQuests = [];
     } finally {
       isLoading = false;
@@ -115,8 +122,8 @@ class QuestTabViewModel extends ChangeNotifier {
     }
   }
 
-
-  Future<void> toggleQuest(int questId, {Function(bool)? onCompleted, BuildContext? context}) async {
+  Future<void> toggleQuest(int questId,
+      {Function(bool)? onCompleted, BuildContext? context}) async {
     final idx = allQuests.indexWhere((q) => q.questId == questId);
     if (idx != -1) {
       final quest = allQuests[idx];
@@ -130,20 +137,20 @@ class QuestTabViewModel extends ChangeNotifier {
 
         allQuests[idx] = updatedQuest;
 
-        final filteredIdx = filteredQuests.indexWhere((q) => q.questId == questId);
+        final filteredIdx =
+        filteredQuests.indexWhere((q) => q.questId == questId);
         if (filteredIdx != -1) {
           filteredQuests[filteredIdx] = updatedQuest;
         }
 
         notifyListeners();
 
-        if (newStatus == CompletionStatus.COMPLETED && onCompleted != null) {
-          onCompleted(response.isFirstCompletion);
+        if (onCompleted != null) {
+          onCompleted(newStatus == CompletionStatus.COMPLETED);
         }
 
         if (context != null) {
           try {
-            // 분석 데이터 새로고침
             final analysisViewModel = context.read<AnalysisViewModel>();
             analysisViewModel.loadAnalysisData();
           } catch (_) {}
@@ -156,39 +163,36 @@ class QuestTabViewModel extends ChangeNotifier {
 
   Future<void> togglePartyQuestCompletion(
       int partyId, {
-        Function(bool)? onCompleted,
+        Function(CompletionStatus)? onStatusChanged,
         BuildContext? context,
       }) async {
-    final idx = partyQuests.indexWhere((q) => q.questId == partyId);
+    final idx = allPartyQuests.indexWhere((q) => q.questId == partyId);
     if (idx == -1) return;
 
-    final quest = partyQuests[idx];
+    final quest = allPartyQuests[idx];
     final newStatus = quest.completionStatus == CompletionStatus.COMPLETED
-        ? CompletionStatus.IN_PROGRESS // 🔑 파티는 IN_PROGRESS로 되돌림
+        ? CompletionStatus.IN_PROGRESS
         : CompletionStatus.COMPLETED;
 
     try {
       final token = await const FlutterSecureStorage().read(key: "accessToken");
       if (token == null) throw Exception("No access token found");
 
-      // 파티 상태 변경 API 호출
       final response = await _partyService.changePartyQuestStatus(
         partyId,
         newStatus,
         token,
       );
 
-      // UI 리스트 업데이트
       final updatedQuest = quest.copyWith(completionStatus: newStatus);
-      partyQuests[idx] = updatedQuest;
+      allPartyQuests[idx] = updatedQuest;
+      filterPartyQuests(); // ✅ 필터링된 리스트도 갱신
       notifyListeners();
 
-      // 첫 완료일 때만 보상 모달 표시
-      if (newStatus == CompletionStatus.COMPLETED && onCompleted != null) {
-        onCompleted(response.isFirstCompletion);
+      if (onStatusChanged != null) {
+        onStatusChanged(newStatus);
       }
 
-      // 분석 데이터 갱신
       if (context != null) {
         try {
           final analysisViewModel = context.read<AnalysisViewModel>();
@@ -199,8 +203,6 @@ class QuestTabViewModel extends ChangeNotifier {
       print("❌ togglePartyQuestCompletion error: $e");
     }
   }
-
-
 
   Future<bool> deleteQuest(int questId) async {
     try {
