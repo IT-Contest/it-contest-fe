@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../model/analysis_models.dart';
 import '../service/analysis_service.dart';
+import '../../friends/service/friend_service.dart';
+import '../../friends/model/friend_info.dart';
 
 class AnalysisViewModel extends ChangeNotifier {
   final AnalysisService _analysisService = AnalysisService();
+  final FriendService _friendService = FriendService();
 
   // 현재 선택된 시간 범위와 데이터 타입
   AnalysisTimeframe _selectedTimeframe = AnalysisTimeframe.daily;
@@ -12,6 +15,8 @@ class AnalysisViewModel extends ChangeNotifier {
   // 데이터 상태
   AnalysisData? _analysisData;
   List<LeaderboardUser> _leaderboard = [];
+  List<LeaderboardUser> _fullLeaderboard = [];
+  List<FriendInfo> _friends = [];
   List<CoachingHistoryItem> _coachingHistory = [];
   bool _showCoachingHistory = false;
   
@@ -26,6 +31,7 @@ class AnalysisViewModel extends ChangeNotifier {
   AnalysisDataType get selectedDataType => _selectedDataType;
   AnalysisData? get analysisData => _analysisData;
   List<LeaderboardUser> get leaderboard => _leaderboard;
+  List<LeaderboardUser> get fullLeaderboard => _fullLeaderboard;
   List<CoachingHistoryItem> get coachingHistory => _coachingHistory;
   bool get showCoachingHistory => _showCoachingHistory;
   bool get isLoadingAnalysis => _isLoadingAnalysis;
@@ -86,13 +92,36 @@ class AnalysisViewModel extends ChangeNotifier {
     }
   }
 
-  // 리더보드 데이터 로드 (API 미구현으로 비활성화)
+  // 리더보드 데이터 로드 (친구목록 API 사용)
   Future<void> loadLeaderboard() async {
     _isLoadingLeaderboard = true;
     notifyListeners();
 
-    // 리더보드 API가 구현되지 않았으므로 빈 리스트로 설정
-    _leaderboard = [];
+    try {
+      // 친구목록 가져오기
+      _friends = await _friendService.fetchFriends();
+      
+      // exp 순으로 정렬하고 상위 3명만 선택
+      final sortedFriends = List<FriendInfo>.from(_friends)
+        ..sort((a, b) => b.totalExp.compareTo(a.totalExp));
+      
+      // FriendInfo를 LeaderboardUser로 변환
+      _leaderboard = sortedFriends.take(3).toList().asMap().entries.map((entry) {
+        final index = entry.key;
+        final friend = entry.value;
+        return LeaderboardUser(
+          rank: index + 1,
+          name: friend.nickname,
+          exp: friend.totalExp,
+          avatarUrl: friend.profileImageUrl,
+        );
+      }).toList();
+      
+    } catch (e) {
+      print('❌ [Leaderboard] 친구목록 로드 실패: $e');
+      // 에러 시 빈 리스트
+      _leaderboard = [];
+    }
     
     _isLoadingLeaderboard = false;
     notifyListeners();
@@ -162,6 +191,42 @@ class AnalysisViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // 전체 리더보드 로드 (친구목록 API 사용)
+  Future<void> loadFullLeaderboard() async {
+    _isLoadingLeaderboard = true;
+    notifyListeners();
+
+    try {
+      // 친구목록이 이미 로드되지 않았다면 가져오기
+      if (_friends.isEmpty) {
+        _friends = await _friendService.fetchFriends();
+      }
+      
+      // exp 순으로 정렬 (모든 친구들)
+      final sortedFriends = List<FriendInfo>.from(_friends)
+        ..sort((a, b) => b.totalExp.compareTo(a.totalExp));
+      
+      // FriendInfo를 LeaderboardUser로 변환 (전체 친구들)
+      _fullLeaderboard = sortedFriends.asMap().entries.map((entry) {
+        final index = entry.key;
+        final friend = entry.value;
+        return LeaderboardUser(
+          rank: index + 1,
+          name: friend.nickname,
+          exp: friend.totalExp,
+          avatarUrl: friend.profileImageUrl,
+        );
+      }).toList();
+      
+    } catch (e) {
+      print('❌ [Full Leaderboard] 친구목록 로드 실패: $e');
+      // 에러 시 빈 리스트
+      _fullLeaderboard = [];
+    }
+    
+    _isLoadingLeaderboard = false;
+    notifyListeners();
+  }
   // 데이터 새로고침
   Future<void> refreshData() async {
     await initializeData();

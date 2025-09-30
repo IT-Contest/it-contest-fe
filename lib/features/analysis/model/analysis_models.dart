@@ -265,7 +265,21 @@ class AnalysisData {
   factory AnalysisData.fromPomodoroResponse(List<PomodoroAnalysisResponse> responses, AnalysisTimeframe timeframe) {
     final chartData = responses.map((r) => r.completedSessions.toDouble()).toList();
     final chartLabels = responses.map((r) => _formatDateLabelByTimeframe(r.date, timeframe)).toList();
-    final totalCompleted = responses.fold(0, (sum, r) => sum + r.completedSessions);
+    
+    // 뽀모도로는 시간대별로 다르게 처리
+    int totalCompleted;
+    switch (timeframe) {
+      case AnalysisTimeframe.daily:
+        // 일일: 당일 수행한 뽀모도로 세션 개수만 (최신 날짜의 세션 수)
+        totalCompleted = responses.isNotEmpty ? responses.last.completedSessions : 0;
+        break;
+      case AnalysisTimeframe.weekly:
+      case AnalysisTimeframe.monthly:
+      case AnalysisTimeframe.yearly:
+        // 주간/월간/연간: 해당 기간 동안 누적된 뽀모도로 세션 개수
+        totalCompleted = responses.fold(0, (sum, r) => sum + r.completedSessions);
+        break;
+    }
     
     return AnalysisData(
       chartData: chartData,
