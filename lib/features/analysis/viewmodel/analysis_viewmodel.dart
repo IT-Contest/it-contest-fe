@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../model/analysis_models.dart';
 import '../service/analysis_service.dart';
+import '../../friends/service/friend_service.dart';
+import '../../friends/model/friend_info.dart';
 
 class AnalysisViewModel extends ChangeNotifier {
   final AnalysisService _analysisService = AnalysisService();
+  final FriendService _friendService = FriendService();
 
   // 현재 선택된 시간 범위와 데이터 타입
   AnalysisTimeframe _selectedTimeframe = AnalysisTimeframe.daily;
@@ -13,6 +16,7 @@ class AnalysisViewModel extends ChangeNotifier {
   AnalysisData? _analysisData;
   List<LeaderboardUser> _leaderboard = [];
   List<LeaderboardUser> _fullLeaderboard = [];
+  List<FriendInfo> _friends = [];
   List<CoachingHistoryItem> _coachingHistory = [];
   bool _showCoachingHistory = false;
   
@@ -21,7 +25,6 @@ class AnalysisViewModel extends ChangeNotifier {
   bool _isLoadingLeaderboard = false;
   bool _isLoadingCoachingHistory = false;
   bool _isRequestingCoaching = false;
-  String? _lastCoachingDate;
 
   // Getters
   AnalysisTimeframe get selectedTimeframe => _selectedTimeframe;
@@ -43,17 +46,13 @@ class AnalysisViewModel extends ChangeNotifier {
   int get completedQuests => _analysisData?.completedQuests ?? 0;
   int get completedPomodoros => _analysisData?.completedPomodoros ?? 0;
 
-  // 오늘 AI 코칭 사용 가능 여부 확인
-  bool get canRequestCoachingToday {
-    final today = DateTime.now().toIso8601String().split('T')[0];
-    return _lastCoachingDate != today;
-  }
-
   // 초기 데이터 로드
   Future<void> initializeData() async {
-    await loadAnalysisData();
-    await loadLeaderboard();
-    await loadCoachingHistory();
+    await Future.wait([
+      loadAnalysisData(),
+      loadLeaderboard(),
+      loadCoachingHistory(),
+    ]);
   }
 
   // 시간 범위 선택
@@ -93,32 +92,36 @@ class AnalysisViewModel extends ChangeNotifier {
     }
   }
 
-  // 리더보드 데이터 로드 (API 미구현으로 더미 데이터 사용)
+  // 리더보드 데이터 로드 (친구목록 API 사용)
   Future<void> loadLeaderboard() async {
     _isLoadingLeaderboard = true;
     notifyListeners();
 
-    // 더미 데이터로 친구 카드 UI 구성 (전체보기와 동일한 3명)
-    _leaderboard = [
-      LeaderboardUser(
-        rank: 1,
-        name: '성진',
-        exp: 4500,
-        avatarUrl: 'https://example.com/avatar1.png',
-      ),
-      LeaderboardUser(
-        rank: 2,
-        name: '애라',
-        exp: 3000,
-        avatarUrl: 'https://example.com/avatar2.png',
-      ),
-      LeaderboardUser(
-        rank: 3,
-        name: '채민',
-        exp: 500,
-        avatarUrl: 'https://example.com/avatar3.png',
-      ),
-    ];
+    try {
+      // 친구목록 가져오기
+      _friends = await _friendService.fetchFriends();
+      
+      // exp 순으로 정렬하고 상위 3명만 선택
+      final sortedFriends = List<FriendInfo>.from(_friends)
+        ..sort((a, b) => b.totalExp.compareTo(a.totalExp));
+      
+      // FriendInfo를 LeaderboardUser로 변환
+      _leaderboard = sortedFriends.take(3).toList().asMap().entries.map((entry) {
+        final index = entry.key;
+        final friend = entry.value;
+        return LeaderboardUser(
+          rank: index + 1,
+          name: friend.nickname,
+          exp: friend.totalExp,
+          avatarUrl: friend.profileImageUrl,
+        );
+      }).toList();
+      
+    } catch (e) {
+      print('❌ [Leaderboard] 친구목록 로드 실패: $e');
+      // 에러 시 빈 리스트
+      _leaderboard = [];
+    }
     
     _isLoadingLeaderboard = false;
     notifyListeners();
@@ -126,37 +129,11 @@ class AnalysisViewModel extends ChangeNotifier {
 
   // 코칭 히스토리 로드
   Future<void> loadCoachingHistory() async {
-    // 이미 로딩 중이면 중복 요청 방지
-    if (_isLoadingCoachingHistory) return;
-    
     _isLoadingCoachingHistory = true;
     notifyListeners();
 
     try {
-      final fetchedHistory = await _analysisService.fetchCoachingHistory();
-      
-      // 중복 제거: 날짜와 내용이 같은 아이템 제거
-      final uniqueHistory = <CoachingHistoryItem>[];
-      final seenKeys = <String>{};
-      
-      for (final item in fetchedHistory) {
-        final key = '${item.date}_${item.type}_${item.content.hashCode}';
-        if (!seenKeys.contains(key)) {
-          seenKeys.add(key);
-          uniqueHistory.add(item);
-        }
-      }
-      
-      _coachingHistory = uniqueHistory;
-      
-      // 오늘 이미 코칭을 받았는지 확인
-      final today = DateTime.now().toIso8601String().split('T')[0];
-      final todayFormatted = today.replaceAll('-', '.');
-      
-      final hasCoachingToday = _coachingHistory.any((item) => item.date == todayFormatted);
-      if (hasCoachingToday) {
-        _lastCoachingDate = today;
-      }
+      _coachingHistory = await _analysisService.fetchCoachingHistory();
     } catch (e) {
       debugPrint('Failed to load coaching history: $e');
     } finally {
@@ -167,11 +144,6 @@ class AnalysisViewModel extends ChangeNotifier {
 
   // AI 코칭 요청
   Future<CoachingResult> requestAiCoaching() async {
-    // 오늘 이미 사용했는지 확인
-    if (!canRequestCoachingToday) {
-      return CoachingResult.fromError('daily_limit_reached');
-    }
-
     _isRequestingCoaching = true;
     notifyListeners();
 
@@ -182,11 +154,13 @@ class AnalysisViewModel extends ChangeNotifier {
       );
       
       if (result.success && result.coachingContent != null) {
-        // 오늘 날짜를 저장하여 일일 사용 제한 적용
-        _lastCoachingDate = DateTime.now().toIso8601String().split('T')[0];
-        
-        // 서버에서 최신 코칭 히스토리를 다시 로드 (중복 방지)
-        await loadCoachingHistory();
+        // 새로운 코칭 아이템을 히스토리 맨 앞에 추가
+        final newCoachingItem = CoachingHistoryItem(
+          date: DateTime.now().toIso8601String().split('T')[0].replaceAll('-', '.'),
+          type: '${_selectedTimeframe.displayName} ${_selectedDataType.displayName}',
+          content: result.coachingContent!,
+        );
+        _coachingHistory.insert(0, newCoachingItem);
         
         // 코칭 히스토리 보기 상태로 변경
         _showCoachingHistory = true;
@@ -217,37 +191,42 @@ class AnalysisViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 전체 리더보드 로드 (더 많은 데이터)
+  // 전체 리더보드 로드 (친구목록 API 사용)
   Future<void> loadFullLeaderboard() async {
     _isLoadingLeaderboard = true;
     notifyListeners();
 
-    // 전체 리더보드 더미 데이터
-    _fullLeaderboard = [
-      LeaderboardUser(
-        rank: 1,
-        name: '성진',
-        exp: 4500,
-        avatarUrl: 'https://example.com/avatar1.png',
-      ),
-      LeaderboardUser(
-        rank: 2,
-        name: '애라',
-        exp: 3000,
-        avatarUrl: 'https://example.com/avatar2.png',
-      ),
-      LeaderboardUser(
-        rank: 3,
-        name: '채민',
-        exp: 500,
-        avatarUrl: 'https://example.com/avatar3.png',
-      ),
-    ];
+    try {
+      // 친구목록이 이미 로드되지 않았다면 가져오기
+      if (_friends.isEmpty) {
+        _friends = await _friendService.fetchFriends();
+      }
+      
+      // exp 순으로 정렬 (모든 친구들)
+      final sortedFriends = List<FriendInfo>.from(_friends)
+        ..sort((a, b) => b.totalExp.compareTo(a.totalExp));
+      
+      // FriendInfo를 LeaderboardUser로 변환 (전체 친구들)
+      _fullLeaderboard = sortedFriends.asMap().entries.map((entry) {
+        final index = entry.key;
+        final friend = entry.value;
+        return LeaderboardUser(
+          rank: index + 1,
+          name: friend.nickname,
+          exp: friend.totalExp,
+          avatarUrl: friend.profileImageUrl,
+        );
+      }).toList();
+      
+    } catch (e) {
+      print('❌ [Full Leaderboard] 친구목록 로드 실패: $e');
+      // 에러 시 빈 리스트
+      _fullLeaderboard = [];
+    }
     
     _isLoadingLeaderboard = false;
     notifyListeners();
   }
-
   // 데이터 새로고침
   Future<void> refreshData() async {
     await initializeData();

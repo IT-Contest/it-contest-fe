@@ -28,15 +28,32 @@ class AnalysisService {
     final endpoint = '/quests/analysis/${timeframe.key}';
     final queryParams = _getDateRangeForTimeframe(timeframe);
     
-    final response = await DioClient().dio.get(
-      endpoint,
-      queryParameters: queryParams,
-      options: token != null
-          ? Options(headers: {'Authorization': 'Bearer $token'})
-          : null,
-    );
+    // questType 파라미터 추가 - timeframe에 맞는 퀘스트 타입으로 필터링
+    queryParams['questType'] = _getQuestTypeFromTimeframe(timeframe);
+    
+    // 디버깅용 로그 추가
+    print('🔍 [Quest Analysis] Endpoint: $endpoint');
+    print('🔍 [Quest Analysis] Query Params: $queryParams');
+    
+    List<dynamic> resultList;
+    try {
+      final response = await DioClient().dio.get(
+        endpoint,
+        queryParameters: queryParams,
+        options: token != null
+            ? Options(headers: {'Authorization': 'Bearer $token'})
+            : null,
+      );
 
-    final List<dynamic> resultList = response.data['result'] ?? [];
+      print('✅ [Quest Analysis] Response Status: ${response.statusCode}');
+      print('✅ [Quest Analysis] Response Data: ${response.data}');
+
+      resultList = response.data['result'] ?? [];
+    } catch (e) {
+      print('❌ [Quest Analysis] API Call Failed: $e');
+      rethrow;
+    }
+    
     final allQuestResponses = resultList.map((json) => QuestAnalysisResponse.fromJson(json)).toList();
     
     // 시간범위에 따른 데이터 개수 조정
@@ -134,6 +151,20 @@ class AnalysisService {
       'from': fromDate.toIso8601String().split('T')[0],
       'to': toDate.toIso8601String().split('T')[0],
     };
+  }
+
+  // timeframe을 questType으로 변환
+  String _getQuestTypeFromTimeframe(AnalysisTimeframe timeframe) {
+    switch (timeframe) {
+      case AnalysisTimeframe.daily:
+        return 'DAILY';
+      case AnalysisTimeframe.weekly:
+        return 'WEEKLY';
+      case AnalysisTimeframe.monthly:
+        return 'MONTHLY';
+      case AnalysisTimeframe.yearly:
+        return 'YEARLY';
+    }
   }
 
   // 리더보드 데이터 조회
