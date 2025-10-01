@@ -11,12 +11,14 @@ class QuestPomodoroViewModel extends ChangeNotifier {
   final PomodoroService _pomodoroService = PomodoroService();
   final AudioPlayer _audioPlayer = AudioPlayer();
   
+  // 다이얼로그 콜백
+  VoidCallback? onFocusComplete;
+  VoidCallback? onCycleComplete;
+  
   PomodoroMode mode = PomodoroMode.focus;
   Timer? _timer;
   bool isRunning = false;
   bool restButtonEnabled = false;
-  bool showFocusCompleteDialog = false;
-  bool showCycleCompleteDialog = false;
   
   // 세션 추적
   int completedSessions = 0;
@@ -26,10 +28,10 @@ class QuestPomodoroViewModel extends ChangeNotifier {
   bool alarmSound = false;
   bool vibration = false;
   
-  Duration focusTotal = const Duration(minutes: 25);  // 25분
-  Duration restTotal = const Duration(minutes: 5);    // 5분
-  //final Duration focusTotal = const Duration(seconds: 10);  // 테스트용 10초
-  //final Duration restTotal = const Duration(seconds: 5);    // 테스트용 5초
+  //Duration focusTotal = const Duration(minutes: 25);  // 25분
+  //Duration restTotal = const Duration(minutes: 5);    // 5분
+  Duration focusTotal = const Duration(seconds: 10);  // 테스트용 10초
+  Duration restTotal = const Duration(seconds: 10);    // 테스트용 10초
   
   // 현재 모드에 따른 총 시간과 남은 시간
   Duration get total => mode == PomodoroMode.focus ? focusTotal : restTotal;
@@ -38,7 +40,7 @@ class QuestPomodoroViewModel extends ChangeNotifier {
   
   Duration _remaining;
   
-  QuestPomodoroViewModel() : _remaining = const Duration(minutes: 25) {
+  QuestPomodoroViewModel() : _remaining = const Duration(seconds: 10) {
     _loadNotificationSettings();
   }
 
@@ -72,34 +74,44 @@ class QuestPomodoroViewModel extends ChangeNotifier {
 
   // 타이머 시작 알림
   Future<void> _playTimerStartSound() async {
+    print('🔊 [TimerStart] 알림음 설정: $alarmSound, 진동 설정: $vibration');
     if (alarmSound) {
       try {
+        // 이전 재생 중단
+        await _audioPlayer.stop();
         await _audioPlayer.setAsset('assets/sounds/timer_start.wav');
         await _audioPlayer.play();
+        print('✅ [TimerStart] 사운드 재생 성공');
       } catch (e) {
-        print('타이머 시작 사운드 재생 실패: $e');
+        print('❌ [TimerStart] 사운드 재생 실패: $e');
         HapticFeedback.selectionClick(); // 대체 알림
       }
     }
     
     if (vibration) {
+      print('📳 [TimerStart] 진동 실행');
       HapticFeedback.lightImpact();
     }
   }
 
   // 집중 모드 완료 알림
   Future<void> _playFocusCompleteSound() async {
+    print('🔊 [FocusComplete] 알림음 설정: $alarmSound, 진동 설정: $vibration');
     if (alarmSound) {
       try {
+        // 이전 재생 중단
+        await _audioPlayer.stop();
         await _audioPlayer.setAsset('assets/sounds/focus_complete.wav');
         await _audioPlayer.play();
+        print('✅ [FocusComplete] 사운드 재생 성공');
       } catch (e) {
-        print('집중 완료 사운드 재생 실패: $e');
+        print('❌ [FocusComplete] 사운드 재생 실패: $e');
         HapticFeedback.selectionClick(); // 대체 알림
       }
     }
     
     if (vibration) {
+      print('📳 [FocusComplete] 진동 실행');
       HapticFeedback.heavyImpact();
     }
   }
@@ -108,6 +120,8 @@ class QuestPomodoroViewModel extends ChangeNotifier {
   Future<void> _playRestStartSound() async {
     if (alarmSound) {
       try {
+        // 이전 재생 중단
+        await _audioPlayer.stop();
         await _audioPlayer.setAsset('assets/sounds/rest_start.wav');
         await _audioPlayer.play();
       } catch (e) {
@@ -145,8 +159,8 @@ class QuestPomodoroViewModel extends ChangeNotifier {
     restButtonEnabled = false;
     _timer?.cancel();
     
-    // 타이머 시작 알림음 재생
-    _playTimerStartSound();
+    // 타이머 시작 시에는 알림 없음 (완료 시에만 알림)
+    // _playTimerStartSound();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remaining.inSeconds > 0) {
         remaining -= const Duration(seconds: 1);
@@ -159,23 +173,30 @@ class QuestPomodoroViewModel extends ChangeNotifier {
         mode = PomodoroMode.rest;
         remaining = restTotal;
         restButtonEnabled = true;
-        showFocusCompleteDialog = true;
         notifyListeners();
+        // 콜백을 통해 다이얼로그 표시 요청
+        print('🎯 [Focus] 집중 완료 콜백 호출 시도, 콜백 존재: ${onFocusComplete != null}');
+        if (onFocusComplete != null) {
+          onFocusComplete!();
+          print('✅ [Focus] 집중 완료 콜백 호출 완료');
+        }
         return;
       }
     });
     notifyListeners();
   }
 
-  void startRest() {
+  void startRest({bool playSound = false}) {
     mode = PomodoroMode.rest;
     remaining = restTotal;
     isRunning = true;
     restButtonEnabled = false;
     _timer?.cancel();
     
-    // 휴식 시작 알림음 재생
-    _playRestStartSound();
+    // 수동으로 휴식을 시작할 때만 알림음 재생
+    if (playSound) {
+      _playRestStartSound();
+    }
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (remaining.inSeconds > 0) {
         remaining -= const Duration(seconds: 1);
@@ -188,8 +209,13 @@ class QuestPomodoroViewModel extends ChangeNotifier {
         _completePomodoroSession();
         mode = PomodoroMode.focus;
         remaining = focusTotal;
-        showCycleCompleteDialog = true;
         notifyListeners();
+        // 콜백을 통해 다이얼로그 표시 요청
+        print('🎯 [Cycle] 사이클 완료 콜백 호출 시도, 콜백 존재: ${onCycleComplete != null}');
+        if (onCycleComplete != null) {
+          onCycleComplete!();
+          print('✅ [Cycle] 사이클 완료 콜백 호출 완료');
+        }
         return;
       }
     });
@@ -228,8 +254,6 @@ class QuestPomodoroViewModel extends ChangeNotifier {
     mode = PomodoroMode.focus;
     remaining = focusTotal;
     restButtonEnabled = false;
-    showFocusCompleteDialog = false;
-    showCycleCompleteDialog = false;
     // 세션 카운터는 리셋하지 않음 (일일 누적 유지)
     notifyListeners();
   }
