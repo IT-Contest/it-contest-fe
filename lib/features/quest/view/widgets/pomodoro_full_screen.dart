@@ -43,7 +43,7 @@ class PomodoroFullScreen extends StatelessWidget {
                     onPressed: () => Navigator.pop(context),
                   ),
                   const Text(
-                    "뽀모도로 전체",
+                    "뽀모도로 전체 화면",
                     style: TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -58,27 +58,31 @@ class PomodoroFullScreen extends StatelessWidget {
             Container(height: 1, color: Color(0xFFB7B7B7)),
 
             const SizedBox(height: 16),
-            // ✅ "집중 모드" 표시
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/icons/timer.png',
-                  width: 20,
-                  height: 20,
-                  color: const Color(0xFF7958FF),
-                ),
-                const SizedBox(width: 6),
-                const Text(
-                  '집중 모드',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Color(0xFF7958FF),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+            // 현재 모드 표시 (동적으로 변경)
+            Consumer<QuestPomodoroViewModel>(
+              builder: (context, vm, child) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/icons/timer.png',
+                      width: 20,
+                      height: 20,
+                      color: const Color(0xFF7958FF),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      vm.mode == PomodoroMode.focus ? '집중 모드' : '휴식 모드',
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        color: Color(0xFF7958FF),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 16),
 
@@ -135,23 +139,13 @@ class QuestPomodoroSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = Provider.of<QuestPomodoroViewModel>(context);
 
+    // 콜백 설정
+    vm.onFocusComplete = () => _showFocusCompleteDialog(context);
+    vm.onCycleComplete = () => _showCycleCompleteDialog(context);
+
     final totalSeconds = vm.total.inSeconds.toDouble();
     final remainingSeconds = vm.remaining.inSeconds.toDouble();
     final progress = (remainingSeconds / totalSeconds).clamp(0.0, 1.0);
-
-    if (vm.showFocusCompleteDialog) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        vm.showFocusCompleteDialog = false;
-        _showFocusCompleteDialog(context);
-      });
-    }
-
-    if (vm.showCycleCompleteDialog) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        vm.showCycleCompleteDialog = false;
-        _showCycleCompleteDialog(context);
-      });
-    }
 
     return Column(
       children: [
@@ -217,7 +211,7 @@ class QuestPomodoroSection extends StatelessWidget {
                             onPressed: !vm.isRunning
                                 ? (vm.mode == PomodoroMode.focus
                                 ? vm.startFocus
-                                : vm.startRest)
+                                : () => vm.startRest(playSound: true))
                                 : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF7958FF),
@@ -319,7 +313,7 @@ class QuestPomodoroSection extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16),
-                  RewardTag(label: '경험치 +10'),
+                  RewardTag(label: '경험치 +5'),
                 ],
               ),
               SizedBox(height: 8),
@@ -529,9 +523,9 @@ class _FocusCompleteDialog extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
+                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
                   Navigator.of(context).pop();
                   // 휴식 타이머 자동 시작
-                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
                   vm.startRest();
                 },
                 style: ElevatedButton.styleFrom(
@@ -607,7 +601,7 @@ class _CycleCompleteDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
-                    '경험치 +10',
+                    '경험치 +5',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -640,9 +634,9 @@ class _CycleCompleteDialog extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
+                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
                   Navigator.of(context).pop();
                   // 다음 집중 사이클 자동 시작
-                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
                   vm.startFocus();
                   
                   // 메인페이지 유저 정보 새로고침

@@ -50,27 +50,15 @@ class QuestPomodoroSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = Provider.of<QuestPomodoroViewModel>(context);
 
+    // 콜백 설정
+    vm.onFocusComplete = () => _showFocusCompleteDialog(context);
+    vm.onCycleComplete = () => _showCycleCompleteDialog(context);
+
     // 타이머 진행률 계산 (ViewModel의 total 기준)
     final totalSeconds = vm.total.inSeconds.toDouble();
     final remainingSeconds = vm.remaining.inSeconds.toDouble();
     // 남은 시간 기준 진행률: 1.0(시작) → 0.0(끝)로 감소
     final progress = (remainingSeconds / totalSeconds).clamp(0.0, 1.0);
-
-    // 집중 모드 완료 다이얼로그 표시
-    if (vm.showFocusCompleteDialog) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        vm.showFocusCompleteDialog = false;
-        _showFocusCompleteDialog(context);
-      });
-    }
-
-    // 사이클 완료 다이얼로그 표시
-    if (vm.showCycleCompleteDialog) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        vm.showCycleCompleteDialog = false;
-        _showCycleCompleteDialog(context);
-      });
-    }
 
     return Column(
       children: [
@@ -175,7 +163,7 @@ class QuestPomodoroSection extends StatelessWidget {
                           height: 40,
                           child: ElevatedButton(
                             onPressed: !vm.isRunning
-                              ? (vm.mode == PomodoroMode.focus ? vm.startFocus : vm.startRest)
+                              ? (vm.mode == PomodoroMode.focus ? vm.startFocus : () => vm.startRest(playSound: true))
                               : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF7958FF),
@@ -275,7 +263,7 @@ class QuestPomodoroSection extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16),
-                  RewardTag(label: '경험치 +10'), // 백엔드와 맞춤
+                  RewardTag(label: '경험치 +5'), // 백엔드와 맞춤
                 ],
               ),
               const SizedBox(height: 8),
@@ -546,9 +534,9 @@ class _FocusCompleteDialog extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
+                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
                   Navigator.of(context).pop();
                   // 휴식 타이머 자동 시작
-                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
                   vm.startRest();
                 },
                 style: ElevatedButton.styleFrom(
@@ -624,7 +612,7 @@ class _CycleCompleteDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text(
-                    '경험치 +10',
+                    '경험치 +5',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 14,
@@ -657,9 +645,9 @@ class _CycleCompleteDialog extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
+                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
                   Navigator.of(context).pop();
                   // 다음 집중 사이클 자동 시작
-                  final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
                   vm.startFocus();
                   
                   // 메인페이지 유저 정보 새로고침
