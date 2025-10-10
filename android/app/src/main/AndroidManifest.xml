@@ -39,7 +39,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https"
-                      android:host="192.168.45.148"
+                      android:host="ssuchaehwa.duckdns.org"
                       android:pathPrefix="/invite" />
             </intent-filter>
 
