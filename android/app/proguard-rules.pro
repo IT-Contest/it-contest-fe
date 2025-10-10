@@ -17,3 +17,17 @@
 
 -dontwarn com.kakao.sdk.**
 -keep class com.kakao.sdk.auth.AuthCodeHandlerActivity { *; }
+
+# Gson 관련 (generic signature 유지)
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class com.google.gson.stream.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+
+# flutter_local_notifications 관련
+-keep class com.dexterous.flutterlocalnotifications.** { *; }
+-dontwarn com.dexterous.flutterlocalnotifications.**
+
+# WorkManager (백그라운드 스케줄 관련)
+-keep class androidx.work.** { *; }
+-dontwarn androidx.work.**

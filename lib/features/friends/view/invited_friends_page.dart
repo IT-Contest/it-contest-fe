@@ -93,7 +93,7 @@ class InvitedFriendsPage extends StatelessWidget {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
-                          'assets/images/simpson.jpg',
+                          'assets/images/logo_3d.png',
                           width: 60,
                           height: 60,
                           fit: BoxFit.cover,

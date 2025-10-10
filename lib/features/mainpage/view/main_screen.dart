@@ -5,6 +5,12 @@ import 'package:it_contest_fe/features/mainpage/view/home_page_widget.dart';
 import 'package:it_contest_fe/features/mainpage/view/profile_page_widget.dart';
 import 'package:it_contest_fe/features/mainpage/view/quest_page_widget.dart';
 import 'package:it_contest_fe/shared/widgets/custom_app_bar.dart';
+import 'package:provider/provider.dart';
+
+import '../../analysis/view/analysis_screen.dart';
+import '../../friends/viewmodel/friend_viewmodel.dart';
+import '../../quest/view/quest_screen.dart';
+import '../../quest/viewmodel/quest_tab_viewmodel.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,10 +24,21 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(),
-      body: _buildPageContent(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => FriendViewModel()..fetchFriends(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => QuestTabViewModel()..loadInitialData(),
+        ),
+      ],
+      child: Scaffold(
+        appBar: const CustomAppBar(),
+        body: _buildPageContent(),
+      ),
     );
+
   }
 
   Widget _buildPageContent() {
@@ -30,9 +47,9 @@ class _MainScreenState extends State<MainScreen> {
       case 0:
         return HomePageWidget();
       case 1:
-        return QuestPageWidget();
+        return QuestScreen();
       case 2:
-        return AnalysisPageWidget();
+        return AnalysisView();
       case 3:
         return BenefitPageWidget();
       case 4:

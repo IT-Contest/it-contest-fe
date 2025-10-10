@@ -123,7 +123,7 @@ class _AllFriendsPageState extends State<AllFriendsPage> {
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Image.asset(
-                                'assets/images/simpson.jpg', // 대체 이미지
+                                'assets/images/logo_3d.png', // 대체 이미지
                                 width: 60,
                                 height: 60,
                                 fit: BoxFit.cover,

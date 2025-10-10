@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../service/notification_service.dart';
 import 'alarm_list_page.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
@@ -50,6 +51,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('questTimeHour', time.hour);
     await prefs.setInt('questTimeMinute', time.minute);
+
+    await NotificationService.scheduleDailyQuest(time.hour, time.minute);
   }
 
   @override
@@ -97,6 +100,8 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       body: ListView(
         children: [
           _buildSectionTitle("퀘스트"),
+
+          // ✅ 일일 퀘스트 알림 토글
           _buildSwitchTile(
             "일일 퀘스트 알림",
             dailyQuestNotification,
@@ -105,125 +110,131 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               _saveBool('dailyQuestNotification', value);
             },
           ),
-          _buildSwitchTile(
-            "퀘스트 알림 시간 설정",
-            questTimeNotification,
-                (value) {
-              setState(() => questTimeNotification = value);
-              _saveBool('questTimeNotification', value);
-            },
-          ),
-          if (questTimeNotification)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  margin: const EdgeInsets.only(left: 16),
-                  width: 180,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.white,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () async {
-                            final picked = await showTimePicker(
-                              context: context,
-                              initialTime: questTime,
-                            );
-                            if (picked != null) {
-                              setState(() => questTime = picked);
-                              _saveQuestTime(picked);
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: Center(
-                              child: Text(
-                                "${questTime.hourOfPeriod.toString().padLeft(2, '0')} : ${questTime.minute.toString().padLeft(2, '0')}",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+
+          // ✅ dailyQuestNotification이 켜져 있어야만 시간 설정 옵션 보임
+          if (dailyQuestNotification) ...[
+            _buildSwitchTile(
+              "퀘스트 알림 시간 설정",
+              questTimeNotification,
+                  (value) {
+                setState(() => questTimeNotification = value);
+                _saveBool('questTimeNotification', value);
+              },
+            ),
+
+            if (questTimeNotification)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    margin: const EdgeInsets.only(left: 16),
+                    width: 180,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () async {
+                              final picked = await showTimePicker(
+                                context: context,
+                                initialTime: questTime,
+                              );
+                              if (picked != null) {
+                                setState(() => questTime = picked);
+                                _saveQuestTime(picked);
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              child: Center(
+                                child: Text(
+                                  "${questTime.hourOfPeriod.toString().padLeft(2, '0')} : ${questTime.minute.toString().padLeft(2, '0')}",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Container(
-                        height: 60,
-                        decoration: const BoxDecoration(
-                          border: Border(left: BorderSide(color: Colors.grey, width: 1)),
-                        ),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: ToggleButtons(
-                                borderRadius: const BorderRadius.only(
-                                  topRight: Radius.circular(10),
+                        Container(
+                          height: 60,
+                          decoration: const BoxDecoration(
+                            border: Border(left: BorderSide(color: Colors.grey, width: 1)),
+                          ),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: ToggleButtons(
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(10),
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 60,
+                                    minHeight: 30,
+                                  ),
+                                  isSelected: [questTime.period == DayPeriod.am],
+                                  onPressed: (_) {
+                                    if (questTime.period == DayPeriod.pm) {
+                                      setState(() {
+                                        questTime = TimeOfDay(
+                                          hour: questTime.hour - 12,
+                                          minute: questTime.minute,
+                                        );
+                                      });
+                                      _saveQuestTime(questTime);
+                                    }
+                                  },
+                                  fillColor: const Color(0xFF7958FF),
+                                  selectedColor: Colors.white,
+                                  color: Colors.black,
+                                  children: const [Text("AM")],
                                 ),
-                                constraints: const BoxConstraints(
-                                  minWidth: 60,
-                                  minHeight: 30,
-                                ),
-                                isSelected: [questTime.period == DayPeriod.am],
-                                onPressed: (_) {
-                                  if (questTime.period == DayPeriod.pm) {
-                                    setState(() {
-                                      questTime = TimeOfDay(
-                                        hour: questTime.hour - 12,
-                                        minute: questTime.minute,
-                                      );
-                                    });
-                                    _saveQuestTime(questTime);
-                                  }
-                                },
-                                fillColor: const Color(0xFF7958FF),
-                                selectedColor: Colors.white,
-                                color: Colors.black,
-                                children: const [Text("AM")],
                               ),
-                            ),
-                            Expanded(
-                              child: ToggleButtons(
-                                borderRadius: const BorderRadius.only(
-                                  bottomRight: Radius.circular(10),
+                              Expanded(
+                                child: ToggleButtons(
+                                  borderRadius: const BorderRadius.only(
+                                    bottomRight: Radius.circular(10),
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 60,
+                                    minHeight: 30,
+                                  ),
+                                  isSelected: [questTime.period == DayPeriod.pm],
+                                  onPressed: (_) {
+                                    if (questTime.period == DayPeriod.am) {
+                                      setState(() {
+                                        questTime = TimeOfDay(
+                                          hour: questTime.hour + 12,
+                                          minute: questTime.minute,
+                                        );
+                                      });
+                                      _saveQuestTime(questTime);
+                                    }
+                                  },
+                                  fillColor: const Color(0xFF7958FF),
+                                  selectedColor: Colors.white,
+                                  color: Colors.black,
+                                  children: const [Text("PM")],
                                 ),
-                                constraints: const BoxConstraints(
-                                  minWidth: 60,
-                                  minHeight: 30,
-                                ),
-                                isSelected: [questTime.period == DayPeriod.pm],
-                                onPressed: (_) {
-                                  if (questTime.period == DayPeriod.am) {
-                                    setState(() {
-                                      questTime = TimeOfDay(
-                                        hour: questTime.hour + 12,
-                                        minute: questTime.minute,
-                                      );
-                                    });
-                                    _saveQuestTime(questTime);
-                                  }
-                                },
-                                fillColor: const Color(0xFF7958FF),
-                                selectedColor: Colors.white,
-                                color: Colors.black,
-                                children: const [Text("PM")],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
+          ],
+
           _buildSectionTitle("뽀모도로"),
           _buildSwitchTile(
             "뽀모도로 알림",
@@ -233,6 +244,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               _saveBool('pomodoroNotification', value);
             },
           ),
+
           _buildSectionTitle("파티"),
           _buildSwitchTile(
             "파티 초대장 알림",
@@ -242,6 +254,19 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
               _saveBool('partyNotification', value);
             },
           ),
+
+          // // ✅ 여기 테스트 버튼 추가!
+          // _buildSectionTitle("테스트"),
+          // Padding(
+          //   padding: const EdgeInsets.all(16.0),
+          //   child: ElevatedButton(
+          //     onPressed: () {
+          //       NotificationService.showNow();
+          //     },
+          //     child: const Text("즉시 알림"),
+          //   ),
+          // ),
+
         ],
       ),
     );
