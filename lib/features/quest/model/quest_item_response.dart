@@ -86,15 +86,15 @@ class QuestItemResponse {
   }
 
   factory QuestItemResponse.fromJson(Map<String, dynamic> json) {
-    final questId = json['questId'] ?? json['partyId'] ?? 0;
     final status = json['completionStatus'] ?? json['status'] ?? 'INCOMPLETE';
 
+    // party 응답일 경우 questId에 partyId를 넣는다
+    final isParty = json['partyId'] != null && json['questName'] != null;
+
     return QuestItemResponse(
-      questId: questId,
+      questId: isParty ? json['partyId'] : (json['questId'] ?? 0),
       partyId: json['partyId'],
-      // ✅ 개인 퀘스트: title / questTitle
       title: json['title'] ?? json['questTitle'],
-      // ✅ 파티 퀘스트: questName
       questName: json['questName'],
       partyTitle: json['partyTitle'],
       expReward: json['expReward'] ?? 0,
@@ -107,7 +107,6 @@ class QuestItemResponse {
       dueDate: json['dueDate'],
       startTime: json['startTime'],
       endTime: json['endTime'],
-      // 파티 전용
       expiresAt: json['expiresAt'],
       invitationStatus: json['invitationStatus'],
       members: json['members'],

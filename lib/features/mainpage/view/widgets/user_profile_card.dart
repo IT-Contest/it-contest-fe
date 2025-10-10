@@ -58,7 +58,7 @@ class UserProfileCard extends StatelessWidget {
                           fit: BoxFit.cover,
                         )
                       : Image.asset(
-                          'assets/images/simpson.jpg', // 기본 이미지
+                          'assets/images/logo_3d.png', // 기본 이미지
                           width: 50,
                           height: 50,
                           fit: BoxFit.cover,

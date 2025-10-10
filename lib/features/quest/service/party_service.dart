@@ -94,10 +94,10 @@ class PartyService {
 
       if (response.statusCode == 200) {
         final List<dynamic> result = response.data['result'];
-        print("✅ 내 파티 리스트 조회 성공: $result");
+        // print("✅ 내 파티 리스트 조회 성공: $result");
         return List<Map<String, dynamic>>.from(result);
       } else {
-        print("⚠️ 내 파티 리스트 조회 실패: ${response.statusCode}");
+        // print("⚠️ 내 파티 리스트 조회 실패: ${response.statusCode}");
         return [];
       }
     } catch (e) {

@@ -218,4 +218,16 @@ class QuestTabViewModel extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<void> loadInitialData() async {
+    // 개인 퀘스트 불러오기
+    await loadQuests(force: true);
+
+    // 파티 퀘스트 불러오기
+    final token = await const FlutterSecureStorage().read(key: "accessToken");
+    if (token != null) {
+      await loadPartyQuests(token);
+    }
+  }
+
 }

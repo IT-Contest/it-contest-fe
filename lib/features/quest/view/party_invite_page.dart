@@ -128,11 +128,11 @@ class _PartyInvitePageState extends State<PartyInvitePage> {
                             height: 60,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return Image.asset('assets/images/simpson.jpg',
+                              return Image.asset('assets/images/logo_3d.png',
                                   width: 60, height: 60, fit: BoxFit.cover);
                             },
                           )
-                              : Image.asset('assets/images/simpson.jpg',
+                              : Image.asset('assets/images/logo_3d.png',
                               width: 60, height: 60, fit: BoxFit.cover),
                         ),
                         const SizedBox(width: 16),

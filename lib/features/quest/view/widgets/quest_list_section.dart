@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 import '../../../../shared/widgets/party_completion_modal.dart';
@@ -18,6 +19,15 @@ class QuestListSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final periods = ['일일', '주간', '월간', '연간'];
     final questTabViewModel = Provider.of<QuestTabViewModel>(context);
+
+    if (questTabViewModel.allPartyQuests.isEmpty) {
+      Future.microtask(() async {
+        final token = await const FlutterSecureStorage().read(key: "accessToken");
+        if (token != null) {
+          await questTabViewModel.loadPartyQuests(token);
+        }
+      });
+    }
 
     // ✅ 개인 + 파티 퀘스트 모두 합친 리스트
     final combinedQuests = [

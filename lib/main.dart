@@ -14,6 +14,7 @@ import 'features/mainpage/service/mainpage_service.dart';
 import 'features/mainpage/viewmodel/invite_viewmodel.dart';
 import 'features/onboarding/view/onboarding_screen.dart';
 import 'features/onboarding/viewmodel/onboarding_viewmodel.dart';
+import 'features/profile/service/notification_service.dart';
 import 'features/quest/viewmodel/daily_quest_viewmodel.dart';
 import 'features/quest/viewmodel/quest_party_create_viewmodel.dart';
 import 'features/terms/view/terms_agreement_screen.dart';
@@ -41,6 +42,9 @@ void main() async {
   InterstitialAdService.loadAd();
 
   KakaoSdk.init(nativeAppKey: '95a6f5cbf0b31573e750535a5c9d7aab');
+
+  await NotificationService.init();
+
   runApp(
     MultiProvider(
       providers: [
@@ -61,6 +65,8 @@ void main() async {
       child: const MyApp(),
     ),
   );
+
+  // NotificationService.init();
 }
 
 class MyApp extends StatelessWidget {

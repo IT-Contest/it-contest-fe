@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:it_contest_fe/features/quest/view/party_invite_page.dart';
 import 'package:it_contest_fe/shared/widgets/party_creation_modal.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,7 @@ import '../../friends/view/all_friends_page.dart';
 import '../../friends/view/invited_friends_page.dart';
 import '../../friends/viewmodel/friend_viewmodel.dart';
 import '../model/quest_item_response.dart';
+import '../viewmodel/quest_tab_viewmodel.dart';
 
 class QuestPartyCreateScreen extends StatefulWidget {
   final QuestItemResponse? quest; // ✅ 수정 모드면 quest 전달
@@ -208,7 +210,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Image.asset(
-                                    'assets/images/simpson.jpg',
+                                    'assets/images/logo_3d.png',
                                     fit: BoxFit.cover,
                                   );
                                 },
@@ -312,12 +314,19 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                       if (isEditMode) {
                         final success = await vm.handleUpdate(widget.quest!.questId, context);
                         if (success && context.mounted) {
-                          // 수정 완료 모달 띄우기
+                          // ✅ 파티 퀘스트 목록 즉시 갱신
+                          final questTabVM = context.read<QuestTabViewModel>();
+                          final token = await const FlutterSecureStorage().read(key: "accessToken");
+                          if (token != null) {
+                            await questTabVM.loadPartyQuests(token);
+                          }
+
+                          // ✅ 수정 완료 모달 띄우기
                           PartyUpdateModal.show(
                             context,
                             onClose: () {
-                              Navigator.pop(context); // 모달 닫을 때 화면도 닫기
-                              Navigator.pop(context);
+                              Navigator.pop(context); // 모달 닫기
+                              Navigator.pop(context); // 화면 닫기
                             },
                           );
                         }

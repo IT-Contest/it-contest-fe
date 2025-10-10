@@ -58,7 +58,7 @@ class PartyAndFriendsSection extends StatelessWidget {
                                 f.profileImageUrl,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset('assets/images/simpson.jpg', fit: BoxFit.cover);
+                                  return Image.asset('assets/images/logo_3d.png', fit: BoxFit.cover);
                                 },
                               ),
                             ),
@@ -85,6 +85,7 @@ class PartyAndFriendsSection extends StatelessWidget {
                         );
                       },
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
                             width: 48,

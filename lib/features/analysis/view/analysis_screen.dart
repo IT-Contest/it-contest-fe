@@ -238,7 +238,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                     children: [
                       Icon(Icons.add, size: 20),
                       SizedBox(width: 8),
-                      Text('새 퀘스트 설정', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      Text('새 퀘스트 추가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ),

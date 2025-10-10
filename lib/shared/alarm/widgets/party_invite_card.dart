@@ -26,7 +26,7 @@ class PartyInviteCard extends StatelessWidget {
                 children: [
                   const CircleAvatar(
                     radius: 18,
-                    backgroundImage: AssetImage("assets/images/simpson.jpg"),
+                    backgroundImage: AssetImage("assets/images/logo_3d.png"),
                   ),
                   const SizedBox(width: 6),
                   GestureDetector(
