@@ -12,6 +12,7 @@ class DateTimeSection extends StatefulWidget {
   final TimeOfDay? initialStartTime;
   final TimeOfDay? initialEndTime;
   final String? questType; // DAILY, WEEKLY, MONTHLY, YEARLY
+  final String? selectedPeriod; // 우선순위 섹션에서 선택된 기간 (일일, 주간, 월간, 연간)
 
   const DateTimeSection({
     super.key,
@@ -24,6 +25,7 @@ class DateTimeSection extends StatefulWidget {
     this.initialStartTime,
     this.initialEndTime,
     this.questType,
+    this.selectedPeriod,
   });
 
   @override
@@ -60,21 +62,53 @@ class _DateTimeSectionState extends State<DateTimeSection> {
     final picked = await showCustomDatePicker(
       context: context,
       initialDate: _startDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(), // 오늘 이후만 선택 가능
       lastDate: DateTime(2100),
+      questPeriod: widget.selectedPeriod,
     );
     if (picked != null) {
-      setState(() => _startDate = picked);
+      setState(() {
+        _startDate = picked;
+        // 기간별로 마감일자 자동 설정
+        if (widget.selectedPeriod != null && widget.selectedPeriod != '일일') {
+          _dueDate = _calculatePeriodEndDate(picked, widget.selectedPeriod!);
+        }
+      });
       widget.onStartDateChanged?.call(picked);
+      // 자동 설정된 마감일자도 콜백 호출
+      if (_dueDate != null) {
+        widget.onDueDateChanged?.call(_dueDate!);
+      }
+    }
+  }
+
+  // 기간별 마감일자 계산 헬퍼 함수
+  DateTime _calculatePeriodEndDate(DateTime startDate, String period) {
+    switch (period) {
+      case '주간':
+        return startDate.add(const Duration(days: 6)); // 7일 중 마지막 날
+      case '월간':
+        return DateTime(startDate.year, startDate.month + 1, startDate.day - 1);
+      case '연간':
+        return DateTime(startDate.year + 1, startDate.month, startDate.day - 1);
+      default: // '일일'
+        return startDate;
     }
   }
 
   Future<void> _pickDueDate() async {
+    // 마감일자의 최소 날짜는 시작일자 또는 오늘 중 더 늦은 날짜
+    final minDate = _startDate != null 
+        ? (_startDate!.isAfter(DateTime.now()) ? _startDate! : DateTime.now())
+        : DateTime.now();
+    
     final picked = await showCustomDatePicker(
       context: context,
-      initialDate: _dueDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
+      initialDate: _dueDate ?? minDate,
+      firstDate: minDate, // 시작일자 또는 오늘 이후만 선택 가능
       lastDate: DateTime(2100),
+      questPeriod: widget.selectedPeriod,
+      startDate: _startDate, // 시작일자를 기준으로 한 제한
     );
     if (picked != null) {
       setState(() => _dueDate = picked);

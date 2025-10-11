@@ -135,6 +135,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                 // 날짜 및 시간
                 DateTimeSection(
                   questType: vm.period,
+                  selectedPeriod: vm.period, // 선택된 기간 전달
                   initialStartDate: vm.startDate,
                   initialDueDate: vm.dueDate,
                   initialStartTime: vm.startTime,
@@ -355,7 +356,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                     child: vm.isLoading
                         ? const SizedBox(
                       height: 20,
-                      width: 24,
+                      width: 20,
                       child: CircularProgressIndicator(
                           color: Colors.white, strokeWidth: 2),
                     )
