@@ -2,11 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 
+// 기간별 날짜 계산 헬퍼 함수들
+DateTime _calculatePeriodEndDate(DateTime startDate, String period) {
+  switch (period) {
+    case '주간':
+      return startDate.add(const Duration(days: 6)); // 7일 중 마지막 날
+    case '월간':
+      return DateTime(startDate.year, startDate.month + 1, startDate.day - 1);
+    case '연간':
+      return DateTime(startDate.year + 1, startDate.month, startDate.day - 1);
+    default: // '일일'
+      return startDate;
+  }
+}
+
+bool _isValidDateForPeriod(DateTime date, DateTime baseStartDate, String period) {
+  if (period == '일일') return true;
+  
+  DateTime periodStart = baseStartDate;
+  DateTime periodEnd = _calculatePeriodEndDate(baseStartDate, period);
+  
+  switch (period) {
+    case '주간':
+      // 시작일 기준으로 매주 같은 날짜들만 선택 가능
+      int daysDiff = date.difference(periodStart).inDays;
+      return daysDiff >= 0 && daysDiff % 7 == 0;
+    case '월간':
+      // 시작일 기준으로 매월 같은 날짜들만 선택 가능
+      return date.day == periodStart.day && 
+             date.isAfter(periodStart.subtract(const Duration(days: 1)));
+    case '연간':
+      // 시작일 기준으로 매년 같은 날짜들만 선택 가능
+      return date.month == periodStart.month && 
+             date.day == periodStart.day && 
+             date.year >= periodStart.year;
+    default:
+      return true;
+  }
+}
+
 Future<DateTime?> showCustomDatePicker({
   required BuildContext context,
   required DateTime initialDate,
   required DateTime firstDate,
   required DateTime lastDate,
+  String? questPeriod, // 'Daily', 'Weekly', 'Monthly', 'Yearly'
+  DateTime? startDate, // 시작일자 (주간/월간/연간일 때 필요)
 }) async {
   DateTime? selectedDate = initialDate;
   
@@ -95,10 +136,20 @@ Future<DateTime?> showCustomDatePicker({
                       focusedDay: focusedDate,
                       selectedDayPredicate: (day) => isSameDay(selectedDate, day),
                       onDaySelected: (newSelectedDay, newFocusedDay) {
-                        setState(() {
-                          selectedDate = newSelectedDay;
-                          focusedDate = newFocusedDay;
-                        });
+                        // 기간별 유효성 검사
+                        if (questPeriod != null && questPeriod != '일일' && startDate != null) {
+                          if (_isValidDateForPeriod(newSelectedDay, startDate!, questPeriod!)) {
+                            setState(() {
+                              selectedDate = newSelectedDay;
+                              focusedDate = newFocusedDay;
+                            });
+                          }
+                        } else {
+                          setState(() {
+                            selectedDate = newSelectedDay;
+                            focusedDate = newFocusedDay;
+                          });
+                        }
                       },
                       onPageChanged: (newFocusedDay) {
                         setState(() {
@@ -124,7 +175,15 @@ Future<DateTime?> showCustomDatePicker({
                         defaultTextStyle: const TextStyle(color: Colors.black, fontSize: 16), // 폰트 크기 증가
                         weekendTextStyle: const TextStyle(color: Colors.black, fontSize: 16), // 폰트 크기 통일
                         outsideTextStyle: TextStyle(color: Colors.grey[400], fontSize: 16), // 폰트 크기 통일
+                        disabledTextStyle: TextStyle(color: Colors.grey[300], fontSize: 16), // 비활성화된 날짜 스타일
                       ),
+                      // 기간별 날짜 비활성화 로직
+                      enabledDayPredicate: (day) {
+                        if (questPeriod != null && questPeriod != '일일' && startDate != null) {
+                          return _isValidDateForPeriod(day, startDate!, questPeriod!);
+                        }
+                        return true;
+                      },
                       daysOfWeekStyle: const DaysOfWeekStyle(
                         weekendStyle: TextStyle(color: Colors.red),
                       ),

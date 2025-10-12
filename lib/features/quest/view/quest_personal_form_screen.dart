@@ -187,6 +187,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                     // 4. 날짜 및 시간
                     DateTimeSection(
                       questType: vm.questType, // 퀘스트 타입 전달
+                      selectedPeriod: _period, // 선택된 기간 전달
                       initialStartDate: _parseDate(widget.quest?.startDate),
                       initialDueDate: _parseDate(widget.quest?.dueDate),
                       initialStartTime: _parseTime(widget.quest?.startTime),
@@ -309,7 +310,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                         child: vm.isLoading
                             ? const SizedBox(
                           height: 20,
-                          width: 24,
+                          width: 20,
                           child: CircularProgressIndicator(
                               color: Colors.white, strokeWidth: 2),
                         )

@@ -18,6 +18,8 @@ class AnalysisView extends StatefulWidget {
 }
 
 class _AnalysisViewState extends State<AnalysisView> {
+  int? _selectedSpotIndex; // 선택된 지점의 인덱스
+
   @override
   void initState() {
     super.initState();
@@ -350,11 +352,7 @@ class _AnalysisViewState extends State<AnalysisView> {
                           CircleAvatar(
                             radius: 24,
                             backgroundImage: NetworkImage(user.avatarUrl),
-                            onBackgroundImageError: (_, __) {},
-                            child: Text(
-                              user.name.isNotEmpty ? user.name[0] : '?',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                            backgroundColor: Colors.grey[300],
                           ),
                           const SizedBox(width: 16),
                           // 사용자 정보
@@ -459,6 +457,42 @@ class _AnalysisViewState extends State<AnalysisView> {
       maxX: (viewModel.chartData.length - 1).toDouble(),
       minY: 0,
       maxY: _getMaxY(viewModel.chartData),
+      lineTouchData: LineTouchData(
+        enabled: true,
+        touchSpotThreshold: 30, // 터치 감지 거리 증가
+        touchTooltipData: LineTouchTooltipData(
+          tooltipBgColor: Colors.white,
+          getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+            return touchedBarSpots.map((barSpot) {
+              final value = barSpot.y.toInt();
+              return LineTooltipItem(
+                '${value}개',
+                const TextStyle(
+                  color: Color(0xFF7958FF),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              );
+            }).toList();
+          },
+          tooltipBorder: const BorderSide(
+            color: Color(0xFF7958FF),
+            width: 1,
+          ),
+          tooltipRoundedRadius: 8,
+          tooltipPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          tooltipMargin: 8, // 차트 경계와의 여백
+        ),
+        handleBuiltInTouches: true,
+        getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
+          return spotIndexes.map((spotIndex) {
+            return TouchedSpotIndicatorData(
+              FlLine(color: Colors.transparent), // 선 숨김
+              FlDotData(show: false), // 점 숨김
+            );
+          }).toList();
+        },
+      ),
       lineBarsData: [
         LineChartBarData(
           spots: viewModel.chartData
@@ -483,6 +517,8 @@ class _AnalysisViewState extends State<AnalysisView> {
     // 항상 20을 최대값으로 고정
     return 20;
   }
+
+
 
   // AI 코칭 모달 표시
   void _showCoachingModal(BuildContext context, AnalysisViewModel viewModel) {
@@ -534,7 +570,7 @@ class _AnalysisViewState extends State<AnalysisView> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                '분석 중...',
+                '분석 중',
                 style: TextStyle(
                   color: Color(0xFF7958FF),
                   fontSize: 18,
