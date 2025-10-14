@@ -139,19 +139,28 @@ class PartyService {
             "Authorization": "Bearer $accessToken",
             "Content-Type": "application/json",
           },
+          // ✅ 403, 404도 catch에서 처리 가능하도록 허용
+          validateStatus: (status) => status != null && status < 500,
         ),
       );
 
       if (response.statusCode == 200) {
         print("✅ 파티 수정 성공: ${response.data}");
         return true;
-      } else {
-        print("⚠️ 파티 수정 실패: ${response.statusCode} ${response.data}");
-        return false;
       }
+
+      // ✅ 403, 404 등은 직접 DioException으로 throw
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+      );
+    } on DioException catch (e) {
+      print("❌ updatePartyQuest DioException: ${e.response?.data}");
+      rethrow; // ViewModel에서 처리
     } catch (e) {
       print("❌ updatePartyQuest error: $e");
-      return false;
+      rethrow;
     }
   }
 
@@ -165,21 +174,34 @@ class PartyService {
             "Authorization": "Bearer $accessToken",
             "Content-Type": "application/json",
           },
+          // 403, 404 같은 클라이언트 에러도 catch로 던지지 않게 함
+          validateStatus: (status) {
+            return status != null && status < 500;
+          },
         ),
       );
 
+      // 서버에서 200이면 성공
       if (response.statusCode == 200) {
         print("✅ 파티 삭제 성공: ${response.data}");
         return true;
-      } else {
-        print("⚠️ 파티 삭제 실패: ${response.statusCode} ${response.data}");
-        return false;
       }
+
+      // 403, 404 등은 직접 DioException을 throw해서 ViewModel로 넘김
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+      );
+    } on DioException catch (e) {
+      // ViewModel에서 처리 가능하도록 예외 그대로 던짐
+      rethrow;
     } catch (e) {
       print("❌ deletePartyQuest error: $e");
       return false;
     }
   }
+
 
   // 파티 퀘스트 상태 변경
   Future<PartyStatusChangeResponse> changePartyQuestStatus(
@@ -205,23 +227,31 @@ class PartyService {
             "Authorization": "Bearer $accessToken",
             "Content-Type": "application/json",
           },
+          // ✅ 403, 404도 예외로 던지지 않게 함
+          validateStatus: (status) => status != null && status < 500,
         ),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("✅ 파티 상태 변경 성공: ${response.data}");
-
-        // result[0] -> PartyStatusChangeResponse
         return PartyStatusChangeResponse.fromJson(response.data['result'][0]);
-      } else {
-        throw Exception(
-            "⚠️ 파티 상태 변경 실패: ${response.statusCode} ${response.data}");
       }
+
+      // ✅ 403, 404 같은 클라이언트 오류를 직접 throw
+      throw DioException(
+        requestOptions: response.requestOptions,
+        response: response,
+        type: DioExceptionType.badResponse,
+      );
+    } on DioException catch (e) {
+      print("❌ changePartyQuestStatus DioException: ${e.response?.data}");
+      rethrow; // ViewModel에서 처리
     } catch (e) {
       print("❌ changePartyQuestStatus error: $e");
       rethrow;
     }
   }
+
 
   // 파티 초대 수락/거절
   Future<void> respondToInvitation(

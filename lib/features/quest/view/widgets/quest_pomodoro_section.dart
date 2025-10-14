@@ -628,14 +628,14 @@ class _CycleCompleteDialog extends StatelessWidget {
                     border: Border.all(color: const Color(0xFF7958FF)),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
-                    '골드 +5',
-                    style: TextStyle(
-                      color: Color(0xFF7958FF),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  // child: const Text(
+                  //   '골드 +5',
+                  //   style: TextStyle(
+                  //     color: Color(0xFF7958FF),
+                  //     fontSize: 14,
+                  //     fontWeight: FontWeight.bold,
+                  //   ),
+                  // ),
                 ),
               ],
             ),

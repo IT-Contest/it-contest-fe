@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodel/quest_tab_viewmodel.dart';
+import 'completed_quest_page.dart';
 import 'widgets/quest_search_section.dart';
 import 'widgets/quest_list_section.dart';
 import 'widgets/quest_add_section.dart';
@@ -55,7 +56,42 @@ class _QuestScreenState extends State<QuestScreen> {
                 children: [
                   const SizedBox(height: 16),
                   const QuestSearchSection(),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+
+                  // ✅ 완료된 퀘스트 보기 버튼 추가
+                  SizedBox(
+                    width: double.infinity,
+                    height: 60,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF7958FF),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        // 완료된 퀘스트 페이지로 이동
+                        // (예: CompletedQuestPage())
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CompletedQuestPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        '완료된 퀘스트 보기',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
                   QuestListSection(
                     selectedTab: questTabViewModel.selectedTab,
                     onTabChanged: questTabViewModel.changeTab,
