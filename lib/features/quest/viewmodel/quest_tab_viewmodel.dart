@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import '../../../shared/party/party_access_denied_modal.dart';
 import '../../analysis/viewmodel/analysis_viewmodel.dart';
 import '../model/quest_item_response.dart';
 import '../model/completion_status.dart';
@@ -186,7 +188,7 @@ class QuestTabViewModel extends ChangeNotifier {
 
       final updatedQuest = quest.copyWith(completionStatus: newStatus);
       allPartyQuests[idx] = updatedQuest;
-      filterPartyQuests(); // ✅ 필터링된 리스트도 갱신
+      filterPartyQuests();
       notifyListeners();
 
       if (onStatusChanged != null) {
@@ -198,6 +200,24 @@ class QuestTabViewModel extends ChangeNotifier {
           final analysisViewModel = context.read<AnalysisViewModel>();
           analysisViewModel.loadAnalysisData();
         } catch (_) {}
+      }
+    } on DioException catch (e) {
+      final data = e.response?.data;
+      final statusCode = data?['statusCode'];
+      final message = data?['message'] ?? '';
+
+      debugPrint("❌ togglePartyQuestCompletion DioException: $data");
+
+      // ✅ 파티장만 완료/취소 가능
+      if (statusCode == 'PARTY_4004' && context != null) {
+        PartyAccessDeniedModal.show(
+          context,
+          message: '파티퀘스트는 파티장만 완료 혹은 취소 가능합니다.',
+        );
+      } else if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('상태 변경 실패: $message')),
+        );
       }
     } catch (e) {
       print("❌ togglePartyQuestCompletion error: $e");

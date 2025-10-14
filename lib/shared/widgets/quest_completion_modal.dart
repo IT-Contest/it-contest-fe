@@ -95,84 +95,119 @@ class QuestCompletionModal extends StatelessWidget {
 
           // 보상 카드들
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 경험치 카드
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF8F73FF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        child: Center(
-                          child: Image.asset(
-                            'assets/icons/arrow_circle_up.png',
-                            width: 30,
-                            height: 30,
-                            color: Colors.white,
-                          ),
-                        ),
+              Container(
+                width: 200, // ✅ 원하는 너비
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8F73FF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        'assets/icons/arrow_circle_up.png',
+                        width: 30,
+                        height: 30,
+                        color: Colors.white,
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        '경험치 ${isCompleted ? '+' : '-'} $expReward exp', // ✅ + 또는 - 표시
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '경험치 ${isCompleted ? '+' : '-'} $expReward exp',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 12),
 
-              // 골드 카드
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF8F73FF), width: 2),
-                  ),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Image.asset(
-                            'assets/icons/database.png',
-                            width: 30,
-                            height: 30,
-                            color: const Color(0xFF8F73FF),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        '${isCompleted ? '+' : '-'} $goldReward 골드', // ✅ + 또는 - 표시
-                        style: const TextStyle(
-                          color: Color(0xFF8F73FF),
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Expanded(
+              //   child: Container(
+              //     padding: const EdgeInsets.all(20),
+              //     decoration: BoxDecoration(
+              //       color: const Color(0xFF8F73FF),
+              //       borderRadius: BorderRadius.circular(12),
+              //     ),
+              //     child: Column(
+              //       children: [
+              //         Container(
+              //           width: 48,
+              //           height: 48,
+              //           child: Center(
+              //             child: Image.asset(
+              //               'assets/icons/arrow_circle_up.png',
+              //               width: 30,
+              //               height: 30,
+              //               color: Colors.white,
+              //             ),
+              //           ),
+              //         ),
+              //         const SizedBox(height: 12),
+              //         Text(
+              //           '경험치 ${isCompleted ? '+' : '-'} $expReward exp', // ✅ + 또는 - 표시
+              //           style: const TextStyle(
+              //             color: Colors.white,
+              //             fontSize: 14,
+              //             fontWeight: FontWeight.bold,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(width: 12),
+              //
+              // // 골드 카드
+              // Expanded(
+              //   child: Container(
+              //     padding: const EdgeInsets.all(20),
+              //     decoration: BoxDecoration(
+              //       color: Colors.white,
+              //       borderRadius: BorderRadius.circular(12),
+              //       border: Border.all(color: const Color(0xFF8F73FF), width: 2),
+              //     ),
+              //     child: Column(
+              //       children: [
+              //         Container(
+              //           width: 48,
+              //           height: 48,
+              //           decoration: const BoxDecoration(
+              //             color: Colors.white,
+              //             shape: BoxShape.circle,
+              //           ),
+              //           child: Center(
+              //             child: Image.asset(
+              //               'assets/icons/database.png',
+              //               width: 30,
+              //               height: 30,
+              //               color: const Color(0xFF8F73FF),
+              //             ),
+              //           ),
+              //         ),
+              //         const SizedBox(height: 12),
+              //         Text(
+              //           '${isCompleted ? '+' : '-'} $goldReward 골드', // ✅ + 또는 - 표시
+              //           style: const TextStyle(
+              //             color: Color(0xFF8F73FF),
+              //             fontSize: 14,
+              //             fontWeight: FontWeight.bold,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
             ],
           ),
           const SizedBox(height: 24),

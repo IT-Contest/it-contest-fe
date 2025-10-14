@@ -201,27 +201,27 @@ class InvitedFriendsPage extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            Row(
-                              children: [
-                                Image.asset('assets/icons/gold_icon.png',
-                                    width: 18, height: 18),
-                                const SizedBox(width: 4),
-                                const Text(
-                                  '골드 ',
-                                  style: TextStyle(
-                                      color: Color(0xFF6737F4),
-                                      fontSize: 13),
-                                ),
-                                Text(
-                                  '${friend.gold}',
-                                  style: const TextStyle(
-                                    color: Color(0xFF6737F4),
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            // Row(
+                            //   children: [
+                            //     Image.asset('assets/icons/gold_icon.png',
+                            //         width: 18, height: 18),
+                            //     const SizedBox(width: 4),
+                            //     const Text(
+                            //       '골드 ',
+                            //       style: TextStyle(
+                            //           color: Color(0xFF6737F4),
+                            //           fontSize: 13),
+                            //     ),
+                            //     Text(
+                            //       '${friend.gold}',
+                            //       style: const TextStyle(
+                            //         color: Color(0xFF6737F4),
+                            //         fontSize: 13,
+                            //         fontWeight: FontWeight.bold,
+                            //       ),
+                            //     ),
+                            //   ],
+                            // ),
                           ],
                         ),
                       ],

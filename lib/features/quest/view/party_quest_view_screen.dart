@@ -292,7 +292,7 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
                                                   QuestPartyCreateViewModel>();
                                               final success =
                                               await vm.handleDelete(
-                                                  widget.quest!.questId);
+                                                  widget.quest!.questId, context);
 
                                               if (success && mounted) {
                                                 PartyDeleteSuccessModal.show(

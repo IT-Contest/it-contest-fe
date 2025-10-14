@@ -82,7 +82,7 @@ class QuestCard extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _RewardTag(label: '골드 +$goldReward', border: true),
+                        // _RewardTag(label: '골드 +$goldReward', border: true),
                         if (goldTrailing != null) ...[
                           const SizedBox(width: 10),
                           goldTrailing!, // 파티 아이콘 삽입

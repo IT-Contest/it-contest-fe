@@ -29,10 +29,17 @@ class QuestListSection extends StatelessWidget {
       });
     }
 
-    // ✅ 개인 + 파티 퀘스트 모두 합친 리스트
+    // // ✅ 개인 + 파티 퀘스트 모두 합친 리스트
+    // final combinedQuests = [
+    //   ...questTabViewModel.filteredQuests,
+    //   ...questTabViewModel.partyQuests,
+    // ];
+    // ✅ 개인 + 파티 퀘스트 모두 합친 리스트 (미완료만 필터링)
     final combinedQuests = [
-      ...questTabViewModel.filteredQuests,
-      ...questTabViewModel.partyQuests,
+      ...questTabViewModel.filteredQuests
+          .where((q) => q.completionStatus == CompletionStatus.INCOMPLETE),
+      ...questTabViewModel.partyQuests
+          .where((q) => q.completionStatus == CompletionStatus.INCOMPLETE),
     ];
 
     return Column(
@@ -269,7 +276,7 @@ class _QuestCard extends StatelessWidget {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _RewardTag(label: '골드 +${quest.goldReward}', border: true),
+                          // _RewardTag(label: '골드 +${quest.goldReward}', border: true),
                           if (isPartyQuest) ...[
                             const SizedBox(width: 10),
                             Image.asset(

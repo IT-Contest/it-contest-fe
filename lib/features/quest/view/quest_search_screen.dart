@@ -198,12 +198,12 @@ class _QuestSearchScreenState extends State<QuestSearchScreen> {
                                                   borderRadius:
                                                       BorderRadius.circular(6),
                                                 ),
-                                                child: Text(
-                                                  '골드 +${quest.goldReward}',
-                                                  style: const TextStyle(
-                                                      color: Color(0xFF6737F4),
-                                                      fontSize: 12),
-                                                ),
+                                                // child: Text(
+                                                //   '골드 +${quest.goldReward}',
+                                                //   style: const TextStyle(
+                                                //       color: Color(0xFF6737F4),
+                                                //       fontSize: 12),
+                                                // ),
                                               ),
                                             ],
                                           ),
