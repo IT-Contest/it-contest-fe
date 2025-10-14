@@ -130,24 +130,6 @@ class LoginScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 24),
-
-              // 임시 회원 탈퇴 버튼
-              ElevatedButton(
-                onPressed: () async {
-                  try {
-                    await UserApi.instance.unlink();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('카카오 연결 끊기 성공!')),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('카카오 연결 끊기 실패: $e')),
-                    );
-                  }
-                },
-                child: const Text('회원 탈퇴(카카오 연결 끊기)'),
-              ),
             ],
           ),
         ),
