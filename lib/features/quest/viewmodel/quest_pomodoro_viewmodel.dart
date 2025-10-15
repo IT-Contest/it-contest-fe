@@ -28,10 +28,10 @@ class QuestPomodoroViewModel extends ChangeNotifier {
   bool alarmSound = false;
   bool vibration = false;
   
-  //Duration focusTotal = const Duration(minutes: 25);  // 25분
-  //Duration restTotal = const Duration(minutes: 5);    // 5분
-  Duration focusTotal = const Duration(seconds: 10);  // 테스트용 10초
-  Duration restTotal = const Duration(seconds: 10);    // 테스트용 10초
+  Duration focusTotal = const Duration(minutes: 25);  // 25분
+  Duration restTotal = const Duration(minutes: 5);    // 5분
+  //Duration focusTotal = const Duration(seconds: 10);  // 테스트용 10초
+  //Duration restTotal = const Duration(seconds: 10);    // 테스트용 10초
   
   // 현재 모드에 따른 총 시간과 남은 시간
   Duration get total => mode == PomodoroMode.focus ? focusTotal : restTotal;
@@ -40,7 +40,7 @@ class QuestPomodoroViewModel extends ChangeNotifier {
   
   Duration _remaining;
   
-  QuestPomodoroViewModel() : _remaining = const Duration(seconds: 10) {
+  QuestPomodoroViewModel() : _remaining = const Duration(minutes: 25) {
     _loadNotificationSettings();
   }
 
