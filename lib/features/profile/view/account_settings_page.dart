@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
+import '../../../main.dart';
 import '../../auth/view/login_screen.dart';
 import '../service/kakao_account_logout_page.dart';
 
@@ -188,19 +189,20 @@ class AccountSettingsPage extends StatelessWidget {
                             await UserApi.instance.unlink();
                           } catch (e) {
                             debugPrint("카카오 unlink 실패: $e");
-                            // 실패해도 서버 탈퇴는 이미 되었으니 무시하거나 로그만 남김
                           }
 
-                          Future.delayed(Duration.zero, () {
-                            showGoodbyeDialog(context);
-                          });
-
+                          // ✅ 전역 navigatorKey를 통해 안전하게 showDialog 호출
+                          final safeContext = navigatorKey.currentContext;
+                          if (safeContext != null && safeContext.mounted) {
+                            AccountSettingsPage.showGoodbyeDialog(safeContext);
+                          }
                         } catch (e) {
-                          Future.microtask(() {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                          final safeContext = navigatorKey.currentContext;
+                          if (safeContext != null && safeContext.mounted) {
+                            ScaffoldMessenger.of(safeContext).showSnackBar(
                               SnackBar(content: Text("회원 탈퇴 실패: $e")),
                             );
-                          });
+                          }
                         }
                       },
                       child: const Text("탈퇴"),

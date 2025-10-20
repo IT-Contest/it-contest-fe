@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/terms/view/terms_detail_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../onboarding/view/onboarding_screen.dart';
 import '../model/terms_model.dart';
 import '../service/terms_service.dart';
 
@@ -181,8 +183,20 @@ class _TermsAgreementScreenState extends State<TermsAgreementScreen> {
                       final termsService = TermsService();
                       await termsService.agreeTerms(agreedTermIds);
 
-                      // ✅ 동의 저장 성공 후 메인으로 이동
-                      Navigator.pushReplacementNamed(context, '/main');
+                      // ✅ 로그인 시 isNewUser 저장되어 있다고 가정
+                      final prefs = await SharedPreferences.getInstance();
+                      final isNewUser = prefs.getBool('isNewUser') ?? false;
+
+                      if (isNewUser) {
+                        // 🚀 신규 유저 → 온보딩 화면으로 이동
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+                        );
+                      } else {
+                        // ✅ 기존 유저 → 메인화면으로 이동
+                        Navigator.pushReplacementNamed(context, '/main');
+                      }
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('약관 동의 저장 실패: $e')),

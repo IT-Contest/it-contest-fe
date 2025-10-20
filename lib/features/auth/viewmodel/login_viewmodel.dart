@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:it_contest_fe/core/storage/token_storage.dart';
 import 'package:it_contest_fe/features/auth/service/guest_login_service.dart';
 import 'package:it_contest_fe/features/auth/service/kakao_login_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../model/user_token_response.dart';
 
 class LoginViewModel extends ChangeNotifier {
@@ -43,6 +44,10 @@ class LoginViewModel extends ChangeNotifier {
           response.accessToken,
           response.refreshToken,
         );
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isNewUser', response.isNewUser);
+        print('🟣 isNewUser 저장됨: ${response.isNewUser}');
       }
       return response;
     } catch (e) {

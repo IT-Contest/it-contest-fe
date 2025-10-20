@@ -36,7 +36,7 @@ class UserProfileCard extends StatelessWidget {
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: Image.asset(
-                'assets/images/seed.gif',
+                _getLevelGif(user.level),
                 fit: BoxFit.cover, // 카드 상단을 꽉 채움
               ),
             ),
@@ -202,4 +202,21 @@ class UserProfileCard extends StatelessWidget {
       ),
     );
   }
+
+  String _getLevelGif(int level) {
+    if (level >= 0 && level < 25) {
+      return 'assets/images/level1.gif';
+    } else if (level >= 25 && level < 50) {
+      return 'assets/images/level2.gif';
+    } else if (level >= 50 && level < 75) {
+      return 'assets/images/level3.gif';
+    } else if (level >= 75) {
+      return 'assets/images/level4.gif';
+    }
+
+    // 예외 처리 (모든 경우 대비)
+    return 'assets/images/level1.gif';
+  }
+
+
 }

@@ -85,9 +85,9 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 );
               },
               child: const ImageIcon(
-                AssetImage("assets/icons/alarm_btn2.png"),
+                AssetImage("assets/icons/alarm_btn1.png"),
                 color: Color(0xFF7958FF),
-                size: 24,
+                size: 28,
               ),
             ),
           ),

@@ -120,3 +120,6 @@ app.*.symbols
 
 # IDE / 개발환경 설정 무시
 .idea/
+
+# Firebase
+android/app/google-services.json

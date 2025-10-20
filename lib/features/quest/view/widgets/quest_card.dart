@@ -71,6 +71,8 @@ class QuestCard extends StatelessWidget {
                         ? const Color(0xFF643EFF)
                         : (highlightTitle ? const Color(0xFF643EFF) : Colors.black87),
                   ),
+                  maxLines: 1, // 한 줄까지만 표시
+                  overflow: TextOverflow.ellipsis, // 넘치면 말줄임(...)으로 표시
                 ),
                 const SizedBox(height: 6),
                 Row(

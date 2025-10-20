@@ -258,10 +258,10 @@ class _QuestCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: done
-                          ? const Color(0xFF643EFF)
-                          : Colors.black87,
+                      color: done ? const Color(0xFF643EFF) : Colors.black87,
                     ),
+                    maxLines: 1, // ✅ 한 줄까지만 표시
+                    overflow: TextOverflow.ellipsis, // ✅ 넘치면 … 으로 표시
                   ),
                   const SizedBox(height: 6),
                   Row(

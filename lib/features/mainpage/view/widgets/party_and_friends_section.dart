@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/mainpage/view/widgets/invite_modal.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../shared/analytics/service/analytics_service.dart';
 import '../../../friends/view/all_friends_page.dart';
 import '../../../friends/viewmodel/friend_viewmodel.dart';
 import '../../../quest/view/party_join_page.dart';
@@ -31,10 +32,22 @@ class PartyAndFriendsSection extends StatelessWidget {
                     const Text('친구 목록',
                         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF5C2EFF))),
                     TextButton.icon(
-                      onPressed: () => InviteModal.show(context),
+                      onPressed: () {
+                        // Analytics 이벤트 기록
+                        AnalyticsService.logFriendInvited("main_friends_section");
+
+                        // 기존 친구초대 모달 실행
+                        InviteModal.show(context);
+                      },
                       icon: const Icon(Icons.add, color: Colors.black54, size: 18),
-                      label: const Text('친구추가', style: TextStyle(color: Colors.black54)),
-                      style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 32)),
+                      label: const Text(
+                        '친구추가',
+                        style: TextStyle(color: Colors.black54),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 32),
+                      ),
                     ),
                   ],
                 ),
@@ -130,7 +143,16 @@ class PartyAndFriendsSection extends StatelessWidget {
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const QuestPartyCreateScreen())),
+                        onPressed: () {
+                          // ✅ 파티 퀘스트 생성 이벤트 기록
+                          AnalyticsService.logPartyQuestCreated();
+
+                          // ✅ 기존 네비게이션 로직
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const QuestPartyCreateScreen()),
+                          );
+                        },
                         icon: Image.asset('assets/icons/party_add.png', width: 20, height: 20),
                         label: const Text('파티 퀘스트 생성', style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(
@@ -143,9 +165,21 @@ class PartyAndFriendsSection extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PartyJoinPage())),
+                        onPressed: () {
+                          // 🔹 Analytics 이벤트 기록
+                          AnalyticsService.logPartyQuestJoinClicked();
+
+                          // 🔹 기존 네비게이션 로직
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const PartyJoinPage()),
+                          );
+                        },
                         icon: Image.asset('assets/icons/party_in.png', width: 20, height: 20),
-                        label: const Text('파티 퀘스트 참가', style: TextStyle(color: Color(0xFF5C2EFF))),
+                        label: const Text(
+                          '파티 퀘스트 참가',
+                          style: TextStyle(color: Color(0xFF5C2EFF)),
+                        ),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           side: const BorderSide(color: Color(0xFF5C2EFF), width: 1.5),
