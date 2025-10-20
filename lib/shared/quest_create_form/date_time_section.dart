@@ -117,29 +117,47 @@ class _DateTimeSectionState extends State<DateTimeSection> {
   }
 
   // ---------------- 시간 선택 ----------------
-  Future<void> _pickStartTime() async {
+  // Future<void> _pickStartTime() async {
+  //   final result = await showTimeRangePickerDialog(
+  //     context: context,
+  //     initialStartTime: _startTime ?? TimeOfDay.now(),
+  //     initialEndTime: _startTime ?? TimeOfDay.now(),
+  //   );
+  //   if (result != null) {
+  //     setState(() => _startTime = result.startTime);
+  //     widget.onStartTimeChanged?.call(result.startTime);
+  //   }
+  // }
+  //
+  // Future<void> _pickEndTime() async {
+  //   final result = await showTimeRangePickerDialog(
+  //     context: context,
+  //     initialStartTime: _endTime ?? TimeOfDay.now(),
+  //     initialEndTime: _endTime ?? TimeOfDay.now(),
+  //   );
+  //   if (result != null) {
+  //     setState(() => _endTime = result.endTime);
+  //     widget.onEndTimeChanged?.call(result.endTime);
+  //   }
+  // }
+  Future<void> _pickTimeRange() async {
     final result = await showTimeRangePickerDialog(
       context: context,
       initialStartTime: _startTime ?? TimeOfDay.now(),
-      initialEndTime: _startTime ?? TimeOfDay.now(),
-    );
-    if (result != null) {
-      setState(() => _startTime = result.startTime);
-      widget.onStartTimeChanged?.call(result.startTime);
-    }
-  }
-
-  Future<void> _pickEndTime() async {
-    final result = await showTimeRangePickerDialog(
-      context: context,
-      initialStartTime: _endTime ?? TimeOfDay.now(),
       initialEndTime: _endTime ?? TimeOfDay.now(),
     );
+
     if (result != null) {
-      setState(() => _endTime = result.endTime);
+      setState(() {
+        _startTime = result.startTime;
+        _endTime = result.endTime;
+      });
+      widget.onStartTimeChanged?.call(result.startTime);
       widget.onEndTimeChanged?.call(result.endTime);
     }
   }
+
+
 
   // ---------------- UI Helper ----------------
   Widget _dateBox(String text, VoidCallback onTap) {
@@ -232,13 +250,13 @@ class _DateTimeSectionState extends State<DateTimeSection> {
         const SizedBox(height: 8),
         Row(
           children: [
-            Expanded(flex: 130, child: _timeBox(_getPeriod(_startTime).isEmpty ? '오전 / 오후' : _getPeriod(_startTime), _pickStartTime)),
+            Expanded(flex: 130, child: _timeBox(_getPeriod(_startTime).isEmpty ? '오전 / 오후' : _getPeriod(_startTime), _pickTimeRange)),
             const SizedBox(width: 8),
-            Expanded(flex: 48, child: _timeBox(_getHour(_startTime), _pickStartTime)),
+            Expanded(flex: 48, child: _timeBox(_getHour(_startTime), _pickTimeRange)),
             const SizedBox(width: 4),
             const Text('시', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(width: 8),
-            Expanded(flex: 48, child: _timeBox(_getMinute(_startTime), _pickStartTime)),
+            Expanded(flex: 48, child: _timeBox(_getMinute(_startTime), _pickTimeRange)),
             const SizedBox(width: 4),
             const Text('분', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ],
@@ -251,13 +269,13 @@ class _DateTimeSectionState extends State<DateTimeSection> {
         const SizedBox(height: 8),
         Row(
           children: [
-            Expanded(flex: 130, child: _timeBox(_getPeriod(_endTime).isEmpty ? '오전 / 오후' : _getPeriod(_endTime), _pickEndTime)),
+            Expanded(flex: 130, child: _timeBox(_getPeriod(_endTime).isEmpty ? '오전 / 오후' : _getPeriod(_endTime), _pickTimeRange)),
             const SizedBox(width: 8),
-            Expanded(flex: 48, child: _timeBox(_getHour(_endTime), _pickEndTime)),
+            Expanded(flex: 48, child: _timeBox(_getHour(_endTime), _pickTimeRange)),
             const SizedBox(width: 4),
             const Text('시', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(width: 8),
-            Expanded(flex: 48, child: _timeBox(_getMinute(_endTime), _pickEndTime)),
+            Expanded(flex: 48, child: _timeBox(_getMinute(_endTime), _pickTimeRange)),
             const SizedBox(width: 4),
             const Text('분', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ],

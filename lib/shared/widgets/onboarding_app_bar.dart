@@ -29,7 +29,14 @@ class OnboardingAppBar extends StatelessWidget implements PreferredSizeWidget {
                 children: [
                   IconButton(
                     icon: Icon(Icons.arrow_back_ios_new, color: Colors.black,),
-                    onPressed: onBack ?? () => Navigator.of(context).maybePop(),
+                    onPressed: onBack ??
+                            () {
+                          if (Navigator.of(context).canPop()) {
+                            Navigator.of(context).pop();
+                          } else {
+                            Navigator.pushReplacementNamed(context, '/main');
+                          }
+                        },
                   ),
                   Expanded(
                     child: Center(

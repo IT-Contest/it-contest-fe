@@ -258,13 +258,15 @@ class _QuestCard extends StatelessWidget {
                 children: [
                   Text(
                     isPartyQuest
-                        ? (quest.questName ?? '이름 없는 퀘스트') // ✅ 파티 퀘스트는 questName
-                        : quest.title,                          // ✅ 개인 퀘스트는 title
+                        ? (quest.questName ?? '이름 없는 퀘스트') // ✅ 파티 퀘스트
+                        : quest.title,                           // ✅ 개인 퀘스트
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: done ? const Color(0xFF643EFF) : Colors.black87,
                     ),
+                    maxLines: 1, // ✅ 한 줄까지만 표시
+                    overflow: TextOverflow.ellipsis, // ✅ 넘치면 … 으로 표시
                   ),
                   const SizedBox(height: 6),
                   Row(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/quest/view/widgets/pomodoro_full_screen.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
+import '../../../../shared/analytics/service/analytics_service.dart';
 import '../../../../shared/widgets/reward_tag.dart';
 import '../../viewmodel/quest_pomodoro_viewmodel.dart';
 import '../../../mainpage/viewmodel/mainpage_viewmodel.dart';
@@ -37,6 +38,10 @@ class QuestPomodoroSection extends StatelessWidget {
   }
 
   void _showCycleCompleteDialog(BuildContext context) {
+
+    // Analytics 이벤트 기록
+    AnalyticsService.logPomodoroCycleCompleted();
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -620,23 +625,23 @@ class _CycleCompleteDialog extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: const Color(0xFF7958FF)),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  // child: const Text(
-                  //   '골드 +5',
-                  //   style: TextStyle(
-                  //     color: Color(0xFF7958FF),
-                  //     fontSize: 14,
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
-                ),
+                // const SizedBox(width: 12),
+                // Container(
+                //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                //   decoration: BoxDecoration(
+                //     color: Colors.white,
+                //     border: Border.all(color: const Color(0xFF7958FF)),
+                //     borderRadius: BorderRadius.circular(8),
+                //   ),
+                //   child: const Text(
+                //     '골드 +5',
+                //     style: TextStyle(
+                //       color: Color(0xFF7958FF),
+                //       fontSize: 14,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
             const SizedBox(height: 24),

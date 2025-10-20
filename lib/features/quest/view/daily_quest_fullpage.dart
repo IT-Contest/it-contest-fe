@@ -122,18 +122,23 @@ class _DailyQuestFullPageState extends State<DailyQuestFullPage> {
                   return Center(child: Text('에러: ${viewModel.errorMessage!}'));
                 }
 
-                // ✅ 필터링된 리스트 선택
+                // ✅ 필터링된 리스트 선택 (완료된 퀘스트는 제외)
                 final List<QuestItemResponse> quests;
                 if (_filter == 'PERSONAL') {
-                  quests = viewModel.allQuests; // ✅ 그대로 사용
+                  quests = viewModel.allQuests
+                      .where((q) => q.completionStatus != CompletionStatus.COMPLETED)
+                      .toList();
                 } else if (_filter == 'PARTY') {
-                  quests = viewModel.partyQuests;
+                  quests = viewModel.partyQuests
+                      .where((q) => q.completionStatus != CompletionStatus.COMPLETED)
+                      .toList();
                 } else {
                   quests = [
                     ...viewModel.allQuests,
                     ...viewModel.partyQuests,
-                  ]; // ✅ 전체보기면 합쳐서 보여주기
+                  ].where((q) => q.completionStatus != CompletionStatus.COMPLETED).toList();
                 }
+
 
                 if (quests.isEmpty) {
                   return const EmptyQuestWidget(

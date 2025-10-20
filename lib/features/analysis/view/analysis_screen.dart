@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../../shared/analytics/service/analytics_service.dart';
 import '../model/analysis_models.dart';
 import '../viewmodel/analysis_viewmodel.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
@@ -179,6 +180,8 @@ class _AnalysisViewState extends State<AnalysisView> {
                       onPressed: viewModel.isRequestingCoaching 
                         ? null 
                         : () {
+                            // Analytics 이벤트 기록
+                            AnalyticsService.logAiCoachingClicked();
                             _showCoachingModal(context, viewModel);
                           },
                       style: ElevatedButton.styleFrom(
@@ -199,6 +202,10 @@ class _AnalysisViewState extends State<AnalysisView> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
+
+                        // Analytics 이벤트 기록
+                        AnalyticsService.logCoachingHistoryClicked();
+
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => const CoachingHistoryScreen(),
@@ -221,6 +228,9 @@ class _AnalysisViewState extends State<AnalysisView> {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: () {
+                    // Analytics 이벤트 기록
+                    AnalyticsService.logQuestAddFromAnalysis();
+
                     QuestTypeBottomSheet.show(
                       context,
                       onPersonalQuestTap: () {

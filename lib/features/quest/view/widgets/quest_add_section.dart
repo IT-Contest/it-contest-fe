@@ -1,6 +1,8 @@
 // quest_add_section.dart
 import 'package:flutter/material.dart';
-import 'package:it_contest_fe/features/quest/view/widgets/quest_type_bottom_sheet.dart'; 
+import 'package:it_contest_fe/features/quest/view/widgets/quest_type_bottom_sheet.dart';
+
+import '../../../../shared/analytics/service/analytics_service.dart';
 
 class QuestAddSection extends StatelessWidget {
   final VoidCallback onTap;
@@ -14,6 +16,10 @@ class QuestAddSection extends StatelessWidget {
       width: double.infinity,
       child: OutlinedButton(
         onPressed: () {
+
+          // Analytics 이벤트 기록
+          AnalyticsService.logQuestAddClicked();
+
           // 키보드 포커스 해제
           FocusScope.of(context).unfocus();
           QuestTypeBottomSheet.show(

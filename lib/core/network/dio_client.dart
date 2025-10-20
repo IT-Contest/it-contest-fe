@@ -6,7 +6,7 @@ class DioClient {
   final Dio _dio = Dio(BaseOptions(
 
     baseUrl: 'https://ssuchaehwa.duckdns.org',
-    // baseUrl: 'http://10.0.2.2:8080',  
+    // baseUrl: 'http://192.168.45.148:8080',
     connectTimeout: const Duration(seconds: 30), 
     receiveTimeout: const Duration(seconds: 30),
     contentType: 'application/json',
