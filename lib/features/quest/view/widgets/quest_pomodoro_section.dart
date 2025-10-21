@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:it_contest_fe/features/quest/view/widgets/pomodoro_full_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vibration/vibration.dart';
 import 'dart:math' as math;
 import '../../../../shared/analytics/service/analytics_service.dart';
 import '../../../../shared/widgets/reward_tag.dart';
+import '../../../profile/service/notification_service.dart';
 import '../../viewmodel/quest_pomodoro_viewmodel.dart';
 import '../../../mainpage/viewmodel/mainpage_viewmodel.dart';
 
@@ -574,6 +577,29 @@ class _CycleCompleteDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 다이얼로그 뜨자마자 푸시 발송 (사용자 설정 확인 포함)
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+
+      final pomodoroEnabled = prefs.getBool('pomodoroNotification') ?? true;
+      final vibrationEnabled = prefs.getBool('vibration') ?? false; // ✅ 진동 설정
+
+      if (pomodoroEnabled) {
+        await NotificationService.showPomodoroComplete();
+        print('[CycleCompleteDialog] Pomodoro completion push sent');
+      }
+
+      // 진동이 켜져 있으면 사이클 완료 시 진동 울리기
+      if (vibrationEnabled) {
+        final hasVibrator = await Vibration.hasVibrator();
+        if (hasVibrator == true) {
+          Vibration.vibrate(duration: 2000); // 2초 진동
+          print('📳 [CycleCompleteDialog] Vibration triggered');
+        }
+      }
+    });
+
+
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -588,7 +614,6 @@ class _CycleCompleteDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 제목 (가운데 정렬)
             const Text(
               '🎊 사이클 완료!',
               style: TextStyle(
@@ -599,14 +624,12 @@ class _CycleCompleteDialog extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            // 보상 메시지 (가운데 정렬)
             const Text(
               '뽀모도로 사이클을 완료했습니다!',
               style: TextStyle(fontSize: 16, color: Colors.black87),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
-            // 보상 아이콘들
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -625,43 +648,26 @@ class _CycleCompleteDialog extends StatelessWidget {
                     ),
                   ),
                 ),
-                // const SizedBox(width: 12),
-                // Container(
-                //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                //   decoration: BoxDecoration(
-                //     color: Colors.white,
-                //     border: Border.all(color: const Color(0xFF7958FF)),
-                //     borderRadius: BorderRadius.circular(8),
-                //   ),
-                //   child: const Text(
-                //     '골드 +5',
-                //     style: TextStyle(
-                //       color: Color(0xFF7958FF),
-                //       fontSize: 14,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //   ),
-                // ),
               ],
             ),
             const SizedBox(height: 24),
-            // 확인 버튼
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
                   final vm = Provider.of<QuestPomodoroViewModel>(context, listen: false);
                   Navigator.of(context).pop();
-                  // 다음 집중 사이클 자동 시작
+
+                  // 👉 이제 이 시점에서는 알림을 보내지 않음
+                  // 단순히 다음 사이클 시작만 함
                   vm.startFocus();
-                  
+
                   // 메인페이지 유저 정보 새로고침
                   try {
                     final mainPageViewModel = Provider.of<MainPageViewModel>(context, listen: false);
                     await mainPageViewModel.refreshUserInfo();
-                    print('✅ [CycleComplete] Main page user info refreshed');
                   } catch (e) {
-                    print('❌ [CycleComplete] Failed to refresh main page user info: $e');
+                    print('❌ [CycleComplete] refresh failed: $e');
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -687,6 +693,7 @@ class _CycleCompleteDialog extends StatelessWidget {
     );
   }
 }
+
 
 void _showSettingsDialog(BuildContext context) {
   showDialog(

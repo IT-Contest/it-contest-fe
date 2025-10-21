@@ -13,6 +13,8 @@ class NotificationSettingsPage extends StatefulWidget {
 }
 
 class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
+  bool _isLoading = true;
+
   bool dailyQuestNotification = true;
   bool questTimeNotification = true;
   bool pomodoroNotification = true;
@@ -39,12 +41,31 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
       if (hour != null && minute != null) {
         questTime = TimeOfDay(hour: hour, minute: minute);
       }
+
+      _isLoading = false;
     });
   }
 
   Future<void> _saveBool(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
+
+    // 파티 알림 설정일 때 서버로 동기화
+    if (key == 'partyNotification') {
+      await NotificationService.updatePartyNotificationSetting(value);
+    }
+
+    // 일일 퀘스트 알림 OFF 시 예약 취소
+    if (key == 'dailyQuestNotification' && value == false) {
+      await NotificationService.plugin.cancel(100);
+      debugPrint('🛑 일일 퀘스트 알림 비활성화됨');
+    }
+
+    // 퀘스트 알림 시간 설정 OFF 시 예약 취소
+    if (key == 'questTimeNotification' && value == false) {
+      await NotificationService.plugin.cancel(100);
+      debugPrint('🛑 퀘스트 알림 시간 설정 비활성화됨');
+    }
   }
 
   Future<void> _saveQuestTime(TimeOfDay time) async {
@@ -57,6 +78,13 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -143,6 +171,24 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                               final picked = await showTimePicker(
                                 context: context,
                                 initialTime: questTime,
+                                builder: (context, child) {
+                                  return Theme(
+                                    data: Theme.of(context).copyWith(
+                                      dialogBackgroundColor: Colors.white,
+                                      colorScheme: const ColorScheme.light(
+                                        primary: Color(0xFF7958FF),
+                                        onPrimary: Colors.white,
+                                        onSurface: Colors.black,
+                                      ),
+                                      textButtonTheme: TextButtonThemeData(
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Color(0xFF7958FF),
+                                        ),
+                                      ),
+                                    ),
+                                    child: child!,
+                                  );
+                                },
                               );
                               if (picked != null) {
                                 setState(() => questTime = picked);
