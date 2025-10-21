@@ -195,6 +195,10 @@ class QuestTabViewModel extends ChangeNotifier {
         onStatusChanged(newStatus);
       }
 
+      await loadPartyQuests(token);
+      filterPartyQuests(); // 다시 필터 적용
+      notifyListeners();
+
       if (context != null) {
         try {
           final analysisViewModel = context.read<AnalysisViewModel>();
@@ -222,6 +226,12 @@ class QuestTabViewModel extends ChangeNotifier {
     } catch (e) {
       print("❌ togglePartyQuestCompletion error: $e");
     }
+  }
+
+  void removePartyQuestLocally(int partyId) {
+    allPartyQuests.removeWhere((q) => q.questId == partyId);
+    partyQuests.removeWhere((q) => q.questId == partyId);
+    notifyListeners();
   }
 
   Future<bool> deleteQuest(int questId) async {

@@ -5,7 +5,9 @@ import 'package:it_contest_fe/features/quest/model/party_model.dart';
 import 'package:it_contest_fe/features/quest/model/party_update_request.dart';
 import 'package:it_contest_fe/features/quest/model/completion_status.dart'; // ✅ enum
 import 'package:it_contest_fe/features/quest/service/party_service.dart';
+import 'package:it_contest_fe/features/quest/viewmodel/quest_tab_viewmodel.dart';
 import 'package:it_contest_fe/shared/widgets/quest_creation_modal.dart';
+import 'package:provider/provider.dart';
 import '../../../shared/party/party_access_denied_modal.dart';
 import '../../friends/model/friend_info.dart';
 import '../model/quest_item_response.dart';
@@ -280,7 +282,19 @@ class QuestPartyCreateViewModel extends ChangeNotifier {
     }
 
     try {
-      return await partyService.deletePartyQuest(partyId, accessToken);
+      final success = await partyService.deletePartyQuest(partyId, accessToken);
+      if (success) {
+        // ✅ QuestTabViewModel에서도 삭제 반영
+        try {
+          final questTabViewModel = context.read<QuestTabViewModel>();
+          questTabViewModel.removePartyQuestLocally(partyId);
+        } catch (e) {
+          debugPrint("QuestTabViewModel 갱신 실패: $e");
+        }
+
+        return true;
+      }
+      return false;
     } on DioException catch (e) {
       final data = e.response?.data;
 

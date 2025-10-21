@@ -1,17 +1,26 @@
 import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../../core/network/dio_client.dart';
 import '../../../main.dart';
 import '../../../shared/alarm/widgets/daily_quest_in_progress_alarm_card.dart';
 
 class NotificationService {
   static final _plugin = FlutterLocalNotificationsPlugin();
+  static bool _tzInitialized = false;
+
+  static final Dio _dio = DioClient().dio; // ✅ 추가
+  static const _storage = FlutterSecureStorage();
+
+  static FlutterLocalNotificationsPlugin get plugin => _plugin;
 
   static Future<void> init() async {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -37,11 +46,15 @@ class NotificationService {
     );
 
     tz.initializeTimeZones();
+    tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
+    _tzInitialized = true; // ✅ 추가
 
-    // ✅ 채널 생성 (여기가 핵심!)
+    debugPrint('✅ Timezone initialized (Asia/Seoul)');
+
+    // ✅ 채널 생성
     const dailyChannel = AndroidNotificationChannel(
-      'daily_channel', // 채널 ID
-      'Daily Quest Notifications', // 채널 이름
+      'daily_channel',
+      'Daily Quest Notifications',
       description: '일일 퀘스트 알림을 위한 채널입니다.',
       importance: Importance.max,
     );
@@ -51,17 +64,56 @@ class NotificationService {
         AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(dailyChannel);
 
+    const pomodoroChannel = AndroidNotificationChannel(
+      'pomodoro_channel',
+      'Pomodoro Notifications',
+      description: '뽀모도로 사이클 완료 알림 채널입니다.',
+      importance: Importance.max,
+    );
+
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(pomodoroChannel);
+    // ✅ 알림 권한 요청
     if (await Permission.notification.isDenied) {
       await Permission.notification.request();
+    }
+
+    // ✅ 정확 알람 권한 확인
+    if (Platform.isAndroid) {
+      final hasExactAlarm = await _checkExactAlarmPermission();
+      if (!hasExactAlarm) {
+        await openExactAlarmSettings(); // 설정창으로 이동
+      }
+    }
+  }
+
+  /// 정확 알람 권한 확인용 (Android 12+)
+  static Future<bool> _checkExactAlarmPermission() async {
+    try {
+      final intent = AndroidIntent(
+        action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
+        package: 'com.ssucheahwa.questplanner',
+      );
+      return await Permission.scheduleExactAlarm.isGranted;
+    } catch (_) {
+      return false;
     }
   }
 
   static Future<void> scheduleDailyQuest(int hour, int minute) async {
-    // 기존 예약 취소
-    await _plugin.cancel(100);
+    await _plugin.cancel(100); // 이전 예약 취소
 
-    final now = DateTime.now();
-    var scheduled = DateTime(now.year, now.month, now.day, hour, minute);
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
 
     if (scheduled.isBefore(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
@@ -73,13 +125,15 @@ class NotificationService {
       channelDescription: '일일 퀘스트 알림을 위한 채널입니다.',
       importance: Importance.max,
       priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
     );
 
     await _plugin.zonedSchedule(
       100,
       '일일 퀘스트',
-      '오늘 해야할 퀘스트가 있어요!',
-      tz.TZDateTime.from(scheduled, tz.local),
+      '오늘의 퀘스트를 잊지 마세요!',
+      scheduled,
       const NotificationDetails(android: androidDetails),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
@@ -87,7 +141,7 @@ class NotificationService {
       matchDateTimeComponents: DateTimeComponents.time, // 매일 반복
     );
 
-    debugPrint('📅 DailyQuest 알림 예약됨: ${scheduled.toLocal()}');
+    debugPrint('✅ 일일 퀘스트 알림 예약 완료: ${scheduled.toLocal()}');
   }
 
 
@@ -102,40 +156,57 @@ class NotificationService {
     }
   }
 
-  static Future<void> scheduleExact(DateTime dateTime) async {
-    await _plugin.zonedSchedule(
-      1,
-      '테스트 알림',
-      '10초 뒤에 도착하는 테스트 알림입니다!',
-      tz.TZDateTime.from(dateTime, tz.local),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'test_channel',
-          'Test Notifications',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
-    );
+  static Future<void> printPendingNotifications() async {
+    final pending = await _plugin.pendingNotificationRequests();
+    debugPrint('📦 예약된 알림 수: ${pending.length}');
+    for (var p in pending) {
+      debugPrint('➡️ ID=${p.id}, title=${p.title}, body=${p.body}');
+    }
   }
 
-  // static Future<void> showNow() async {
-  //   await _plugin.show(
-  //     1000,
-  //     '즉시 알림',
-  //     '이건 바로 뜨는 알림입니다!',
-  //     const NotificationDetails(
-  //       android: AndroidNotificationDetails(
-  //         'instant_channel',
-  //         'Instant Test',
-  //         importance: Importance.max,
-  //         priority: Priority.high,
-  //       ),
-  //     ),
-  //   );
-  // }
+  static Future<void> showPomodoroComplete() async {
+    const androidDetails = AndroidNotificationDetails(
+      'pomodoro_channel', // ✅ 새 채널 ID
+      'Pomodoro Notifications',
+      channelDescription: '뽀모도로 사이클 완료 알림 채널입니다.',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+      enableVibration: true,
+    );
 
+    const details = NotificationDetails(android: androidDetails);
+
+    await _plugin.show(
+      200, // ID 중복 방지
+      '🎯 뽀모도로 사이클 완료!',
+      '집중 세션을 마쳤습니다. 보상이 지급되었습니다 🎁',
+      details,
+    );
+
+    debugPrint('✅ Pomodoro completion push sent');
+  }
+
+  // 서버로 파티 알림 설정 동기화
+  static Future<void> updatePartyNotificationSetting(bool enabled) async {
+    try {
+      final token = await _storage.read(key: "accessToken");
+      if (token == null) {
+        debugPrint("❌ 액세스 토큰이 없습니다.");
+        return;
+      }
+
+      await _dio.patch(
+        "/users/notifications/party",
+        data: {"enabled": enabled},
+        options: Options(
+          headers: {"Authorization": "Bearer $token"},
+        ),
+      );
+
+      debugPrint("✅ 서버에 파티 알림 설정 동기화 완료: $enabled");
+    } catch (e) {
+      debugPrint("❌ 서버 동기화 실패: $e");
+    }
+  }
 }
