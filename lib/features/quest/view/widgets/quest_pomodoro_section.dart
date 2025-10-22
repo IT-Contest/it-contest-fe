@@ -591,8 +591,8 @@ class _CycleCompleteDialog extends StatelessWidget {
 
       // 진동이 켜져 있으면 사이클 완료 시 진동 울리기
       if (vibrationEnabled) {
-        final hasVibrator = await Vibration.hasVibrator();
-        if (hasVibrator == true) {
+        final canVibrate = await Vibration.hasVibrator() ?? false;
+        if (canVibrate) {
           Vibration.vibrate(duration: 2000); // 2초 진동
           print('📳 [CycleCompleteDialog] Vibration triggered');
         }

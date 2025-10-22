@@ -42,7 +42,7 @@ dependencies:
   timezone: ^0.9.2
   permission_handler: ^11.3.1
   android_intent_plus: ^4.0.0
-  vibration: ^1.8.1
+  vibration: ^3.0.0
 
 dev_dependencies:
   flutter_test:
