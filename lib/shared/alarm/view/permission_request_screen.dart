@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/fcm/fcm_service.dart';
 import '../../../features/auth/view/login_screen.dart';
+import '../../../features/profile/service/notification_service.dart';
 
 class PermissionRequestScreen extends StatelessWidget {
   const PermissionRequestScreen({super.key});
@@ -10,7 +12,11 @@ class PermissionRequestScreen extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasAgreedPermissions', true);
 
-    // ✅ 로그인 화면으로 이동
+    // 여기서 알림 초기화
+    await NotificationService.init();
+    await FCMService.initFCM();
+
+    // 로그인 화면으로 이동
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (_) => const LoginScreen()),

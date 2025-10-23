@@ -34,8 +34,11 @@ void main() async {
   await Firebase.initializeApp();
   MobileAds.instance.initialize();
   KakaoSdk.init(nativeAppKey: '95a6f5cbf0b31573e750535a5c9d7aab');
-  await NotificationService.init();
+  // await NotificationService.init();
   InterstitialAdService.loadAd();
+
+  final prefs = await SharedPreferences.getInstance();
+  final hasAgreed = prefs.getBool('hasAgreedPermissions') ?? false;
 
   runApp(
     MultiProvider(
@@ -58,9 +61,12 @@ void main() async {
   );
 
   /// ✅ 앱이 완전히 뜬 뒤에 푸시 리스너 연결
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    await FCMService.initFCM();
-  });
+  if (hasAgreed) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await NotificationService.init();
+      await FCMService.initFCM();
+    });
+  }
 }
 
 
