@@ -111,7 +111,7 @@ class QuestTabViewModel extends ChangeNotifier {
           .map((json) => QuestItemResponse.fromJson(json))
           .toList();
 
-      partyQuests = List.from(allPartyQuests);
+      filterPartyQuests();
 
       errorMessage = null;
     } catch (e) {
