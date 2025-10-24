@@ -12,10 +12,20 @@ class PermissionRequestScreen extends StatelessWidget {
   const PermissionRequestScreen({super.key});
 
   Future<void> _requestNotificationPermission(BuildContext context) async {
-    final status = await Permission.notification.request();
+    // 먼저 전화 권한 요청
+    final phoneStatus = await Permission.phone.request();
 
-    if (status.isGranted) {
-      // ✅ 권한 허용됨
+    if (!phoneStatus.isGranted) {
+      // 전화 권한 거부됨 → 전화 팝업
+      _showDeniedPhoneDialog(context);
+      return; // 이후 코드 진행 안 함
+    }
+
+    // 전화 권한이 허용된 경우 → 알림 권한 요청
+    final notifStatus = await Permission.notification.request();
+
+    if (notifStatus.isGranted) {
+      // 둘 다 권한 허용됨
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('hasAgreedPermissions', true);
 
@@ -27,61 +37,45 @@ class PermissionRequestScreen extends StatelessWidget {
         MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
     } else {
-      // ❌ 허용 안함
-      _showDeniedDialog(context);
+      // 알림 권한 거부됨 → 알림 팝업
+      _showDeniedNotificationDialog(context);
     }
   }
 
-  void _showDeniedDialog(BuildContext context) {
+  void _showDeniedPhoneDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: Colors.white, // ✅ 팝업 배경 흰색
+        backgroundColor: Colors.white,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 제목
               const Text(
-                '알림 권한이 필요합니다',
-                textAlign: TextAlign.center, // ✅ 가운데 정렬
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // 본문 내용
-              const Text(
-                '알림 기능을 사용하려면 권한이 필요합니다.\n\n'
-                    '⚙️ [설정] → [앱] → [퀘스트플래너] → [알림] → [허용] 으로 이동하여 권한을 켜주세요.',
+                '전화 권한이 필요합니다',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                  height: 1.6,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
               ),
-
+              const SizedBox(height: 16),
+              const Text(
+                '전화 기능을 사용하려면 권한이 필요합니다.\n\n'
+                    '⚙️ [설정] → [앱] → [퀘스트플래너] → [전화] → [허용] 으로 이동해 주세요.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.6),
+              ),
               const SizedBox(height: 28),
-
-              // ✅ 버튼 2개 가로 배치
               Row(
                 children: [
-                  // 설정으로 이동 (보라색)
                   Expanded(
                     child: SizedBox(
                       height: 46,
                       child: ElevatedButton(
                         onPressed: () async {
-                          await openAppSettings(); // 앱 설정으로 이동
-                          SystemNavigator.pop(); // 이동 후 앱 종료
+                          await openAppSettings();
+                          SystemNavigator.pop();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF5C2EFF),
@@ -89,21 +83,12 @@ class PermissionRequestScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          '설정으로 이동',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: const Text('설정으로 이동',
+                            style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ),
-
                   const SizedBox(width: 10),
-
-                  // 앱 종료 (회색)
                   Expanded(
                     child: SizedBox(
                       height: 46,
@@ -115,14 +100,8 @@ class PermissionRequestScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          '앱 종료',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: const Text('앱 종료',
+                            style: TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ),
@@ -135,6 +114,77 @@ class PermissionRequestScreen extends StatelessWidget {
     );
   }
 
+  void _showDeniedNotificationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                '알림 권한이 필요합니다',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '알림 기능을 사용하려면 권한이 필요합니다.\n\n'
+                    '⚙️ [설정] → [앱] → [퀘스트플래너] → [알림] → [허용] 으로 이동해 주세요.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.6),
+              ),
+              const SizedBox(height: 28),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 46,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await openAppSettings();
+                          SystemNavigator.pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF5C2EFF),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text('설정으로 이동',
+                            style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: SizedBox(
+                      height: 46,
+                      child: ElevatedButton(
+                        onPressed: () => SystemNavigator.pop(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE6E6E6),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text('앱 종료',
+                            style: TextStyle(color: Colors.black87, fontSize: 14, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
