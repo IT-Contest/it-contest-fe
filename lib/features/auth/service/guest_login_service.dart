@@ -26,7 +26,6 @@ class GuestLoginService {
       } else {
         deviceId = DateTime.now().millisecondsSinceEpoch.toString(); // fallback
       }
-      print('[게스트 로그인 요청] deviceId: $deviceId');
 
       final response = await _dio.post(
         '/auth/login/guest',
