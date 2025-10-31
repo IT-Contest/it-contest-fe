@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'input.dart';
-import 'tip_box.dart';
 
 class QuestPrioritySection extends StatefulWidget {
   final int? initialPriority;
@@ -9,14 +8,12 @@ class QuestPrioritySection extends StatefulWidget {
     super.key,
     required this.onPriorityChanged,
     required this.onPeriodChanged,
-    this.showTipBox = true,
     this.initialPriority,
     this.initialPeriod,
   });
 
   final ValueChanged<int> onPriorityChanged;
   final ValueChanged<String> onPeriodChanged;
-  final bool showTipBox;
 
   @override
   State<QuestPrioritySection> createState() => _QuestPrioritySectionState();
@@ -30,7 +27,9 @@ class _QuestPrioritySectionState extends State<QuestPrioritySection> {
   void initState() {
     super.initState();
     selectedPeriod = widget.initialPeriod;
-    _priorityController = TextEditingController(text: widget.initialPriority?.toString() ?? '');
+    _priorityController = TextEditingController(
+      text: widget.initialPriority?.toString() ?? '',
+    );
   }
 
   @override
@@ -61,9 +60,6 @@ class _QuestPrioritySectionState extends State<QuestPrioritySection> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
-        if (widget.showTipBox) const PriorityTipBox(),
-        if (widget.showTipBox) const SizedBox(height: 20),
-        if (!widget.showTipBox) const SizedBox(height: 0),
         PriorityInputSection(
           controller: _priorityController,
           onChanged: _handlePriorityChange,

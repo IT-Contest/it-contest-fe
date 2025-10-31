@@ -16,6 +16,7 @@ import 'package:it_contest_fe/presentation/main_navigation_screen.dart';
 import 'package:it_contest_fe/shared/widgets/quest_creation_modal.dart';
 
 import '../../../shared/interstitial_ad_service.dart';
+import '../../../shared/quest_create_form/priority_section/tip_box.dart';
 import '../../../shared/widgets/quest_update_modal.dart';
 
 class QuestPersonalFormScreen extends StatefulWidget {
@@ -148,6 +149,9 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const PriorityTipBox(),
+                    const SizedBox(height: 24),
+
                     // 1. 퀘스트 제목
                     QuestTitleInput(
                       initialValue: _title,
@@ -170,7 +174,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                         setState(() => _period = value);
                         vm.setQuestType(value);
                       },
-                      showTipBox: true,
+                      // showTipBox: true,
                     ),
                     const SizedBox(height: 16),
 

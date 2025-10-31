@@ -34,7 +34,7 @@ class QuestDeleteConfirmationModal extends StatelessWidget {
           
           // 경고 메시지
           const Text(
-            '완료된 퀘스트의 경우 지급되었던\n경험치와 골드가 차감됩니다.\n그래도 삭제하시겠습니까?',
+            '완료된 퀘스트의 경우 지급되었던\n경험치가 차감됩니다.\n그래도 삭제하시겠습니까?',
             style: TextStyle(
               fontSize: 16,
               color: Colors.black87,

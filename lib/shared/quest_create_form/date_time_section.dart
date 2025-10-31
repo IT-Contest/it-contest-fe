@@ -86,13 +86,13 @@ class _DateTimeSectionState extends State<DateTimeSection> {
   DateTime _calculatePeriodEndDate(DateTime startDate, String period) {
     switch (period) {
       case '주간':
-        return startDate.add(const Duration(days: 6)); // 7일 중 마지막 날
+        return startDate.add(const Duration(days: 7)); // 7일 중 마지막 날 ✅
       case '월간':
-        return DateTime(startDate.year, startDate.month + 1, startDate.day - 1);
+        return DateTime(startDate.year, startDate.month + 1, startDate.day); // ✅ -1 제거
       case '연간':
-        return DateTime(startDate.year + 1, startDate.month, startDate.day - 1);
-      default: // '일일'
-        return startDate;
+        return DateTime(startDate.year + 1, startDate.month, startDate.day); // ✅ -1 제거
+      default:
+        return startDate; // 일일
     }
   }
 

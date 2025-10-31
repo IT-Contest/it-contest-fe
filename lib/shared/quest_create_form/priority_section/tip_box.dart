@@ -15,7 +15,7 @@ class PriorityTipBox extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          tipTitle("우선순위 TIP"),
+          tipTitle("TIP"),
           const SizedBox(height: 12),
           tipLine([gray("퀘스트는 "), purple("구체적으로 작성"), gray("해서 실천해보세요!")]),
           tipLine([gray("ex. 책읽기 "), red("(X)"), gray(" → OO책 100페이지까지 읽기 "), blue("(O)")]),

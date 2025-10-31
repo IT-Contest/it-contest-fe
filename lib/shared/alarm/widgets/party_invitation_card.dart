@@ -104,8 +104,8 @@ class _PartyInvitationCardState extends State<PartyInvitationCard> {
                 )
                     : const Icon(Icons.person, size: 32),
               ),
-              const SizedBox(width: 8),
-              Image.asset('assets/icons/more_btn.png', width: 20, height: 20),
+              // const SizedBox(width: 8),
+              // Image.asset('assets/icons/more_btn.png', width: 20, height: 20),
             ],
           ),
           const SizedBox(height: 12),
