@@ -24,7 +24,12 @@ class NotificationService {
 
   static Future<void> init() async {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const settings = InitializationSettings(android: android);
+    const ios = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+    const settings = InitializationSettings(android: android, iOS: ios);
 
     await _plugin.initialize(
       settings,
@@ -129,12 +134,18 @@ class NotificationService {
       enableVibration: true,
     );
 
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
     await _plugin.zonedSchedule(
       100,
       '일일 퀘스트',
       '오늘의 퀘스트를 잊지 마세요!',
       scheduled,
-      const NotificationDetails(android: androidDetails),
+      const NotificationDetails(android: androidDetails, iOS: iosDetails),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
       UILocalNotificationDateInterpretation.absoluteTime,
@@ -175,7 +186,13 @@ class NotificationService {
       enableVibration: true,
     );
 
-    const details = NotificationDetails(android: androidDetails);
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
 
     await _plugin.show(
       200, // ID 중복 방지

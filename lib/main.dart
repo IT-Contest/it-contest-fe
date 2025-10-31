@@ -31,7 +31,11 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    print('Firebase already initialized: $e');
+  }
   MobileAds.instance.initialize();
   KakaoSdk.init(nativeAppKey: '95a6f5cbf0b31573e750535a5c9d7aab');
   await NotificationService.init();
@@ -57,7 +61,6 @@ void main() async {
     ),
   );
 
-  /// ✅ 앱이 완전히 뜬 뒤에 푸시 리스너 연결
   WidgetsBinding.instance.addPostFrameCallback((_) async {
     await FCMService.initFCM();
   });
