@@ -186,25 +186,25 @@ class _QuestSearchScreenState extends State<QuestSearchScreen> {
                                                 ),
                                               ),
                                               const SizedBox(width: 8),
-                                              Container(
-                                                padding: const EdgeInsets
-                                                    .symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 2),
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      color:
-                                                          const Color(0xFF6737F4)),
-                                                  borderRadius:
-                                                      BorderRadius.circular(6),
-                                                ),
-                                                // child: Text(
-                                                //   '골드 +${quest.goldReward}',
-                                                //   style: const TextStyle(
-                                                //       color: Color(0xFF6737F4),
-                                                //       fontSize: 12),
-                                                // ),
-                                              ),
+                                              // Container(
+                                              //   padding: const EdgeInsets
+                                              //       .symmetric(
+                                              //           horizontal: 8,
+                                              //           vertical: 2),
+                                              //   decoration: BoxDecoration(
+                                              //     border: Border.all(
+                                              //         color:
+                                              //             const Color(0xFF6737F4)),
+                                              //     borderRadius:
+                                              //         BorderRadius.circular(6),
+                                              //   ),
+                                              //   child: Text(
+                                              //     '골드 +${quest.goldReward}',
+                                              //     style: const TextStyle(
+                                              //         color: Color(0xFF6737F4),
+                                              //         fontSize: 12),
+                                              //   ),
+                                              // ),
                                             ],
                                           ),
                                         ],

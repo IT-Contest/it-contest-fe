@@ -214,14 +214,6 @@ class AnalysisService {
       print('🔍 [AI 코칭] canAnalyze: ${coachingResponse.canAnalyze}, message: ${coachingResponse.message}');
       
       if (coachingResponse.canAnalyze && coachingResponse.coachingContent != null) {
-        // 코칭 내용이 있으면 저장
-        await _saveCoachingRecord(
-          coachingResponse.coachingContent!,
-          timeframe.key,
-          dataType.key,
-          token,
-        );
-        
         return CoachingResult.fromSuccess(coachingResponse.coachingContent!);
       } else {
         return CoachingResult.fromError(coachingResponse.message ?? '일일 분석 제한에 도달했습니다.');
@@ -232,8 +224,8 @@ class AnalysisService {
     }
   }
 
-  // 코칭 기록 저장
-  Future<void> _saveCoachingRecord(String content, String analysisType, String questOrPomodoro, String? token) async {
+  // public 메서드로 변경
+  Future<void> saveCoachingRecord(String content, String analysisType, String questOrPomodoro, String? token) async {
     try {
       await DioClient().dio.post(
         '/coaching/save',
@@ -246,7 +238,9 @@ class AnalysisService {
             ? Options(headers: {'Authorization': 'Bearer $token'})
             : null,
       );
+      print('✅ [AnalysisService] 코칭 결과 저장 완료');
     } catch (e) {
+      print('❌ [AnalysisService] 코칭 결과 저장 실패: $e');
     }
   }
 

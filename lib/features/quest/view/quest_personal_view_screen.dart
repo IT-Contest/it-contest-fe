@@ -14,6 +14,8 @@ import 'package:it_contest_fe/features/quest/model/quest_item_response.dart';
 import 'package:it_contest_fe/features/quest/viewmodel/quest_tab_viewmodel.dart';
 import 'package:it_contest_fe/features/quest/view/quest_personal_form_screen.dart';
 
+import '../../../shared/quest_create_form/priority_section/tip_box.dart';
+
 class QuestPersonalFormPage extends StatefulWidget {
   final QuestItemResponse? quest;
   const QuestPersonalFormPage({super.key, this.quest});
@@ -131,6 +133,10 @@ class _QuestPersonalFormPageState extends State<QuestPersonalFormPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+
+                    const PriorityTipBox(),
+                    const SizedBox(height: 24),
+
                     // 1. 퀘스트 제목
                     AbsorbPointer( // ✅ 입력 막음
                       child: QuestTitleInput(
@@ -147,7 +153,7 @@ class _QuestPersonalFormPageState extends State<QuestPersonalFormPage> {
                         initialPeriod: _period,
                         onPriorityChanged: (_) {},
                         onPeriodChanged: (_) {},
-                        showTipBox: true,
+                        // showTipBox: true,
                       ),
                     ),
                     const SizedBox(height: 16),

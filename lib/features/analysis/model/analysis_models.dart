@@ -298,52 +298,52 @@ class AnalysisData {
   static String _formatDateLabelByTimeframe(String dateStr, AnalysisTimeframe timeframe) {
     try {
       switch (timeframe) {
-        case AnalysisTimeframe.daily:
-          final date = DateTime.parse(dateStr);
-          return '${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
         case AnalysisTimeframe.weekly:
-          // "2025-W36" 형식을 "9월 1주차" 형식으로 변환
           if (dateStr.contains('-W')) {
             final parts = dateStr.split('-W');
             final year = int.parse(parts[0]);
             final weekNum = int.parse(parts[1]);
-            
-            // ISO 주차에서 해당 주의 첫날(월요일) 계산
+
+            // ISO 주차 → 해당 주의 월요일 계산
             final jan4 = DateTime(year, 1, 4);
-            final firstMondayOfYear = jan4.subtract(Duration(days: jan4.weekday - 1));
-            final targetMonday = firstMondayOfYear.add(Duration(days: (weekNum - 1) * 7));
-            
-            // 해당 주가 속한 월
-            final month = targetMonday.month;
-            
-            // 해당 월의 첫 번째 주 찾기 (월의 1일이 포함된 주)
-            final firstDayOfMonth = DateTime(targetMonday.year, month, 1);
-            final firstMondayOfMonth = firstDayOfMonth.weekday == 1 
+            final firstMonday = jan4.subtract(Duration(days: jan4.weekday - 1));
+            final targetMonday = firstMonday.add(Duration(days: (weekNum - 1) * 7));
+
+            // 주 중간(목요일 기준) 날짜 계산 (해당 주의 대표 날짜)
+            final midWeekDate = targetMonday.add(const Duration(days: 3));
+            final month = midWeekDate.month;
+
+            // 해당 월의 첫 월요일 계산
+            final firstDayOfMonth = DateTime(year, month, 1);
+            final firstMondayOfMonth = firstDayOfMonth.weekday == DateTime.monday
                 ? firstDayOfMonth
                 : firstDayOfMonth.subtract(Duration(days: firstDayOfMonth.weekday - 1));
-            
-            // 해당 월에서 몇 번째 주인지 계산
+
+            // 주차 계산 (월 안에서 몇 번째 주인지)
             final daysDiff = targetMonday.difference(firstMondayOfMonth).inDays;
             final weekOfMonth = (daysDiff / 7).floor() + 1;
-            
-            return '$month월 $weekOfMonth주차';
+
+            return '$month월 ${weekOfMonth}주차';
           }
           return dateStr;
+
+        case AnalysisTimeframe.daily:
+          final date = DateTime.parse(dateStr);
+          return '${date.month}-${date.day}';
+
         case AnalysisTimeframe.monthly:
-          // "2025-01" 형식을 "1월"로 변환
-          if (dateStr.contains('-') && dateStr.length >= 7) {
-            final parts = dateStr.split('-');
-            final month = int.parse(parts[1]); // "01" -> 1
-            return '$month월';
-          }
-          return dateStr;
+          final parts = dateStr.split('-');
+          final month = int.parse(parts[1]);
+          return '$month월';
+
         case AnalysisTimeframe.yearly:
-          return dateStr; // "2025" 그대로 사용
+          return dateStr;
       }
     } catch (e) {
       return dateStr;
     }
   }
+
 
   static String _formatDateLabel(String dateStr) {
     try {

@@ -34,7 +34,7 @@ class OnboardingIntroCard extends StatelessWidget {
           ),
           const SizedBox(height: 2),
           const Text(
-            '성향 테스트, 캐릭터 선택, 첫 퀘스트를 만들어보세요',
+            '첫 퀘스트를 만들어보세요',
             style: TextStyle(
               color: Colors.white,
               fontSize: 14,

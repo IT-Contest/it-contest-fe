@@ -122,7 +122,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                   initialPeriod: vm.period,
                   onPriorityChanged: vm.setPriority,
                   onPeriodChanged: vm.setPeriod,
-                  showTipBox: false,
+                  // showTipBox: false,
                 ),
                 const SizedBox(height: 16),
 
