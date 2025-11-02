@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import '../../../core/storage/token_storage.dart';
 import '../model/analysis_models.dart';
 import '../service/analysis_service.dart';
 import '../../friends/service/friend_service.dart';
@@ -175,6 +178,26 @@ class AnalysisViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // ✅ AI 코칭 결과 저장
+  Future<void> saveCoachingResult(Map<String, String> parsedContent) async {
+    try {
+      final token = await TokenStorage().getAccessToken();
+      final content = jsonEncode(parsedContent); // Map -> JSON 문자열
+
+      await _analysisService.saveCoachingRecord(
+        content,
+        _selectedTimeframe.key,
+        _selectedDataType.key,
+        token,
+      );
+
+      debugPrint('✅ [AnalysisViewModel] 코칭 결과 저장 완료');
+    } catch (e) {
+      debugPrint('❌ [AnalysisViewModel] 코칭 결과 저장 실패: $e');
+    }
+  }
+
 
   // 코칭 히스토리 표시/숨기기 토글
   void toggleCoachingHistory() {

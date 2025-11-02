@@ -423,27 +423,33 @@ class _AnalysisViewState extends State<AnalysisView> {
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
-            reservedSize: 30,
+            reservedSize: 45, // ✅ 라벨이 겹치지 않도록 아래 여백 늘림
             interval: 1,
             getTitlesWidget: (double value, TitleMeta meta) {
               final index = value.toInt();
               if (index >= 0 && index < viewModel.chartLabels.length) {
+                final isCompactLabel = viewModel.selectedTimeframe == AnalysisTimeframe.weekly ||
+                    viewModel.selectedTimeframe == AnalysisTimeframe.monthly;
+
                 return SideTitleWidget(
                   axisSide: meta.axisSide,
                   child: Text(
                     viewModel.chartLabels[index],
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.grey[600],
-                      fontSize: 12,
+                      fontSize: isCompactLabel ? 9.5 : 12, // ✅ 주간/월간은 글씨 크기만 축소
                       fontWeight: FontWeight.w500,
+                      height: 1.2, // ✅ 라벨 간 간격 살짝 조정
                     ),
                   ),
                 );
               }
-              return const Text('');
+              return const SizedBox.shrink();
             },
           ),
         ),
+
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
             showTitles: true,
@@ -665,7 +671,18 @@ class _AnalysisViewState extends State<AnalysisView> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () async {
+                    await context.read<AnalysisViewModel>().saveCoachingResult(parsedContent);
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('코칭 결과가 저장되었습니다.'),
+                          backgroundColor: Color(0xFF7958FF),
+                        ),
+                      );
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF7958FF),
                     padding: const EdgeInsets.symmetric(vertical: 16),

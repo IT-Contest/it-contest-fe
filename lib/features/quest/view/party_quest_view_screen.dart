@@ -158,7 +158,7 @@ class _PartyQuestViewScreenState extends State<PartyQuestViewScreen> {
                               initialPeriod: _period,
                               onPriorityChanged: (_) {},
                               onPeriodChanged: (_) {},
-                              showTipBox: true,
+                              // showTipBox: true,
                             ),
                           ),
                           const SizedBox(height: 16),
