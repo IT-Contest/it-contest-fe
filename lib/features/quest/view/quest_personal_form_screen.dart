@@ -15,6 +15,8 @@ import 'package:it_contest_fe/features/mainpage/viewmodel/mainpage_viewmodel.dar
 import 'package:it_contest_fe/presentation/main_navigation_screen.dart';
 import 'package:it_contest_fe/shared/widgets/quest_creation_modal.dart';
 
+import '../../../shared/advertisement/cauly_banner.dart';
+import '../../../shared/advertisement/cauly_interstitial_service.dart';
 import '../../../shared/interstitial_ad_service.dart';
 import '../../../shared/quest_create_form/priority_section/tip_box.dart';
 import '../../../shared/widgets/quest_update_modal.dart';
@@ -110,7 +112,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
           ),
           child: WillPopScope(
             onWillPop: () async {
-              InterstitialAdService.showAd(
+              CaulyInterstitialService.showAd(
                 onClosed: () => Navigator.of(context).pop(),
               );
               return false; // 기본 동작 막고 광고 → 닫힌 후 pop
@@ -122,7 +124,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                   icon: const Icon(Icons.arrow_back_ios_new_rounded,
                       size: 20, color: Colors.black),
                   onPressed: () {
-                    InterstitialAdService.showAd(
+                    CaulyInterstitialService.showAd(
                       onClosed: () => Navigator.of(context).pop(),
                     );
                   },
@@ -269,7 +271,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                             final result = await vm.createQuest();
                             if (result != null && result == true) {
                               if (mounted) {
-                                InterstitialAdService.showAd(
+                                CaulyInterstitialService.showAd(
                                   onClosed: () {
                                     final questTabVM = context
                                         .read<QuestTabViewModel>();
@@ -329,7 +331,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    const AdBanner(),
+                    const CaulyBannerAd(kind: CaulyBannerKind.banner300x250)
                   ],
                 ),
               ),

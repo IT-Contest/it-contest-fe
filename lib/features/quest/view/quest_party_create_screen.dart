@@ -14,6 +14,8 @@ import 'package:it_contest_fe/shared/quest_create_form/party_title_input.dart';
 
 import 'package:it_contest_fe/features/quest/viewmodel/quest_party_create_viewmodel.dart';
 
+import '../../../shared/advertisement/cauly_banner.dart';
+import '../../../shared/advertisement/cauly_interstitial_service.dart';
 import '../../../shared/interstitial_ad_service.dart';
 import '../../../shared/widgets/party_update_modal.dart';
 import '../../friends/model/friend_info.dart';
@@ -63,7 +65,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
       ),
       child: WillPopScope(
         onWillPop: () async {
-          InterstitialAdService.showAd(
+          CaulyInterstitialService.showAd(
             onClosed: () => Navigator.of(context).pop(),
           );
           return false;
@@ -75,7 +77,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
               icon: const Icon(Icons.arrow_back_ios_new_rounded,
                   size: 20, color: Colors.black),
               onPressed: () {
-                InterstitialAdService.showAd(
+                CaulyInterstitialService.showAd(
                   onClosed: () => Navigator.of(context).pop(),
                 );
               },
@@ -315,31 +317,38 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                       if (isEditMode) {
                         final success = await vm.handleUpdate(widget.quest!.questId, context);
                         if (success && context.mounted) {
-                          // 파티 퀘스트 목록 즉시 갱신
                           final questTabVM = context.read<QuestTabViewModel>();
                           final token = await const FlutterSecureStorage().read(key: "accessToken");
                           if (token != null) {
                             await questTabVM.loadPartyQuests(token);
                           }
 
-                          // 수정 완료 모달 띄우기
-                          PartyUpdateModal.show(
-                            context,
-                            onClose: () {
-                              Navigator.pop(context); // 모달 닫기
-                              Navigator.pop(context); // 화면 닫기
+                          // ✅ 광고 표시 후 모달
+                          CaulyInterstitialService.showAd(
+                            onClosed: () {
+                              PartyUpdateModal.show(
+                                context,
+                                onClose: () {
+                                  Navigator.pop(context); // 모달 닫기
+                                  Navigator.pop(context); // 화면 닫기
+                                },
+                              );
                             },
                           );
                         }
                       } else {
                         final success = await vm.handleCreate(context);
                         if (success && context.mounted) {
-                          // 생성 완료 모달 띄우기
-                          PartyCreationModal.show(
-                            context,
-                            onClose: () {
-                              Navigator.pop(context); // 모달 닫을 때 화면도 닫기
-                              Navigator.pop(context);
+                          // ✅ 광고 표시 후 모달
+                          CaulyInterstitialService.showAd(
+                            onClosed: () {
+                              PartyCreationModal.show(
+                                context,
+                                onClose: () {
+                                  Navigator.pop(context); // 모달 닫기
+                                  Navigator.pop(context);
+                                },
+                              );
                             },
                           );
                         }
@@ -371,7 +380,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                const AdBanner(),
+                const CaulyBannerAd(kind: CaulyBannerKind.banner300x250)
               ],
             ),
           ),
