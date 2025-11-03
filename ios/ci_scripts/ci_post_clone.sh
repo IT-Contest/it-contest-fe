@@ -24,7 +24,9 @@ then
 fi
 
 # 프로젝트 루트로 이동
-cd $CI_WORKSPACE
+# CI_PRIMARY_REPOSITORY_PATH는 Xcode Cloud의 저장소 루트 경로
+# 스크립트 위치 기준으로 2단계 위로도 이동 가능: cd "$(dirname "$0")/../.."
+cd "${CI_PRIMARY_REPOSITORY_PATH:-$(dirname "$0")/../..}"
 
 # Flutter 버전 확인
 flutter --version
