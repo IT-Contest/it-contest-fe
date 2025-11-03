@@ -43,6 +43,8 @@ dependencies:
   permission_handler: ^11.3.1
   android_intent_plus: ^4.0.0
   vibration: ^3.0.0
+  plugin_platform_interface: ^2.0.2
+  visibility_detector: ^0.3.3
 
 dev_dependencies:
   flutter_test:

@@ -65,6 +65,12 @@ android {
             )
         }
     }
+
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/main/kotlin")
+        }
+    }
 }
 
 flutter {
@@ -76,4 +82,9 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
     implementation("com.google.firebase:firebase-analytics")
+
+    // ✅ CAULY SDK 추가
+    implementation("com.google.android.gms:play-services-ads-identifier:17.0.0")
+    implementation("com.google.android.gms:play-services-appset:16.0.0")
+    implementation("com.fsn.cauly:cauly-sdk:3.5.40")
 }
