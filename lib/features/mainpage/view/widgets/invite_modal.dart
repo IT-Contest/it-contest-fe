@@ -46,12 +46,18 @@ class InviteModal {
                   InviteOption(
                     iconPath: 'assets/icons/kakao_logo.png',
                     label: '카카오톡',
-                    onTap: () => inviteViewModel.shareToKakao(context),
+                    onTap: () {
+                      print('카카오톡 버튼 클릭됨');
+                      inviteViewModel.shareToKakao(context);
+                    },
                   ),
                   InviteOption(
                     iconPath: 'assets/icons/link_icon.png',
                     label: '링크복사',
-                    onTap: () => inviteViewModel.copyLink(context),
+                    onTap: () {
+                      print('링크복사 버튼 클릭됨');
+                      inviteViewModel.copyLink(context);
+                    },
                   ),
                 ],
               ),

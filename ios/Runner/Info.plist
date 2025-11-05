@@ -32,6 +32,14 @@
 				<string>kakao95a6f5cbf0b31573e750535a5c9d7aab</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>questplanner</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
@@ -47,16 +55,8 @@
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-		<key>NSAllowsArbitraryLoadsInWebContent</key>
-		<true/>
+		<false/>
 	</dict>
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_dartobservatory._tcp</string>
-	</array>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>This app needs access to local network for debugging and development purposes.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>오디오 재생 기능을 위해 필요합니다.</string>
 	<key>NSUserNotificationsUsageDescription</key>

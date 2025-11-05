@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:it_contest_fe/shared/alarm/view/permission_request_screen.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:app_links/app_links.dart';
 
 import 'core/fcm/fcm_service.dart';
 import 'features/auth/view/login_screen.dart';
@@ -83,16 +85,60 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Future<bool> _hasAgreedPermissions;
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
 
   Future<bool> _checkPermissionStatus() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('hasAgreedPermissions') ?? false;
   }
 
+  Future<void> _handleInviteLink(Uri uri) async {
+    // /invite.html?code=xxx 형식에서 code 추출
+    if (uri.path == '/invite.html' && uri.queryParameters.containsKey('code')) {
+      final code = uri.queryParameters['code'];
+      if (code != null) {
+        // 초대 수락 API 호출
+        final result = await MainpageService().acceptFriendInvite(code);
+
+        if (result != null && result['success'] == true) {
+          // 성공 메시지 표시
+          if (mounted && navigatorKey.currentContext != null) {
+            ScaffoldMessenger.of(navigatorKey.currentContext!).showSnackBar(
+              SnackBar(
+                content: Text(result['message'] ?? '친구 초대를 수락했습니다!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _hasAgreedPermissions = _checkPermissionStatus();
+    _appLinks = AppLinks();
+
+    // 앱이 닫힌 상태에서 링크로 열렸을 때
+    _appLinks.getInitialLink().then((uri) {
+      if (uri != null) {
+        _handleInviteLink(uri);
+      }
+    });
+
+    // 앱이 열린 상태에서 링크를 받았을 때
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      _handleInviteLink(uri);
+    });
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -108,6 +154,7 @@ class _MyAppState extends State<MyApp> {
 
         final hasAgreed = snapshot.data!;
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           navigatorKey: navigatorKey,
           home: hasAgreed
               ? const LoginScreen() // ✅ 이미 동의했다면 로그인 화면
