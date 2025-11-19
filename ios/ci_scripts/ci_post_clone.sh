@@ -1,25 +1,42 @@
-#!/bin/sh
+# Xcode Cloud용 Flutter 빌드 스크립트
+# Archive 전에 Flutter 프로젝트를 빌드하여 필요한 파일들을 생성합니다.
 
-# Fail this script if any subcommand fails.
-set -e
+  set -e
 
-# The default execution directory of this script is the ci_scripts directory.
-cd $CI_PRIMARY_REPOSITORY_PATH # change working directory to the root of your cloned repo.
+  echo "=========================================="
+  echo "Flutter 빌드 시작"
+  echo "=========================================="
 
-# Install Flutter using git.
-git clone https://github.com/flutter/flutter.git --depth 1 -b stable $HOME/flutter
-export PATH="$PATH:$HOME/flutter/bin"
+  # Flutter가 설치되어 있는지 확인
+  if ! command -v flutter &> /dev/null
+  then
+      echo "Flutter SDK를 설치합니다..."
 
-# Install Flutter artifacts for iOS (--ios), or macOS (--macos) platforms.
-flutter precache --ios
+      # Flutter SDK 다운로드 및 설치
+      cd $HOME
+      git clone https://github.com/flutter/flutter.git --depth 1 -b stable
+      export PATH="$PATH:$HOME/flutter/bin"
 
-# Install Flutter dependencies.
-flutter pub get
+      # Flutter 사전 다운로드
+      flutter precache --ios
+  fi
 
-# Install CocoaPods using Homebrew.
-HOMEBREW_NO_AUTO_UPDATE=1 # disable homebrew's automatic updates.
+  # 프로젝트 루트로 이동
+  # CI_PRIMARY_REPOSITORY_PATH는 Xcode Cloud의 저장소 루트 경로
+  # 스크립트 위치 기준으로 2단계 위로도 이동 가능: cd "$(dirname "$0")/../.."
+  cd "${CI_PRIMARY_REPOSITORY_PATH:-$(dirname "$0")/../..}"
 
-# Install CocoaPods dependencies.
-cd ios && pod install # run `pod install` in the `ios` directory.
+  # Flutter 버전 확인
+  flutter --version
 
-exit 0
+  # Flutter 의존성 설치
+  echo "Flutter 의존성 설치 중..."
+  flutter pub get
+
+  # iOS 빌드 (코드 생성 및 Generated.xcconfig 생성)
+  echo "Flutter iOS 빌드 실행 중..."
+  flutter build ios --release --no-codesign
+
+  echo "=========================================="
+  echo "Flutter 빌드 완료"
+  echo "=========================================="

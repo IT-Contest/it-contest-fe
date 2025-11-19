@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart' as gads;
+import 'package:it_contest_fe/shared/advertisement/cauly_interstitial_service.dart';
+import 'package:it_contest_fe/shared/advertisement/mobile_ads.dart';
 import 'package:it_contest_fe/shared/alarm/view/permission_request_screen.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:provider/provider.dart';
@@ -39,9 +41,18 @@ void main() async {
     print('Firebase already initialized: $e');
   }
   MobileAds.instance.initialize();
+  await gads.MobileAds.instance.initialize();
   KakaoSdk.init(nativeAppKey: '95a6f5cbf0b31573e750535a5c9d7aab');
   // await NotificationService.init();
   InterstitialAdService.loadAd();
+
+  Cauly.initialize(
+    appCode: 'CAULY', // 배포 시 실제 발급된 App Code로 교체
+    isTestMode: true, // 테스트 중에는 true
+  );
+
+  // ✅ Cauly 전면 광고 미리 로드
+  CaulyInterstitialService.loadAd();
 
   final prefs = await SharedPreferences.getInstance();
   final hasAgreed = prefs.getBool('hasAgreedPermissions') ?? false;
