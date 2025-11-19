@@ -1,9 +1,19 @@
+plugins {
+    id("com.android.application") version "8.7.3" apply false
+    id("org.jetbrains.kotlin.android") version "2.0.20" apply false
+    id("com.google.gms.google-services") version "4.4.3" apply false // Firebase 추가
+}
+
 allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("https://cauly.github.io/cauly-sdk-android-maven/maven-repo")
+        }
     }
 }
+
 
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.value(newBuildDir)
