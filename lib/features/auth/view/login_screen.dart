@@ -120,7 +120,7 @@ class LoginScreen extends StatelessWidget {
                     backgroundColor: Colors.white,
                   ),
                   child: const Text(
-                    '건너뛰기',
+                    '게스트 로그인',
                     style: TextStyle(
                       color: Color(0xFF7958FF),
                       fontSize: 22,
