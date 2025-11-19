@@ -14,7 +14,6 @@ import 'package:it_contest_fe/shared/quest_create_form/party_title_input.dart';
 
 import 'package:it_contest_fe/features/quest/viewmodel/quest_party_create_viewmodel.dart';
 
-import '../../../shared/advertisement/cauly_banner.dart';
 import '../../../shared/advertisement/cauly_interstitial_service.dart';
 import '../../../shared/interstitial_ad_service.dart';
 import '../../../shared/widgets/party_update_modal.dart';
@@ -23,6 +22,7 @@ import '../../friends/view/all_friends_page.dart';
 import '../../friends/view/invited_friends_page.dart';
 import '../../friends/viewmodel/friend_viewmodel.dart';
 import '../model/quest_item_response.dart';
+import '../service/admob_service.dart';
 import '../viewmodel/quest_tab_viewmodel.dart';
 
 class QuestPartyCreateScreen extends StatefulWidget {
@@ -65,7 +65,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
       ),
       child: WillPopScope(
         onWillPop: () async {
-          CaulyInterstitialService.showAd(
+          InterstitialAdService.showAd(
             onClosed: () => Navigator.of(context).pop(),
           );
           return false;
@@ -77,7 +77,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
               icon: const Icon(Icons.arrow_back_ios_new_rounded,
                   size: 20, color: Colors.black),
               onPressed: () {
-                CaulyInterstitialService.showAd(
+                InterstitialAdService.showAd(
                   onClosed: () => Navigator.of(context).pop(),
                 );
               },
@@ -324,7 +324,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                           }
 
                           // ✅ 광고 표시 후 모달
-                          CaulyInterstitialService.showAd(
+                          InterstitialAdService.showAd(
                             onClosed: () {
                               PartyUpdateModal.show(
                                 context,
@@ -340,7 +340,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                         final success = await vm.handleCreate(context);
                         if (success && context.mounted) {
                           // ✅ 광고 표시 후 모달
-                          CaulyInterstitialService.showAd(
+                          InterstitialAdService.showAd(
                             onClosed: () {
                               PartyCreationModal.show(
                                 context,
@@ -380,7 +380,7 @@ class _QuestPartyCreateScreenState extends State<QuestPartyCreateScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                const CaulyBannerAd(kind: CaulyBannerKind.banner300x250)
+                AdBanner(kind: BannerKind.mrec300x250)
               ],
             ),
           ),

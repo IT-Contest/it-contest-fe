@@ -20,6 +20,7 @@ import '../../../shared/advertisement/cauly_interstitial_service.dart';
 import '../../../shared/interstitial_ad_service.dart';
 import '../../../shared/quest_create_form/priority_section/tip_box.dart';
 import '../../../shared/widgets/quest_update_modal.dart';
+import '../service/admob_service.dart';
 
 class QuestPersonalFormScreen extends StatefulWidget {
   final QuestItemResponse? quest;
@@ -112,7 +113,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
           ),
           child: WillPopScope(
             onWillPop: () async {
-              CaulyInterstitialService.showAd(
+              InterstitialAdService.showAd(
                 onClosed: () => Navigator.of(context).pop(),
               );
               return false; // 기본 동작 막고 광고 → 닫힌 후 pop
@@ -124,7 +125,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                   icon: const Icon(Icons.arrow_back_ios_new_rounded,
                       size: 20, color: Colors.black),
                   onPressed: () {
-                    CaulyInterstitialService.showAd(
+                    InterstitialAdService.showAd(
                       onClosed: () => Navigator.of(context).pop(),
                     );
                   },
@@ -271,7 +272,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                             final result = await vm.createQuest();
                             if (result != null && result == true) {
                               if (mounted) {
-                                CaulyInterstitialService.showAd(
+                                InterstitialAdService.showAd(
                                   onClosed: () {
                                     final questTabVM = context
                                         .read<QuestTabViewModel>();
@@ -331,7 +332,7 @@ class _QuestPersonalFormScreenState extends State<QuestPersonalFormScreen> {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    const CaulyBannerAd(kind: CaulyBannerKind.banner300x250)
+                    AdBanner(kind: BannerKind.mrec300x250)
                   ],
                 ),
               ),

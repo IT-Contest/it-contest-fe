@@ -327,7 +327,7 @@ class QuestPomodoroSection extends StatelessWidget {
         ),
         const SizedBox(height: 32),
 
-        const CaulyBannerAd(),
+        AdBanner(kind: BannerKind.banner300x50)
       ],
     );
   }

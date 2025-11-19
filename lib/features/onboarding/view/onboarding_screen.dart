@@ -8,9 +8,9 @@ import 'package:it_contest_fe/shared/quest_create_form/date_time_section.dart';
 import 'package:it_contest_fe/shared/ad_banner.dart';
 import 'package:it_contest_fe/shared/widgets/onboarding_app_bar.dart';
 
-import '../../../shared/advertisement/cauly_banner.dart';
 import '../../../shared/quest_create_form/priority_section/tip_box.dart';
 import '../../mainpage/view/widgets/invite_modal.dart';
+import '../../quest/service/admob_service.dart';
 import '../../quest/viewmodel/quest_personal_create_viewmodel.dart';
 import '../service/onboarding_service.dart';
 
@@ -233,7 +233,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
             const SizedBox(height: 40),
-            const CaulyBannerAd(kind: CaulyBannerKind.banner300x250)
+            AdBanner(kind: BannerKind.mrec300x250)
           ],
         ),
       ),
