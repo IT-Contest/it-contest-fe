@@ -45,46 +45,110 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 74),
 
-              // ✅ 카카오 로그인 버튼
+              // ✅ 애플 로그인 버튼 (Apple 가이드라인: 최우선 배치)
               viewModel.isLoading
                   ? const CircularProgressIndicator()
                   : InkWell(
-                onTap: () async {
-                  final token = await viewModel.loginWithKakao();
-                  if (token != null) {
-                    try {
-                      // 로그인 성공 후 토큰 저장 (이미 하고 있다면 생략)
-                      final termsService = TermsService();
+                  onTap: () async {
+                    final token = await viewModel.loginWithApple();
+                    if (token != null) {
+                      try {
+                        final termsService = TermsService();
 
-                      // 필수 약관 동의 여부 확인
-                      final agreed = await termsService.checkRequiredTerms();
+                        // 필수 약관 동의 여부 확인
+                        final agreed = await termsService.checkRequiredTerms();
 
-                      if (agreed) {
-                        // 이미 동의했으면 메인으로
-                        Navigator.pushReplacementNamed(context, '/main');
-                      } else {
-                        // 동의 안했으면 약관 동의 화면으로
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (_) => const TermsAgreementScreen()),
+                        if (agreed) {
+                          // 이미 동의했으면 메인으로
+                          Navigator.pushReplacementNamed(context, '/main');
+                        } else {
+                          // 동의 안했으면 약관 동의 화면으로
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const TermsAgreementScreen()),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('약관 확인 실패: $e')),
                         );
                       }
-                    } catch (e) {
+                    } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('약관 확인 실패: $e')),
+                        const SnackBar(content: Text('애플 로그인 실패')),
                       );
                     }
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('카카오 로그인 실패')),
-                    );
-                  }
-                },
-                child: Image.asset(
-                  'assets/icons/login_btn.png',
-                  width: 280,
+                  },
+                  child: Container(
+                    width: 280,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.apple,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Apple 로그인',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+
+              const SizedBox(height: 16),
+
+              // ✅ 카카오 로그인 버튼
+              if (!viewModel.isLoading)
+                InkWell(
+                  onTap: () async {
+                    final token = await viewModel.loginWithKakao();
+                    if (token != null) {
+                      try {
+                        // 로그인 성공 후 토큰 저장 (이미 하고 있다면 생략)
+                        final termsService = TermsService();
+
+                        // 필수 약관 동의 여부 확인
+                        final agreed = await termsService.checkRequiredTerms();
+
+                        if (agreed) {
+                          // 이미 동의했으면 메인으로
+                          Navigator.pushReplacementNamed(context, '/main');
+                        } else {
+                          // 동의 안했으면 약관 동의 화면으로
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (_) => const TermsAgreementScreen()),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('약관 확인 실패: $e')),
+                        );
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('카카오 로그인 실패')),
+                      );
+                    }
+                  },
+                  child: Image.asset(
+                    'assets/icons/login_btn.png',
+                    width: 280,
+                  ),
+                ),
 
               const SizedBox(height: 24),
 

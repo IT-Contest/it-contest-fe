@@ -12,14 +12,10 @@ class KakaoLoginService {
       OAuthToken token;
 
       if (await isKakaoTalkInstalled()) {
-        print('📲 카카오톡 설치됨 → 카카오톡 로그인 시도');
         token = await UserApi.instance.loginWithKakaoTalk();
       } else {
-        print('🌐 카카오톡 미설치 → 카카오계정 웹 로그인 시도');
         token = await UserApi.instance.loginWithKakaoAccount();
       }
-
-      print('✅ 로그인 성공: accessToken = ${token.accessToken}');
 
       // 서버에 카카오 accessToken 전달
       final response = await _dio.post(
@@ -30,14 +26,9 @@ class KakaoLoginService {
 
       await FcmTokenApi(_dio).registerToken(tokenResponse.accessToken);
 
-      // ✅ 사용자 정보 요청 추가 (선택)
-      final user = await UserApi.instance.me();
-      print('🙋 사용자 정보: ${user.kakaoAccount?.profile?.nickname}');
-
       return tokenResponse;
     } catch (e, stack) {
-      print('❌ 로그인 실패: $e');
-      print('🔍 StackTrace:\n$stack');
+      print('❌ 카카오 로그인 실패: $e');
       return null;
     }
   }

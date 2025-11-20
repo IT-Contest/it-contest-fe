@@ -46,7 +46,7 @@ class MainPageViewModel extends ChangeNotifier {
 
       notifyListeners(); // 꼭 호출!
     } catch (e) {
-      print('[퀘스트 불러오기 실패] $e');
+      // 에러 발생 시 조용히 처리
     }
   }
 
@@ -58,12 +58,9 @@ class MainPageViewModel extends ChangeNotifier {
   // ✅ 사용자 정보 불러오는 함수 추가
   Future<void> loadUserInfo() async {
     try {
-      print('🔄 [MainPageViewModel] 사용자 정보 로딩 시작...');
       final result = await MainpageService().fetchMainUserProfile();
-      print('📊 [MainPageViewModel] 받은 사용자 정보: exp=${result.exp}, gold=${result.gold}, level=${result.level}');
       _user = result;
       notifyListeners();
-      print('✅ [MainPageViewModel] 사용자 정보 업데이트 완료');
     } catch (e) {
       print('[유저 정보 불러오기 실패] $e');
     }
